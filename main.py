@@ -1,6 +1,5 @@
 import pygame
 import sys
-from utils import *
 from state import *
 
 
