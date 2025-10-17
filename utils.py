@@ -14,6 +14,9 @@ with open("gamedata.json") as f:
 
 class GameData:
     playerIngredients = data["playerIngredients"]
+    gold = 0
+    silver = 0
+    copper = 0 
 
 
 orig_size = sizeOptions[0]
@@ -47,156 +50,99 @@ def resource_path(relative_path):
       return os.path.join(sys._MEIPASS, relative_path)
   return os.path.join(os.path.abspath('.'), relative_path)
 
-def clampColor(val):
-    if val > 255:
-        val = 255
-    if val < 0:
-        val = 0
-    return int(val)
 
-def convertRect(rectTuple):
-    newRect = rectTuple
-    return pygame.Rect(WIDTH/100*newRect[0], HEIGHT/100*newRect[1], WIDTH/100*newRect[2], HEIGHT/100*newRect[3])
+class TextRenderer:
+    """
+    A class for rendering text in Pygame that caches rendered text surfaces
+    to improve performance and reduce energy consumption.
+    """
+    def __init__(self):
+        """
+        Initializes the TextRenderer and the cache.
+        It's assumed that pygame.init() has been called beforehand.
+        """
+        # Ensure the pygame font module is initialized
+        if not pygame.font.get_init():
+            pygame.font.init()
+        
+        # The cache will store already-rendered text surfaces.
+        # The key will be a tuple (text, size, color, font_name)
+        # and the value will be the rendered pygame.Surface and its pygame.Rect.
+        self._cache = {}
 
-class Colors:
-    col1 = [248, 248, 255]
-    col2 = [237, 87, 82]
-    col3 = [51, 51, 51]
-    col4 = [214, 233, 252]
-    col5 = [146, 170, 199]
+    def render(self, surface, text, pos, size, color, font_name=None, align="topleft"):
+        """
+        Renders text onto a given surface.
 
-    textCol = col3.copy()
-    bgCol1 = col1.copy()
-    bgCol2 = col1.copy()
-    buttonCol1 = col4.copy()
-    buttonCol2 = col5.copy()
-    accentCol = col2.copy()
+        Args:
+            surface (pygame.Surface): The surface to draw the text on.
+            text (str): The text content to render.
+            pos (tuple): A tuple (x, y) for the position of the text.
+            size (int): The font size.
+            color (tuple): An RGB tuple (r, g, b) for the text color.
+            font_name (str, optional): The path to a .ttf font file or the name
+                                       of a system font. Defaults to Pygame's
+                                       default font.
+            align (str, optional): The alignment of the text relative to the pos.
+                                   Can be any of the pygame.Rect attributes like
+                                   "topleft", "center", "midright", etc.
+                                   Defaults to "topleft".
+        """
+        # 1. Create a unique key for the requested text properties.
+        cache_key = (text, size, color, font_name)
 
-class Fonts:
-    WIDTH = WIDTH
-    HEIGHT = HEIGHT
-    fonts = {
-        "title": pygame.font.Font(resource_path("font.ttf"), int(WIDTH/14)),
-        "subtitle": pygame.font.Font(resource_path("font.ttf"), int(WIDTH/20)),
-        "paragraph": pygame.font.Font(resource_path("font.ttf"), int(WIDTH/26)),
-        "button": pygame.font.Font(resource_path("font.ttf"), int(WIDTH/28))
-    }
-
-    def resizeFonts(screen):
-        Fonts.WIDTH = screen.get_width()
-        Fonts.fonts = {
-            "title": pygame.font.Font(resource_path("font.ttf"), int(Fonts.WIDTH/14)),
-            "subtitle": pygame.font.Font(resource_path("font.ttf"), int(Fonts.WIDTH/20)),
-            "paragraph": pygame.font.Font(resource_path("font.ttf"), int(Fonts.WIDTH/26)),
-            "button": pygame.font.Font(resource_path("font.ttf"), int(Fonts.WIDTH/28))
-        }
-
-class Text:
-    texts = []
-    def __init__(self, text, font, color, position, centered, underline = False) -> None:
-        self.content = str(text)
-        self.fontSize = font
-        self.font = Fonts.fonts[font]
-        self.color = color
-        self.pos = position
-        self.centered = centered
-        self.text = self.font.render(self.content, True, self.color)
-        self.rect = pygame.Rect(0,0,0,0)
-        Text.texts.append(self)
-        self.underline = underline
-
-    def resize(self):
-        self.font = Fonts.fonts[self.fontSize]
-        self.text = self.font.render(self.content, True, self.color)
-
-    def reset(self, color, content):
-        self.color = color
-        self.content = content
-        self.font = Fonts.fonts[self.fontSize]
-        self.text = self.font.render(self.content, True, self.color)
-
-    def draw(self, surface):
-        if self.centered:
-            self.rect = pygame.Rect(surface.get_width()/100*self.pos[0]-self.text.get_width()/2, surface.get_height()/100*self.pos[1], self.text.get_width(), self.text.get_height())
-            surface.blit(self.text, (surface.get_width()/100*self.pos[0]-self.text.get_width()/2, surface.get_height()/100*self.pos[1]))
-            if self.underline:
-                smallMargin = surface.get_width()/100*3
-                xCoord1 = surface.get_width()/100*(self.pos[0])-self.text.get_width()/2 + smallMargin
-                xCoord2 = xCoord1 + self.text.get_width() - 2*smallMargin
-                yCoord = surface.get_height()/100 * (self.pos[1]) + self.text.get_height()
-                pygame.draw.line(surface, Colors.accentCol, (xCoord1, yCoord), (xCoord2, yCoord), 5)
+        # 2. Check if the rendered text is already in the cache.
+        if cache_key in self._cache:
+            # If it is, retrieve the pre-rendered surface and rect.
+            text_surface, text_rect = self._cache[cache_key]
         else:
-            self.rect = pygame.Rect(surface.get_width()/100*self.pos[0], surface.get_height()/100*self.pos[1], self.text.get_width(), self.text.get_height())
-            surface.blit(self.text, (surface.get_width()/100*self.pos[0], surface.get_height()/100*self.pos[1]))
-            if self.underline:
-                smallMargin = surface.get_width()/100*3
-                xCoord1 = surface.get_width()/100*(self.pos[0]) + smallMargin
-                xCoord2 = xCoord1 + self.text.get_width() - 2*smallMargin
-                yCoord = surface.get_height()/100 * (self.pos[1]+1) + self.text.get_height()
-                pygame.draw.line(surface, Colors.accentCol, (xCoord1, yCoord), (xCoord2, yCoord), 5)
+            # 3. If not in cache, render it for the first time.
+            try:
+                # Create the font object.
+                font = pygame.font.Font('Metamorphous-Regular.ttf', size)
+            except FileNotFoundError:
+                # If the specified font is not found, fall back to the default font.
+                print(f"Warning: Font '{font_name}' not found. Using default font.")
+                font = pygame.font.Font(None, size)
+            
+            # Render the text surface. 'True' for anti-aliasing.
+            text_surface = font.render(text, True, color)
+            
+            # Get the rectangle of the rendered surface.
+            text_rect = text_surface.get_rect()
+            
+            # 4. Store the newly rendered surface and rect in the cache.
+            self._cache[cache_key] = (text_surface, text_rect)
 
-    def checkMouseOver(self):
-        pos = pygame.mouse.get_pos()
-        if self.rect.collidepoint(pos):
-            return True
-
-    def resizeAll(surface):
-        Fonts.resizeFonts(surface)
-        for text in Text.texts:
-            text.resize()
-
-
-class Button:
-    buttons = []
-    def __init__(self, text, rect, cornerRadius, textColor=Colors.textCol, gradCol1=Colors.buttonCol1, gradCol2=Colors.buttonCol2, onclickFunc=None) -> None:
-        self.rect: pygame.Rect = rect
-        self.convertedRect = convertRect((self.rect.x, self.rect.y, self.rect.width, self.rect.height))
-        self.surface = pygame.Surface((self.convertedRect.width, self.convertedRect.height), pygame.SRCALPHA)
-        self.hoverSurface = pygame.Surface((self.convertedRect.width, self.convertedRect.height), pygame.SRCALPHA)
-        self.textContent = text
-        self.textColor = textColor
-        self.cornerRadius = cornerRadius
-        self.gradCol1 = gradCol1
-        self.gradCol2 = gradCol2
-        self.hovering = False
-        self.onClickFunc = onclickFunc
-        self.drawImage(self.gradCol1, self.gradCol2, self.textColor, self.surface)
-        self.drawImage(self.darken(self.gradCol1, .9), self.darken(self.gradCol2, .9), self.darken(self.textColor, .9), self.hoverSurface)
-        self.resizedSurface = pygame.transform.scale(self.surface, (self.convertedRect.width, self.convertedRect.height))
-        self.resizedHoverSurface = pygame.transform.scale(self.hoverSurface, (self.convertedRect.width, self.convertedRect.height))
-
-        Button.buttons.append(self)
-
-    def drawImage(self, gradCol1, gradCol2, textCol, surface):
-        color = gradCol1.copy()
-        inc1 = (gradCol2[0] - gradCol1[0])/(self.convertedRect.height - self.cornerRadius)
-        inc2 = (gradCol2[1] - gradCol1[1])/(self.convertedRect.height - self.cornerRadius)
-        inc3 = (gradCol2[2] - gradCol1[2])/(self.convertedRect.height - self.cornerRadius)
-        for i in range(self.convertedRect.height - self.cornerRadius):
-            pygame.draw.rect(surface, color, pygame.Rect(0, i, self.convertedRect.width, self.cornerRadius), border_radius=self.cornerRadius)
-            color[0] += inc1
-            color[1] += inc2
-            color[2] += inc3
-        text = Fonts.fonts["button"].render(self.textContent, True, textCol)
-        surface.blit(text, (surface.get_width()/2-text.get_width()/2, surface.get_height()/2-text.get_height()/2))
-
-    def darken(self, color, val):
-        newCol = color.copy()
-        newCol = [clampColor(newCol[0] * val), clampColor(newCol[1] * val), clampColor(newCol[2] * val)]
-        return newCol
-
-    def draw(self, surface):
-        if self.hovering == False:
-            surface.blit(self.resizedSurface, (self.convertedRect.x, self.convertedRect.y))
+        # 5. Set the position of the text rectangle using the specified alignment.
+        # This uses Python's setattr to dynamically set the rect's attribute
+        # (e.g., text_rect.center = pos or text_rect.topleft = pos).
+        if hasattr(text_rect, align):
+            setattr(text_rect, align, pos)
         else:
-            surface.blit(self.resizedHoverSurface, (self.convertedRect.x, self.convertedRect.y))
+            print(f"Warning: Invalid alignment attribute '{align}'. Defaulting to 'topleft'.")
+            text_rect.topleft = pos
 
-    def checkMouseOver(self, pos):
-        if self.convertedRect.collidepoint(pos):
-            return True
+        # 6. Blit (draw) the text surface onto the target surface.
+        surface.blit(text_surface, text_rect)
 
-    def resize(self, surface):
-        self.convertedRect = convertRect(surface, (self.rect.x, self.rect.y, self.rect.width, self.rect.height))
-        self.resizedSurface = pygame.transform.scale(self.surface, (self.convertedRect.width, self.convertedRect.height))
-        self.resizedHoverSurface = pygame.transform.scale(self.hoverSurface, (self.convertedRect.width, self.convertedRect.height))
+    def clear_cache(self):
+        """
+        Clears the text cache. This can be useful if you need to free up memory,
+        for example, when changing levels in a game where the on-screen text
+        changes completely.
+        """
+        self._cache.clear()
+
+
+
+textRenderer = TextRenderer()
+
+
+
+
+
+
+
+
 

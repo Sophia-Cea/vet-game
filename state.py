@@ -46,7 +46,6 @@ class StateManager:
                 self.transitioning = False
                 self.queue.remove(self.queue[-2])
 
-
 class State:
     def __init__(self) -> None:
         pass
@@ -74,12 +73,14 @@ class PatientRoomState(State):
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
         self.desk = pygame.transform.scale_by(pygame.image.load("images/mainroom/desk.png"), .4)
-        pygame.draw.rect(self.background, (125, 79, 80), (500,200,150, 250))
+        pygame.draw.rect(self.background, (125, 79, 80), (500,200,150,250))
         self.patients = [EasyPatient()]
-        self.leftArrow = Arrow(True, (20,200))
-        self.rightArrow = Arrow(False, (1500, 200))
+        self.leftArrow = Arrow(True)
+        self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed]
+        self.coins = Coins()
+        self.book = Book()
+        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins, self.book]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -118,10 +119,11 @@ class PotionRoomState(State):
         self.cauldron = Cauldron([530, 250])
         self.table = pygame.Surface((400,200))
         self.table.fill((64, 61, 57))
-        self.leftArrow = Arrow(True, (20,200))
-        self.rightArrow = Arrow(False, (1500, 200))
+        self.leftArrow = Arrow(True)
+        self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed]
+        self.coins = Coins()
+        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
     
     def update(self):
         super().update()
@@ -144,7 +146,6 @@ class PotionRoomState(State):
                     stateManager.transition(False)
                     stateManager.push(PatientRoomState())
                 if self.mapIconClosed.checkClick():
-                    stateManager.transition(False)
                     stateManager.push(MapState())
 
 
@@ -156,10 +157,11 @@ class GardenState(State):
         self.background = pygame.Surface([orig_size[0], orig_size[1]])
         self.background.fill((182, 204, 254))
         pygame.draw.rect(self.background, (132, 169, 140), (0, 600, 1600, 500))
-        self.leftArrow = Arrow(True, (20,200))
-        self.rightArrow = Arrow(False, (1500, 200))
+        self.leftArrow = Arrow(True)
+        self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed]
+        self.coins = Coins()
+        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -188,16 +190,18 @@ class MapState(State):
     def __init__(self):
         super().__init__()
         self.map = pygame.transform.scale_by(pygame.image.load("images/ui/mapui.png"), .6)
-        self.rect = pygame.Rect(200,200,1000,600)
+        self.rect = pygame.Rect(380,180,830,520)
         self.darkbg = pygame.Surface(orig_size)
         self.darkbg.fill((0,0,0))
         self.darkbg.set_alpha(90)
         self.mapIcon = MapButton(False)
+        self.roomMap = pygame.transform.scale_by(pygame.image.load("images/ui/room_map.png"), .25)
 
     def render(self, screen, offset):
         super().render(screen, offset)
         screen.blit(self.darkbg, (0,0))
         screen.blit(self.map, (310,130))
+        screen.blit(self.roomMap, (330,200))
         self.mapIcon.render(screen)
     
     def update(self):
@@ -207,7 +211,8 @@ class MapState(State):
         super().handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.mapIcon.checkClick():
+                pos = pygame.mouse.get_pos()
+                if not self.rect.collidepoint(pos):
                     stateManager.pop()
     
 

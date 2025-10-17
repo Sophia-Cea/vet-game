@@ -1,15 +1,30 @@
 from patient import *
 
+class Book:
+    def __init__(self):
+        self.image = pygame.transform.scale_by(pygame.image.load("images/mainroom/book.png"), .3)
+        self.rect = pygame.Rect(600,900,150,80)
+
+    def render(self, screen):
+        screen.blit(self.image, (400,600))
+
+    def checkClick(self):
+        pos = pygame.mouse.get_pos()
+        rect = self.rect
+        clicked = rect.collidepoint(pos[0], pos[1])
+        return clicked
 
 class Arrow:
-    def __init__(self, isLeft, pos):
-        self.image = pygame.transform.scale_by(pygame.image.load("images/ui/arrow.png"), .2)
-        self.hoverImage = pygame.transform.scale_by(pygame.image.load("images/ui/arrowGlowing.png"), .2)
+    def __init__(self, isLeft):
+        self.image = pygame.transform.scale_by(pygame.image.load("images/ui/arrow.png"), .3)
+        self.hoverImage = pygame.transform.scale_by(pygame.image.load("images/ui/arrowGlowing.png"), .3)
         if not isLeft:
+            self.pos = (1500, 400)
             self.image = pygame.transform.flip(self.image, True, False)
         if isLeft:
+            self.pos = (20,400)
             self.hoverImage = pygame.transform.flip(self.hoverImage, True, False)
-        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
     def render(self, screen):
         if self.checkClick():
@@ -26,6 +41,21 @@ class Arrow:
         clicked = rect.collidepoint(pos[0], pos[1])
         return clicked
     
+
+class Coins:
+    def __init__(self):
+        self.copper = pygame.transform.scale_by(pygame.image.load("images/ui/copper.png"), .1)
+        self.silver = pygame.transform.scale_by(pygame.image.load("images/ui/silver.png"), .1)
+        self.gold = pygame.transform.scale_by(pygame.image.load("images/ui/gold.png"), .1)
+        self.textcol = (67, 40, 24)
+    
+    def render(self, screen):
+        screen.blit(self.gold, (20,20))
+        screen.blit(self.silver, (20,65))
+        screen.blit(self.copper, (20,110))
+        textRenderer.render(screen, str(GameData.gold), (70,30), 25, self.textcol)
+        textRenderer.render(screen, str(GameData.silver), (70,75), 25, self.textcol)
+        textRenderer.render(screen, str(GameData.copper), (70,120), 25, self.textcol)
 
 
 
