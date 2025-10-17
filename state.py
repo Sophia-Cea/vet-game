@@ -72,7 +72,7 @@ class PatientRoomState(State):
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
-        self.desk = pygame.transform.scale_by(pygame.image.load("images/mainroom/desk.png"), .4)
+        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png"), .4)
         pygame.draw.rect(self.background, (125, 79, 80), (500,200,150,250))
         self.patients = [EasyPatient()]
         self.leftArrow = Arrow(True)
@@ -190,13 +190,13 @@ class GardenState(State):
 class MapState(State):
     def __init__(self):
         super().__init__()
-        self.map = pygame.transform.scale_by(pygame.image.load("images/ui/mapui.png"), .6)
+        self.map = pygame.transform.smoothscale_by(pygame.image.load("images/ui/mapui.png"), .6)
         self.rect = pygame.Rect(380,180,830,520)
         self.darkbg = pygame.Surface(orig_size)
         self.darkbg.fill((0,0,0))
         self.darkbg.set_alpha(90)
         self.mapIcon = MapButton(False)
-        self.roomMap = pygame.transform.scale_by(pygame.image.load("images/ui/room_map.png"), .25)
+        self.roomMap = pygame.transform.smoothscale_by(pygame.image.load("images/ui/room_map.png"), .25)
 
     def render(self, screen, offset):
         super().render(screen, offset)

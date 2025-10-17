@@ -7,6 +7,13 @@ import json
 
 pygame.init()
 
+
+def resize(image, scale):
+    imgSize = image.get_size()
+    imgSizeScaled = [imgSize[0]*scale, imgSize[1]*scale]
+    return pygame.transform.smoothscale(image, imgSizeScaled)
+
+
 sizeOptions = [[1600,900], [1920,1080], [2560, 1440], [3840, 2160]]
 
 with open("gamedata.json") as f:

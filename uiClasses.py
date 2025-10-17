@@ -2,7 +2,7 @@ from utils import *
 
 class Book:
     def __init__(self):
-        self.image = pygame.transform.scale_by(pygame.image.load("images/mainroom/book.png"), .3)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/book.png"), .3)
         self.rect = pygame.Rect(600,900,150,80)
 
     def render(self, screen):
@@ -16,8 +16,8 @@ class Book:
 
 class Arrow:
     def __init__(self, isLeft):
-        self.image = pygame.transform.scale_by(pygame.image.load("images/ui/arrow.png"), .3)
-        self.hoverImage = pygame.transform.scale_by(pygame.image.load("images/ui/arrowGlowing.png"), .3)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/arrow.png"), .3)
+        self.hoverImage = pygame.transform.smoothscale_by(pygame.image.load("images/ui/arrowGlowing.png"), .3)
         if not isLeft:
             self.pos = (1500, 400)
             self.image = pygame.transform.flip(self.image, True, False)
@@ -44,9 +44,9 @@ class Arrow:
 
 class Coins:
     def __init__(self):
-        self.copper = pygame.transform.scale_by(pygame.image.load("images/ui/copper.png"), .1)
-        self.silver = pygame.transform.scale_by(pygame.image.load("images/ui/silver.png"), .1)
-        self.gold = pygame.transform.scale_by(pygame.image.load("images/ui/gold.png"), .1)
+        self.copper = pygame.transform.smoothscale_by(pygame.image.load("images/ui/copper.png"), .1)
+        self.silver = pygame.transform.smoothscale_by(pygame.image.load("images/ui/silver.png"), .1)
+        self.gold = pygame.transform.smoothscale_by(pygame.image.load("images/ui/gold.png"), .1)
         self.textcol = (67, 40, 24)
     
     def render(self, screen):
@@ -63,7 +63,7 @@ class Animation:
     def __init__(self, path, imageNames, totalDuration, scale=1, flip=False):
         self.images = []
         for img in imageNames:
-            self.images.append(pygame.transform.scale_by(pygame.image.load(path+img), scale))
+            self.images.append(pygame.transform.smoothscale_by(pygame.image.load(path+img), scale))
         
         if flip:
             for i, img in enumerate(self.images):
@@ -90,9 +90,9 @@ class Animation:
 class MapButton:
     def __init__(self, isClosed):
         if isClosed:
-            self.mapIcon = pygame.transform.scale_by(pygame.image.load("images/ui/scroll.png"), .5)
+            self.mapIcon = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .5)
         else: 
-            self.mapIcon = pygame.transform.scale_by(pygame.image.load("images/ui/map.png"), .5)
+            self.mapIcon = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .5)
         self.rect = pygame.Rect(1400,30,150,150)
 
     def render(self, screen):
