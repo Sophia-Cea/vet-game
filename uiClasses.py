@@ -1,4 +1,4 @@
-from patient import *
+from utils import *
 
 class Book:
     def __init__(self):
@@ -60,10 +60,14 @@ class Coins:
 
 
 class Animation:
-    def __init__(self, path, imageNames, totalDuration, scale=1):
+    def __init__(self, path, imageNames, totalDuration, scale=1, flip=False):
         self.images = []
         for img in imageNames:
             self.images.append(pygame.transform.scale_by(pygame.image.load(path+img), scale))
+        
+        if flip:
+            for i, img in enumerate(self.images):
+                self.images[i] = pygame.transform.flip(img, True, False)
         self.duration = totalDuration * 1000
         self.ticksPerFrame = self.duration//len(self.images)
         self.start_time = None

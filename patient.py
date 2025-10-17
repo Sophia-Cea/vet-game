@@ -1,30 +1,43 @@
-from utils import *
+from uiClasses import *
 
 
 
 class Patient:
     def __init__(self):
-        # self.image = random.randint()
-        self.image = pygame.transform.scale_by(pygame.image.load("images/patients/patient1.png"), .3)
+        self.walkingAnimation = Animation("images/patients/paige/", [
+            "paigeWalking1.png",
+            "paigeWalking2.png",
+            "paigeWalking3.png",
+            "paigeWalking4.png"
+        ], 1, .4, True)
+        self.idleAnimation = Animation("images/patients/paige/", [
+            "paigeIdle1.png"
+        ], 3, .4)
+        self.states = {
+            "walking": self.walkingAnimation,
+            "talking": None,
+            "idling": self.idleAnimation
+        }
+        self.currentState = "walking"
         self.askingBubble = pygame.Surface([150,100])
         self.askingBubble.fill((255,255,255))
-        self.pos = [2500,250]
+        self.pos = [1500,250]
         self.endPos = random.randint(100,1200)
         self.speed = random.randint(1,5)
-        self.walking = True
         self.asking = False
 
     def render(self, screen):
-        screen.blit(self.image, (self.pos[0], self.pos[1]))
+        self.states[self.currentState].render(screen, self.pos)
         if self.asking:
             screen.blit(self.askingBubble, (self.pos[0]-85, self.pos[1]-60))
 
     def update(self):
-        if self.walking:
+        self.states[self.currentState].update()
+        if self.currentState == "walking":
             if self.pos[0] > self.endPos:
                 self.pos[0] -= self.speed
             else:
-                self.walking = False
+                self.currentState = "idling"
                 self.asking = True
 
 

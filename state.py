@@ -80,7 +80,7 @@ class PatientRoomState(State):
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
         self.book = Book()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins, self.book]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -88,6 +88,7 @@ class PatientRoomState(State):
         for patient in self.patients:
             patient.render(self.surface)
         self.surface.blit(self.desk, (0, 0))
+        self.book.render(self.surface)
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
