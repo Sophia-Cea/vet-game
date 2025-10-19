@@ -7,6 +7,7 @@ class StateManager:
         self.transitioningLeft = None
         self.bgOldOffset = [0,0]
         self.bgNewOffset = [0,0]
+        self.everythingState = None
 
     def push(self, page):
         self.queue.append(page)
@@ -28,6 +29,9 @@ class StateManager:
         
 
     def run(self, surface, events):
+        self.everythingState.render(surface, [0,0])
+        self.everythingState.update()
+        self.everythingState.handleInput(events)
         if not self.transitioning:
             self.queue[len(self.queue)-1].update()
             if len(self.queue) > 1:
@@ -67,14 +71,55 @@ class State:
 
 stateManager = StateManager()
 
+class EverythingState(State):
+    def __init__(self):
+        super().__init__()
+        self.currentTime = pygame.time.get_ticks()
+        self.interval = 100
+        self.animalList = sum_animal_values(GameData.animalData)
+
+    def update(self):
+        super().update()
+        getsCustomer = False
+        time1 = pygame.time.get_ticks()
+        if time1 - self.currentTime >= self.interval:
+            self.currentTime = pygame.time.get_ticks()
+            getsCustomer = (random.randint(0,GameData.newCustomerChance) == 1)
+        
+        if getsCustomer:
+            print("got a patient!")
+            print("patients:", len(GameData.activePatients))
+            getsCustomer = False
+            newPatient = {
+                "id" : len(GameData.activePatients),
+                "species" : "cat",
+                "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
+                "idleAnimation" : patientInfo["cat"]["idleAnimation"],
+                "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
+                "state" : "walking",
+                "pos" : [1500,350],
+                "targetPos" : random.randint(100,1200),
+                "speed" : random.randint(2,5),
+                "illness" : random.choice(patientInfo["cat"]["potentialIllnesses"])
+            }
+            GameData.activePatients.append(newPatient)
+            for state in stateManager.queue:
+                if type(state) == PatientRoomState:
+                    state.updatePatients()
+
+
+
+
+
 class PatientRoomState(State):
     def __init__(self) -> None:
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
         self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png"), .4)
-        pygame.draw.rect(self.background, (125, 79, 80), (500,200,150,250))
-        self.patients = [EasyPatient()]
+        self.patients = []
+        for patient in GameData.activePatients:
+            self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
@@ -87,7 +132,7 @@ class PatientRoomState(State):
         self.surface.blit(self.background, (0,0))
         for patient in self.patients:
             patient.render(self.surface)
-        self.surface.blit(self.desk, (0, 0))
+        self.surface.blit(self.desk, (30, 40))
         self.book.render(self.surface)
         screen.blit(self.surface, offset)
         for element in self.uiElements:
@@ -110,6 +155,14 @@ class PatientRoomState(State):
                     stateManager.push(GardenState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
+    
+    def updatePatients(self):
+        if len(GameData.activePatients) > len(self.patients):
+            for i in range(len(self.patients), len(GameData.activePatients)):
+                patient = GameData.activePatients[i]
+                self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
+
+
 
 
 class PotionRoomState(State):

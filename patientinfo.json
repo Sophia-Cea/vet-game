@@ -1,0 +1,41 @@
+{
+    "cat" : {
+        "walkingAnimation" : {
+            "path" : "images/patients/paige/",
+            "images" : [
+                "paigeWalking1.png",
+                "paigeWalking2.png",
+                "paigeWalking3.png",
+                "paigeWalking4.png"
+            ],
+            "duration" : 1,
+            "scale" : 0.4,
+            "isFlipped" : true
+        },
+        "idleAnimation" : {
+            "path" : "images/patients/paige/",
+            "images" : [
+                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
+                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
+                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
+                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+            ],
+            "duration" : 3,
+            "scale" : 0.4,
+            "isFlipped" : false
+        },
+        "talkingAnimation" : {
+            "path" : "images/patients/paige/",
+            "images" : [
+                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
+                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
+                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
+                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+            ],
+            "duration" : 3,
+            "scale" : 0.4,
+            "isFlipped" : false
+        },
+        "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration"]
+    }
+}

@@ -8,8 +8,11 @@ fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 display = pygame.Surface((orig_size[0], orig_size[1]))
 
-
+stateManager.everythingState = EverythingState()
 stateManager.push(PatientRoomState())
+
+
+print("patients:", len(GameData.activePatients))
 
 running = True
 while running:

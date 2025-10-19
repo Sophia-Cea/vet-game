@@ -17,13 +17,76 @@ def resize(image, scale):
 sizeOptions = [[1600,900], [1920,1080], [2560, 1440], [3840, 2160]]
 
 with open("gamedata.json") as f:
-    data = json.load(f)
+    gameData = json.load(f)
+
+with open("patientInfo.json") as f:
+    patientInfo = json.load(f)
+
 
 class GameData:
-    playerIngredients = data["playerIngredients"]
+    playerIngredients = gameData["playerIngredients"]
     gold = 0
     silver = 0
     copper = 0 
+    # newCustomerChance = 60
+    newCustomerChance = 200
+
+    animalData = {
+        "common" : {
+            "mouse" : 10,
+            "cat" : 10,
+            "dog" : 10,
+            "rabbit" : 10,
+            "squirrel" : 10
+        },
+        "rare" : {
+            "wolf" : 5,
+            "panther" : 5,
+            "salamander" : 5,
+        },
+        "uncommon" : {
+            "fox" : 3,
+            "owl" : 3,
+            "crow" : 3,
+        },
+        "super rare" : {
+            "pegasus" : 2,
+            "crystal fox" : 2,
+        },
+        "legendary" : {
+            "dragon" : 1,
+        }
+    }
+
+
+
+    activePatients = [
+        {
+            "id" : 0,
+            "species" : "cat",
+            "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
+            "idleAnimation" : patientInfo["cat"]["idleAnimation"],
+            "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
+            "state" : "walking",
+            "pos" : [1500,350],
+            "targetPos" : 900,
+            "speed" : 3,
+            "illness" : "fleas" 
+        }
+    ]
+
+
+def sum_animal_values(data):
+    total = []
+    for category in data.values():
+        for key, value in category.items():
+            for _ in range(value):
+                total.append(key)
+    return total
+
+
+
+
 
 
 orig_size = sizeOptions[0]
@@ -140,8 +203,6 @@ class TextRenderer:
         changes completely.
         """
         self._cache.clear()
-
-
 
 textRenderer = TextRenderer()
 

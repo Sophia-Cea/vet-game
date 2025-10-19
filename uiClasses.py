@@ -3,10 +3,10 @@ from utils import *
 class Book:
     def __init__(self):
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/book.png"), .3)
-        self.rect = pygame.Rect(600,900,150,80)
+        self.rect = pygame.Rect(1000,650,150,80)
 
     def render(self, screen):
-        screen.blit(self.image, (400,600))
+        screen.blit(self.image, (1100,660))
 
     def checkClick(self):
         pos = pygame.mouse.get_pos()

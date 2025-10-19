@@ -3,33 +3,33 @@ from uiClasses import *
 
 
 class Patient:
-    def __init__(self):
-        self.walkingAnimation = Animation("images/patients/paige/", [
-            "paigeWalking1.png",
-            "paigeWalking2.png",
-            "paigeWalking3.png",
-            "paigeWalking4.png"
-        ], 1, .4, True)
-        self.idleAnimation = Animation("images/patients/paige/", [
-            "paigeIdle1.png"
-        ], 3, .4)
+    def __init__(self, walkingAnimation, idleAnimation, talkingAnimation, currentState, pos, endPos, speed, id):
+        self.id = id
+        self.walkingAnimation = Animation(walkingAnimation["path"], walkingAnimation["images"], walkingAnimation["duration"], walkingAnimation["scale"], walkingAnimation["isFlipped"])
+        self.idleAnimation = Animation(idleAnimation["path"], idleAnimation["images"], idleAnimation["duration"], idleAnimation["scale"], idleAnimation["isFlipped"])
+        self.talkingAnimation = Animation(talkingAnimation["path"], talkingAnimation["images"], talkingAnimation["duration"], talkingAnimation["scale"], talkingAnimation["isFlipped"])
         self.states = {
             "walking": self.walkingAnimation,
-            "talking": None,
+            "talking": self.talkingAnimation,
             "idling": self.idleAnimation
         }
-        self.currentState = "walking"
-        self.askingBubble = pygame.Surface([150,100])
-        self.askingBubble.fill((255,255,255))
-        self.pos = [1500,250]
-        self.endPos = random.randint(100,1200)
-        self.speed = random.randint(1,5)
-        self.asking = False
+        self.currentState = currentState
+        self.askingBubble = pygame.transform.smoothscale_by(pygame.image.load("images/ui/bubble.png"), .2)
+        self.pos = pos
+        self.endPos = endPos
+        self.speed = speed
+        self.index = None 
+        for i, patient in enumerate(GameData.activePatients):
+            # print(patient)
+            # print(patient["id"])
+            # print(self.id)
+            if patient["id"] == self.id:
+                self.index = i
 
     def render(self, screen):
         self.states[self.currentState].render(screen, self.pos)
-        if self.asking:
-            screen.blit(self.askingBubble, (self.pos[0]-85, self.pos[1]-60))
+        if self.currentState == "talking":
+            screen.blit(self.askingBubble, (self.pos[0]+75, self.pos[1]-160))
 
     def update(self):
         self.states[self.currentState].update()
@@ -37,8 +37,9 @@ class Patient:
             if self.pos[0] > self.endPos:
                 self.pos[0] -= self.speed
             else:
-                self.currentState = "idling"
-                self.asking = True
+                self.currentState = "talking"
+        GameData.activePatients[self.index]["pos"] = self.pos
+        GameData.activePatients[self.index]["state"] = self.currentState
 
 
 
