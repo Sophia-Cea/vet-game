@@ -31,6 +31,7 @@ class PotionIngredientMenu:
     def __init__(self):
         self.ingredientMenu = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/ui/potioningredientsui.png"), .4)
         self.categories = {}
+        j = 0
         for category_name, ingredients_dict in potionInfo["potion ingredients"].items():
             if category_name == "path":
                 continue
@@ -40,12 +41,14 @@ class PotionIngredientMenu:
                 ingredient = PotionIngredient(
                     name=ingredient_name,
                     category=category_name,
-                    pos=[90+(i%4)*90, 170+i//4], 
+                    pos=[160+(i%6)*70, 170+i//6],
                     quantity=ingredient_data["quantity"],
                     scale=ingredient_data["scale"],
+                    leftSide=(j%2==1)
                 )
                 self.categories[category_name].append(ingredient)
                 i += 1
+            j += 1
 
         self.currentWindow = 0
         category_keys = list(self.categories.keys())
@@ -56,8 +59,9 @@ class PotionIngredientMenu:
         screen.blit(self.ingredientMenu, (10,10))
         screen.blit(self.ingredientMenu, (10,10))
 
-        for item in self.categories[self.activeCategories[0]]:
-            item.render(screen)
+        for category in self.activeCategories:
+            for item in self.categories[category]:
+                item.render(screen)
 
     def update(self):
         pass
@@ -67,13 +71,18 @@ class PotionIngredientMenu:
 
 
 class PotionIngredient:
-    def __init__(self, name, category, pos, quantity, scale):
-        self.image = pygame.transform.scale_by(pygame.image.load(potionInfo["potion ingredients"]["path"] + potionInfo["potion ingredients"][category][name]["path"]), scale)
+    def __init__(self, name, category, pos, quantity, scale, leftSide=True):
+        self.image = pygame.transform.scale_by(pygame.image.load(potionInfo["potion ingredients"]["path"] + potionInfo["potion ingredients"][category][name]["path"]).convert_alpha(), scale)
         self.pos = pos
+        if leftSide:
+            self.pos[0] += 730
         self.quantity = quantity
+        if self.quantity == 0:
+            self.image.set_alpha(60)
 
     def render(self, screen):
         screen.blit(self.image, self.pos)
+        textRenderer.render(screen, str(self.quantity), (self.pos[0]+30, self.pos[1]+30), 20, (255,255,255))
 
     def update(self):
         pass

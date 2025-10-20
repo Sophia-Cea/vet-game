@@ -5,12 +5,12 @@
              "black_ball" : {
                 "path" : "black_ball.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 1
             },
             "blue_ball" : {
                 "path" : "blue_ball.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 2
             },
             "red_ball" : {
                 "path" : "red_ball.png",
@@ -22,7 +22,7 @@
             "blue_crumbs" : {
                 "path" : "blue_crumbs.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 3
             },
             "orange_crumbs" : {
                 "path" : "orange_crumbs.png",
@@ -32,7 +32,7 @@
             "purple_crumbs" : {
                 "path" : "purple_crumbs.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 60
             },
             "red_crumbs" : {
                 "path" : "red_crumbs.png",
@@ -49,17 +49,17 @@
             "bones" : {
                 "path" : "bones.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 2
             },
             "gold_nugget" : {
                 "path" : "gold_nugget.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 3
             },
             "slime_glob" : {
                 "path" : "slime_glob.png",
                 "scale" : 5,
-                "quantity" : 0
+                "quantity" : 5
             }
         },
         "mushrooms" : {

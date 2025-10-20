@@ -12,8 +12,6 @@ stateManager.everythingState = EverythingState()
 stateManager.push(PatientRoomState())
 
 
-print("patients:", len(GameData.activePatients))
-
 running = True
 while running:
     events = pygame.event.get()
