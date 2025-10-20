@@ -221,6 +221,7 @@ class PotionMakingState(State):
     
     def handleInput(self, events):
         super().handleInput(events)
+        self.ingredientMenu.handleInput(events)
 
 
 

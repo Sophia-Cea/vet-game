@@ -28,9 +28,9 @@ class Arrow:
 
     def render(self, screen):
         if self.checkClick():
-            screen.blit(self.hoverImage, (self.rect.x, self.rect.y))
+            screen.blit(self.hoverImage, self.pos)
         else:
-            screen.blit(self.image, (self.rect.x, self.rect.y))
+            screen.blit(self.image, self.pos)
 
     def update(self):
         pass
@@ -57,6 +57,20 @@ class Coins:
         textRenderer.render(screen, str(GameData.silver), (70,75), 25, self.textcol)
         textRenderer.render(screen, str(GameData.copper), (70,120), 25, self.textcol)
 
+
+class SmallArrow(Arrow):
+    def __init__(self, isLeft):
+        super().__init__(isLeft)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/ui/left_arrow.png"), .1)
+        self.hoverImage = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/ui/left_arrow.png"), .1)
+        self.pos = [60, 190]
+        self.rect = pygame.Rect(self.pos[0]+13, self.pos[1]+00, 35,60)
+        if not isLeft:
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.hoverImage = pygame.transform.flip(self.hoverImage, True, False)
+            self.pos = [1425, 190]
+            self.rect = pygame.Rect(self.pos[0]+20, self.pos[1]+0, 35,60)
+    
 
 
 class Animation:
