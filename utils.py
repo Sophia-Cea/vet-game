@@ -22,6 +22,9 @@ with open("gamedata.json") as f:
 with open("patientInfo.json") as f:
     patientInfo = json.load(f)
 
+with open("potionInfo.json") as f:
+    potionInfo = json.load(f)
+
 
 class GameData:
     playerIngredients = gameData["playerIngredients"]

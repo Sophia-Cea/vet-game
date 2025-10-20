@@ -43,7 +43,7 @@ class StateManager:
             self.queue[len(self.queue)-2].render(surface, self.bgOldOffset)
             self.queue[len(self.queue)-1].update()
             self.queue[len(self.queue)-2].update()
-            movement = (self.bgNewOffset[0])/8
+            movement = (self.bgNewOffset[0])/6
             self.bgNewOffset[0] -= movement
             self.bgOldOffset[0] -= movement
             if self.bgNewOffset[0] > -3 and self.bgNewOffset[0] < 3:
@@ -87,8 +87,6 @@ class EverythingState(State):
             getsCustomer = (random.randint(0,GameData.newCustomerChance) == 1)
         
         if getsCustomer:
-            print("got a patient!")
-            print("patients:", len(GameData.activePatients))
             getsCustomer = False
             newPatient = {
                 "id" : len(GameData.activePatients),
@@ -109,14 +107,12 @@ class EverythingState(State):
 
 
 
-
-
 class PatientRoomState(State):
     def __init__(self) -> None:
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
-        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png"), .4)
+        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png").convert_alpha(), .4)
         self.patients = []
         for patient in GameData.activePatients:
             self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
@@ -132,6 +128,7 @@ class PatientRoomState(State):
         self.surface.blit(self.background, (0,0))
         for patient in self.patients:
             patient.render(self.surface)
+        self.surface.blit(self.desk, (30, 40))
         self.surface.blit(self.desk, (30, 40))
         self.book.render(self.surface)
         screen.blit(self.surface, offset)
@@ -161,7 +158,6 @@ class PatientRoomState(State):
             for i in range(len(self.patients), len(GameData.activePatients)):
                 patient = GameData.activePatients[i]
                 self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
-
 
 
 
@@ -201,6 +197,30 @@ class PotionRoomState(State):
                     stateManager.push(PatientRoomState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
+                if self.cauldron.checkClick():
+                    stateManager.push(PotionMakingState())
+
+
+class PotionMakingState(State):
+    def __init__(self):
+        super().__init__()
+        self.background = pygame.transform.smoothscale_by(pygame.image.load("images/backgrounds/brew_background.png"), .42)
+        self.cauldron = Cauldron((-120,-100), 1.75)
+        self.ingredientMenu = PotionIngredientMenu()
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.blit(self.background, (0,0))
+        screen.blit(self.background, (0,0))
+        self.cauldron.render(screen)
+        self.ingredientMenu.render(screen)
+    
+    def update(self):
+        super().update()
+        self.cauldron.update()
+    
+    def handleInput(self, events):
+        super().handleInput(events)
 
 
 
