@@ -88,22 +88,24 @@ class EverythingState(State):
         
         if getsCustomer:
             getsCustomer = False
-            newPatient = {
-                "id" : len(GameData.activePatients),
-                "species" : "cat",
-                "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
-                "idleAnimation" : patientInfo["cat"]["idleAnimation"],
-                "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
-                "state" : "walking",
-                "pos" : [1500,350],
-                "targetPos" : random.randint(100,1200),
-                "speed" : random.randint(2,5),
-                "illness" : random.choice(patientInfo["cat"]["potentialIllnesses"])
-            }
-            GameData.activePatients.append(newPatient)
-            for state in stateManager.queue:
-                if type(state) == PatientRoomState:
-                    state.updatePatients()
+
+            if len(GameData.activePatients) < 7:
+                newPatient = {
+                    "id" : len(GameData.activePatients),
+                    "species" : "cat",
+                    "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
+                    "idleAnimation" : patientInfo["cat"]["idleAnimation"],
+                    "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
+                    "state" : "walking",
+                    "pos" : [1500,350],
+                    "targetPos" : random.randint(100,1200),
+                    "speed" : random.randint(2,5),
+                    "illness" : random.choice(patientInfo["cat"]["potentialIllnesses"])
+                }
+                GameData.activePatients.append(newPatient)
+                for state in stateManager.queue:
+                    if type(state) == PatientRoomState:
+                        state.updatePatients()
 
 
 
@@ -152,7 +154,7 @@ class PatientRoomState(State):
                     stateManager.push(GardenState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
-    
+
     def updatePatients(self):
         if len(GameData.activePatients) > len(self.patients):
             for i in range(len(self.patients), len(GameData.activePatients)):
@@ -174,7 +176,7 @@ class PotionRoomState(State):
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
         self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
-    
+
     def update(self):
         super().update()
         self.cauldron.update()
@@ -207,6 +209,9 @@ class PotionMakingState(State):
         self.background = pygame.transform.smoothscale_by(pygame.image.load("images/backgrounds/brew_background.png"), .42)
         self.cauldron = Cauldron((-120,-100), 1.75)
         self.ingredientMenu = PotionIngredientMenu()
+        self.xButton = XButton((5,5))
+
+        self.draggingItem = None
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -214,14 +219,52 @@ class PotionMakingState(State):
         screen.blit(self.background, (0,0))
         self.cauldron.render(screen)
         self.ingredientMenu.render(screen)
-    
+        self.xButton.render(screen)
+
+        if self.draggingItem != None:
+            self.draggingItem.render(screen)
+
     def update(self):
         super().update()
         self.cauldron.update()
-    
+        self.ingredientMenu.update()
+
     def handleInput(self, events):
         super().handleInput(events)
         self.ingredientMenu.handleInput(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.xButton.checkClick():
+                    stateManager.pop()
+
+                left_page_index = self.ingredientMenu.currentPageSet * 2
+                right_page_index = left_page_index + 1
+                
+                # left page
+                leftPage = self.ingredientMenu.pages[left_page_index]
+
+                # right page
+                rightPage = self.ingredientMenu.pages[right_page_index]
+
+
+                for ingredient in leftPage.ingredients:
+                    if ingredient.checkClick():
+                        if ingredient.quantity > 0:
+                            self.draggingItem = PotionIngredientDragging(ingredient.image, ingredient.category, ingredient.name, (pygame.mouse.get_pos()[0]-ingredient.rect.x, pygame.mouse.get_pos()[1]-ingredient.rect.y))
+                            ingredient.quantity -= 1
+
+                for ingredient in rightPage.ingredients:
+                    if ingredient.checkClick():
+                        if ingredient.quantity > 0:
+                            self.draggingItem = PotionIngredientDragging(ingredient.image, ingredient.category, ingredient.name, (pygame.mouse.get_pos()[0]-ingredient.rect.x, pygame.mouse.get_pos()[1]-ingredient.rect.y))
+                            ingredient.quantity -= 1
+
+
+
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                if self.draggingItem != None:
+                    self.draggingItem = None
 
 
 

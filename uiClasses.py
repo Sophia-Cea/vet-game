@@ -40,7 +40,7 @@ class Arrow:
         rect = self.rect
         clicked = rect.collidepoint(pos[0], pos[1])
         return clicked
-    
+
 
 class Coins:
     def __init__(self):
@@ -57,7 +57,6 @@ class Coins:
         textRenderer.render(screen, str(GameData.silver), (70,75), 25, self.textcol)
         textRenderer.render(screen, str(GameData.copper), (70,120), 25, self.textcol)
 
-
 class SmallArrow(Arrow):
     def __init__(self, isLeft):
         super().__init__(isLeft)
@@ -70,8 +69,23 @@ class SmallArrow(Arrow):
             self.hoverImage = pygame.transform.flip(self.hoverImage, True, False)
             self.pos = [1425, 190]
             self.rect = pygame.Rect(self.pos[0]+20, self.pos[1]+0, 35,60)
-    
 
+class XButton:
+    def __init__(self, pos):
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/x_button.png"), .06)
+        self.hoverImg = pygame.transform.smoothscale_by(pygame.image.load("images/ui/x_highlight.png"), .06)
+        self.pos = pos
+        self.rect = pygame.Rect(pos[0], pos[1], 45,45)
+
+    def render(self, screen):
+        if self.checkClick():
+            screen.blit(self.hoverImg, self.pos)
+        screen.blit(self.image, self.pos)
+
+    def checkClick(self):
+        pos = pygame.mouse.get_pos()
+        clicked = self.rect.collidepoint(pos[0], pos[1])
+        return clicked
 
 class Animation:
     def __init__(self, path, imageNames, totalDuration, scale=1, flip=False):
@@ -99,8 +113,7 @@ class Animation:
             self.currentFrame %= len(self.images)
             self.start_time = pygame.time.get_ticks()
 
-
-                
+         
 class MapButton:
     def __init__(self, isClosed):
         if isClosed:
