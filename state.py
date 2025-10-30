@@ -104,12 +104,12 @@ class EverythingState(State):
                 }
                 GameData.activePatients.append(newPatient)
                 for state in stateManager.queue:
-                    if type(state) == PatientRoomState:
+                    if type(state) == WaitingRoomState:
                         state.updatePatients()
 
 
 
-class PatientRoomState(State):
+class WaitingRoomState(State):
     def __init__(self) -> None:
         super().__init__()
         self.surface = pygame.Surface(orig_size)
@@ -196,7 +196,7 @@ class PotionRoomState(State):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.rightArrow.checkClick():
                     stateManager.transition(False)
-                    stateManager.push(PatientRoomState())
+                    stateManager.push(WaitingRoomState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
                 if self.cauldron.checkClick():
@@ -298,7 +298,7 @@ class GardenState(State):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.leftArrow.checkClick():
                     stateManager.transition(True)
-                    stateManager.push(PatientRoomState())
+                    stateManager.push(WaitingRoomState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
 
@@ -333,4 +333,7 @@ class MapState(State):
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
     
+
+
+
 
