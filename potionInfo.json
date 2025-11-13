@@ -103,5 +103,14 @@
             "mushroom_orange" : 1,
             "bones" : 1
         }
+    },
+
+    "potions" : {
+        "potionOfRed" : {
+            "image" : "potion_red.png"
+        },
+        "potionOfBlue" : {
+            "image" : "potion_blue.png"
+        }
     }
 }

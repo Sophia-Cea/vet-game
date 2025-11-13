@@ -61,7 +61,39 @@ class GameData:
         }
     }
 
+    potionsInInventory = [
+        {
+            "name": "potionOfRed",
+            "quantity" : 1
+        },
+        {
+            "name": "potionOfBlue",
+            "quantity" : 1
+        } 
 
+    ]
+
+    patientsInRooms = [
+        {
+            "id" : 0,
+            "species" : "cat",
+            "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
+            "idleAnimation" : patientInfo["cat"]["idleAnimation"],
+            "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
+            "state" : "walking",
+            "pos" : [1500,350],
+            "targetPos" : 900,
+            "speed" : 3,
+            "illness" : "fleas" 
+        },
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None
+    ]
 
     activePatients = [
         {

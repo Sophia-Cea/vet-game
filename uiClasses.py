@@ -1,21 +1,39 @@
 from utils import *
 
-class Book:
-    def __init__(self):
-        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/book.png"), .3)
-        self.rect = pygame.Rect(1000,650,150,80)
 
+class UIthingy:
+    def __init__(self):
+        self.pos = [0,0]
+        self.rect = pygame.Rect(0,0,0,0)
+        self.image = None
+    
     def render(self, screen):
-        screen.blit(self.image, (1100,660))
+        screen.blit(self.image, self.pos)
+
+    def update(self):
+        pass
+
+    def handleInput(self, events):
+        pass
 
     def checkClick(self):
-        pos = pygame.mouse.get_pos()
-        rect = self.rect
-        clicked = rect.collidepoint(pos[0], pos[1])
-        return clicked
+        return self.rect.collidepoint(pygame.mouse.get_pos())
 
-class Arrow:
+
+
+
+
+class Book(UIthingy):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/book.png"), .3)
+        self.rect = pygame.Rect(1000,650,150,80)
+        self.pos = [1100,660]
+
+
+class Arrow(UIthingy):
     def __init__(self, isLeft):
+        super().__init__()
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/arrow.png"), .3)
         self.hoverImage = pygame.transform.smoothscale_by(pygame.image.load("images/ui/arrowGlowing.png"), .3)
         if not isLeft:
@@ -30,16 +48,7 @@ class Arrow:
         if self.checkClick():
             screen.blit(self.hoverImage, self.pos)
         else:
-            screen.blit(self.image, self.pos)
-
-    def update(self):
-        pass
-
-    def checkClick(self):
-        pos = pygame.mouse.get_pos()
-        rect = self.rect
-        clicked = rect.collidepoint(pos[0], pos[1])
-        return clicked
+            super().render(screen)
 
 
 class Coins:
@@ -70,22 +79,18 @@ class SmallArrow(Arrow):
             self.pos = [1425, 190]
             self.rect = pygame.Rect(self.pos[0]+20, self.pos[1]+0, 35,60)
 
-class XButton:
+class XButton(UIthingy):
     def __init__(self, pos):
+        super().__init__()
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/x_button.png"), .06)
         self.hoverImg = pygame.transform.smoothscale_by(pygame.image.load("images/ui/x_highlight.png"), .06)
-        self.pos = pos
+        self.pos = [pos[0], pos[1]]
         self.rect = pygame.Rect(pos[0], pos[1], 45,45)
 
     def render(self, screen):
         if self.checkClick():
             screen.blit(self.hoverImg, self.pos)
-        screen.blit(self.image, self.pos)
-
-    def checkClick(self):
-        pos = pygame.mouse.get_pos()
-        clicked = self.rect.collidepoint(pos[0], pos[1])
-        return clicked
+        super().render(screen)
 
 class Animation:
     def __init__(self, path, imageNames, totalDuration, scale=1, flip=False):
@@ -114,22 +119,57 @@ class Animation:
             self.start_time = pygame.time.get_ticks()
 
          
-class MapButton:
+class MapButton(UIthingy):
     def __init__(self, isClosed):
+        super().__init__()
         if isClosed:
-            self.mapIcon = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .5)
+            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .5)
         else: 
-            self.mapIcon = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .5)
+            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .5)
         self.rect = pygame.Rect(1400,30,150,150)
+        self.pos = [1400,30]
+
+
+
+class BrewButton(UIthingy):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((300,100))
+        self.image.fill((200,0,100))
+        self.pos = [620,600]
+        self.rect = pygame.Rect(620,600,300,100)
 
     def render(self, screen):
-        screen.blit(self.mapIcon, (1400, 30))
+        super().render(screen)
+        textRenderer.render(self.image, "Brew", (150, 50), 35, (255,255,255), align="center")
+
+
+class InventoryButton(UIthingy):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((300,200))
+        self.image.fill((100,100,80))
+        self.pos = [40,800]
+        self.rect = pygame.Rect(40,800,300,200)
+
+
+
+class PotionItemInInventory(UIthingy):
+    def __init__(self, potionObject, pos):
+        super().__init__()
+        self.potionObject = potionObject
+        self.potionData = potionInfo["potions"][potionObject["name"]]
+        self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.potionData["image"]), 8)
+        self.pos = [pos[0], pos[1]]
+        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+
+
+    def render(self, screen):
+        super().render(screen)
 
     def update(self):
-        if self.checkClick():
-            pass
+        super().update()
 
-    def checkClick(self):
-        pos = pygame.mouse.get_pos()
-        clicked = self.rect.collidepoint(pos[0], pos[1])
-        return clicked
+    def handleInput(self, events):
+        super().handleInput(events)
+    

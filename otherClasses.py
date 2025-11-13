@@ -125,6 +125,8 @@ class PotionIngredient:
     def __init__(self, name, category, pos, quantity, scale, is_on_right_side=False):
         path = potionInfo["potion ingredients"]["path"] + potionInfo["potion ingredients"][category][name]["path"]
         self.image = pygame.transform.scale_by(pygame.image.load(path).convert_alpha(), scale)
+        self.faintImage = self.image.copy()
+        self.faintImage.set_alpha(60)
         self.name = name
         self.category = category
         self.pos = pos
@@ -133,13 +135,15 @@ class PotionIngredient:
         if is_on_right_side:
             self.pos[0] += 730
             self.rect.x += 730
-            
+        
         self.quantity = quantity
-        if self.quantity == 0:
-            self.image.set_alpha(60)
 
     def render(self, screen):
-        screen.blit(self.image, self.pos)
+        if self.quantity == 0:
+            screen.blit(self.faintImage, self.pos)
+        if self.quantity > 0:
+            self.image.set_alpha(1000)
+            screen.blit(self.image, self.pos)
         textRenderer.render(screen, str(self.quantity), (self.pos[0]+30, self.pos[1]+30), 20, (255,255,255))
 
     def update(self):
@@ -160,7 +164,9 @@ class PotionIngredient:
 
 class PotionIngredientDragging:
     def __init__(self, image, category, name, offset):
-        self.image = pygame.transform.scale_by(image, 2)
+        self.scale = 2
+        self.image = pygame.transform.scale_by(image, self.scale)
+        self.image.set_alpha(1000)
         self.offset = offset
         self.name = name
         self.category = category
@@ -168,3 +174,34 @@ class PotionIngredientDragging:
     def render(self, screen):
         pos = pygame.mouse.get_pos()
         screen.blit(self.image, [pos[0]-self.offset[0], pos[1]-self.offset[1]])
+
+
+class PotionIngredientInCauldron:
+    def __init__(self, image, category, name, startPos, endPos):
+        self.scale = .8
+        self.fallingImage = image
+        self.fallingImage.set_alpha(1000)
+        self.image = pygame.transform.scale_by(image, self.scale)
+        self.image.set_alpha(1000)
+        self.name = name
+        self.category = category
+        self.startPos = [startPos[0], startPos[1]]
+        self.endPos = [endPos[0], endPos[1]]
+        self.falling = True
+        self.quantity = 1
+
+        self.acceleration = 1.5
+        self.velocity = 1
+
+    def render(self, screen):
+        if self.falling:
+            self.startPos[1] += self.velocity
+            self.velocity += self.acceleration
+            if self.startPos[1] > 650:
+                self.falling = False
+            screen.blit(self.fallingImage, self.startPos)
+    
+        screen.blit(self.image, self.endPos)
+        # textRenderer.render(screen, str(self.quantity), (self.endPos[0]+60, self.endPos[1]+60), 20, (255,255,255))
+
+        

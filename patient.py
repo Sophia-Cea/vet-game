@@ -20,9 +20,6 @@ class Patient:
         self.speed = speed
         self.index = None 
         for i, patient in enumerate(GameData.activePatients):
-            # print(patient)
-            # print(patient["id"])
-            # print(self.id)
             if patient["id"] == self.id:
                 self.index = i
 
