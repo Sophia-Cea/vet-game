@@ -70,7 +70,6 @@ class GameData:
             "name": "potionOfBlue",
             "quantity" : 1
         } 
-
     ]
 
     patientsInRooms = [

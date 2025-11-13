@@ -107,10 +107,26 @@
 
     "potions" : {
         "potionOfRed" : {
-            "image" : "potion_red.png"
+            "image" : "potion_red.png",
+            "recipe" : [
+                "yellow_crumbs",
+                "slime_glob",
+                "red_ball"
+            ],
+            "illnesses" : [
+                "halitosis"
+            ]
         },
         "potionOfBlue" : {
-            "image" : "potion_blue.png"
+            "image" : "potion_blue.png",
+            "recipe" : [
+                "black_ball",
+                "blue_ball",
+                "blue_crumbs"
+            ],
+            "illnesses" : [
+                "die of beetus"
+            ]
         }
     }
 }

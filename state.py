@@ -162,7 +162,6 @@ class WaitingRoomState(State):
                 self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
 
 
-
 class PotionRoomState(State):
     def __init__(self):
         super().__init__()
@@ -214,7 +213,10 @@ class PotionMakingState(State):
         self.xButton = XButton((5,5))
         self.draggingItem = None
         self.ingredients = []
+        self.ingredientsText = []
         self.brewButton = BrewButton()
+        self.canBrew = False
+        self.currentPotion = None
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -223,7 +225,9 @@ class PotionMakingState(State):
         self.cauldron.render(screen)
         self.ingredientMenu.render(screen)
         self.xButton.render(screen)
-        self.brewButton.render(screen)
+
+        if self.canBrew:
+            self.brewButton.render(screen)
 
         screen.blit(self.window, (500,740))
         for ingredient in self.ingredients:
@@ -231,6 +235,7 @@ class PotionMakingState(State):
 
         if self.draggingItem != None:
             self.draggingItem.render(screen)
+        
 
 
     def update(self):
@@ -238,11 +243,36 @@ class PotionMakingState(State):
         self.cauldron.update()
         self.ingredientMenu.update()
 
+        for potion in potionInfo["potions"].keys():
+            if potionInfo["potions"][potion]["recipe"] == self.ingredientsText:
+                self.currentPotion = potion
+                self.canBrew = True
+
     def handleInput(self, events):
         super().handleInput(events)
         self.ingredientMenu.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.canBrew:
+                    if self.brewButton.checkClick():
+                        potionInInventory = False
+                        for i, potion in enumerate(GameData.potionsInInventory):
+                            if potion["name"] == self.currentPotion:
+                                GameData.potionsInInventory[i]["quantity"] += 1
+                                potionInInventory = True
+                                break
+                        if not potionInInventory:
+                            GameData.potionsInInventory.append(
+                                {
+                                    "name" : self.currentPotion,
+                                    "quantity" : 1
+                                }
+                            )
+                        self.currentPotion = None
+                        self.ingredients = []
+                        self.ingredientsText = []
+                        self.canBrew = False
+                        
                 if self.xButton.checkClick():
                     stateManager.pop()
 
@@ -282,6 +312,7 @@ class PotionMakingState(State):
                             (pos[0]-self.draggingItem.offset[0], pos[1]-self.draggingItem.offset[1]),
                             (570+(len(self.ingredients))*90, 760)
                         ))
+                        self.ingredientsText.append(self.draggingItem.name)
                     else:
                         left_page_index = self.ingredientMenu.currentPageSet * 2
                         right_page_index = left_page_index + 1
@@ -301,8 +332,6 @@ class PotionMakingState(State):
                             if ingredient.name == self.draggingItem.name:
                                 ingredient.quantity += 1
                     self.draggingItem = None
-
-
 
 
 class GardenState(State):
@@ -340,7 +369,6 @@ class GardenState(State):
                     stateManager.push(MapState())
 
 
-
 class MapState(State):
     def __init__(self):
         super().__init__()
@@ -375,16 +403,17 @@ class MapState(State):
                     stateManager.pop()
                 
                 if self.patientRoomRect1.collidepoint(pos):
-                    stateManager.push(PatientRoomState())
+                    stateManager.push(PatientRoomState(0))
     
 
-
 class PatientRoomState(State):
-    def __init__(self):
+    def __init__(self, index):
         super().__init__()
+        self.index = index
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
         self.patient = None
         self.inventoryButton = InventoryButton()
+        self.patient = GameData.patientsInRooms[self.index] # make it so patients are all the same and have a location specified instead. 
 
     def render(self, screen, offset):
         super().render(screen, offset)

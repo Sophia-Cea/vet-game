@@ -40,6 +40,11 @@ class Patient:
 
 
 
+
+
+
+
+
 class EasyPatient(Patient):
     def __init__(self):
         super().__init__()

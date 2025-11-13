@@ -162,10 +162,12 @@ class PotionItemInInventory(UIthingy):
         self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.potionData["image"]), 8)
         self.pos = [pos[0], pos[1]]
         self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+        self.quantity = potionObject["quantity"]
 
 
     def render(self, screen):
         super().render(screen)
+        textRenderer.render(screen, str(self.quantity), (self.pos[0]+60, self.pos[1]+60), 35, (255,255,255))
 
     def update(self):
         super().update()
