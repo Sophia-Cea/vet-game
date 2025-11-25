@@ -4,6 +4,7 @@ import os
 import math
 import random
 import json
+from datetime import datetime, timedelta
 
 pygame.init()
 
@@ -16,14 +17,17 @@ def resize(image, scale):
 
 sizeOptions = [[1600,900], [1920,1080], [2560, 1440], [3840, 2160]]
 
-with open("gamedata.json") as f:
+with open("jsonData/gamedata.json") as f:
     gameData = json.load(f)
 
-with open("patientInfo.json") as f:
+with open("jsonData/patientInfo.json") as f:
     patientInfo = json.load(f)
 
-with open("potionInfo.json") as f:
+with open("jsonData/potionInfo.json") as f:
     potionInfo = json.load(f)
+
+with open("jsonData/plantData.json") as f:
+    plantInfo = json.load(f)
 
 
 class GameData:
@@ -33,6 +37,7 @@ class GameData:
     copper = 0 
     # newCustomerChance = 60
     newCustomerChance = 200
+    customerLimit = 3
 
     animalData = {
         "common" : {
@@ -72,19 +77,25 @@ class GameData:
         } 
     ]
 
-    patientsInRooms = [
-        {
-            "id" : 0,
-            "species" : "cat",
-            "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
-            "idleAnimation" : patientInfo["cat"]["idleAnimation"],
-            "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
-            "state" : "walking",
-            "pos" : [1500,350],
-            "targetPos" : 900,
-            "speed" : 3,
-            "illness" : "fleas" 
+    gardenData = {
+        "garden 1" : {
+            "plots" : [
+                None,
+                None,
+                None
+            ]
         },
+        "garden 2" : {
+            "plots" : [
+                None,
+                None,
+                None
+            ]
+        }
+    }
+
+    patientsInRooms = [
+        None,
         None,
         None,
         None,
@@ -95,18 +106,18 @@ class GameData:
     ]
 
     activePatients = [
-        {
-            "id" : 0,
-            "species" : "cat",
-            "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
-            "idleAnimation" : patientInfo["cat"]["idleAnimation"],
-            "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
-            "state" : "walking",
-            "pos" : [1500,350],
-            "targetPos" : 900,
-            "speed" : 3,
-            "illness" : "fleas" 
-        }
+        # {
+        #     "id" : 0,
+        #     "species" : "cat",
+        #     "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
+        #     "idleAnimation" : patientInfo["cat"]["idleAnimation"],
+        #     "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
+        #     "state" : "walking",
+        #     "pos" : [1500,350],
+        #     "targetPos" : 900,
+        #     "speed" : 3,
+        #     "illness" : "fleas" 
+        # }
     ]
 
 
@@ -203,7 +214,7 @@ class TextRenderer:
             # 3. If not in cache, render it for the first time.
             try:
                 # Create the font object.
-                font = pygame.font.Font('Metamorphous-Regular.ttf', size)
+                font = pygame.font.Font('fonts/Metamorphous-Regular.ttf', size)
             except FileNotFoundError:
                 # If the specified font is not found, fall back to the default font.
                 print(f"Warning: Font '{font_name}' not found. Using default font.")

@@ -36,6 +36,7 @@
             "scale" : 0.4,
             "isFlipped" : false
         },
-        "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration"]
+        "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration"],
+        "rarity" : "common"
     }
 }

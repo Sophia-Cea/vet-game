@@ -1,0 +1,18 @@
+{
+    "plant1": {
+        "path" : "images/garden/plant1/",
+        "seed" : "seed.png",
+        "in betweens" : [
+            "sprout.png",
+            "plant1.png",
+            "plant2.png"
+        ],
+        "fullgrown" : "flower.png",
+        "growTime" : [
+            0.1,
+            0.2,
+            0.3,
+            0.4
+        ]
+    }
+}

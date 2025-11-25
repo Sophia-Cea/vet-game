@@ -12,6 +12,8 @@ stateManager.everythingState = EverythingState()
 stateManager.push(WaitingRoomState())
 
 
+GameData.gardenData["garden 1"]["plots"][0] = GardenPlant("plant1", 300)
+
 running = True
 while running:
     events = pygame.event.get()

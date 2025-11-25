@@ -1,43 +1,48 @@
-import pygame
-import sys
+from datetime import datetime, timedelta
 
 
-pygame.init()
-fpsClock = pygame.time.Clock()
-screen = pygame.display.set_mode([1000, 700], pygame.SCALED)
 
-points = [(200,225),(250,150),(250,200), (350,200), (350,250), (250,250),(250,300)]
-rects = [pygame.Rect(250,200, 100,50), pygame.Rect(240,165,13,125), pygame.Rect(225,183,17,83), pygame.Rect(215,195, 17,60), pygame.Rect(200,215, 17,20)]
+'''
+event_start_time = datetime.now()
+timestamp_string = event_start_time.isoformat()
 
-def render(screen):
-    screen.fill((195,195,195))
-    pygame.draw.polygon(screen, (0,0,200), points)
-    for rect in rects:
-        pygame.draw.rect(screen, (255,0,0), rect, 2)
+with open('game_save.txt', 'w') as f:
+    f.write(timestamp_string)
 
-def update():
-    global rect
-    pos = pygame.mouse.get_pos()
-    rect = pygame.Rect(pos[0],pos[1], 1,1)
+'''
 
-def handleInput(events):
-    for event in events:
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if rect.collidelistall(rects):
-                print("true")
 
-running = True
-while running:
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            running = False
-            pygame.quit()
-            sys.exit()
-
-    render(screen)
-    update()
-    handleInput(events)
+try:
+    with open('game_save.txt', 'r') as f:
+        saved_timestamp_string = f.read()
     
-    pygame.display.flip()
-    delta = fpsClock.tick(30)/1000
+    # Convert the saved string back into a datetime object
+    saved_time = datetime.fromisoformat(saved_timestamp_string)
+    
+except FileNotFoundError:
+    # Handle case where the save file doesn't exist yet
+    print("No saved time found.")
+    saved_time = None
+
+
+
+current_time = datetime.now()
+
+if saved_time:
+    # Calculate the difference, which is a timedelta object
+    time_elapsed = current_time - saved_time 
+    
+    # You now have the elapsed time!
+    # time_elapsed.total_seconds() gives the time in seconds
+    print(f"Total time elapsed: {time_elapsed}")
+    
+    # Define your required duration (e.g., 5 minutes)
+    REQUIRED_DURATION = timedelta(hours=.5)
+    
+    # Check if the required time has passed
+    if time_elapsed >= REQUIRED_DURATION:
+        print("✅ Success! 5 minutes have passed in real-world time.")
+        # Apply rewards, complete crafting, etc.
+    else:
+        time_remaining = REQUIRED_DURATION - time_elapsed
+        print(f"⏳ Still waiting. Time remaining: {time_remaining}")

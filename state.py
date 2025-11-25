@@ -89,24 +89,22 @@ class EverythingState(State):
         if getsCustomer:
             getsCustomer = False
 
-            if len(GameData.activePatients) < 7:
-                newPatient = {
-                    "id" : len(GameData.activePatients),
-                    "species" : "cat",
-                    "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
-                    "idleAnimation" : patientInfo["cat"]["idleAnimation"],
-                    "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
-                    "state" : "walking",
-                    "pos" : [1500,350],
-                    "targetPos" : random.randint(100,1200),
-                    "speed" : random.randint(2,5),
-                    "illness" : random.choice(patientInfo["cat"]["potentialIllnesses"])
-                }
+            if len(GameData.activePatients) < GameData.customerLimit:
+                newPatient = Patient(
+                    patientInfo["cat"]["walkingAnimation"],
+                    patientInfo["cat"]["idleAnimation"],
+                    patientInfo["cat"]["talkingAnimation"],
+                    "walking",
+                    [1500,350],
+                    random.randint(100,1200),
+                    random.randint(2,5),
+                    len(GameData.activePatients),
+                    random.choice(patientInfo["cat"]["potentialIllnesses"])
+                )
                 GameData.activePatients.append(newPatient)
                 for state in stateManager.queue:
                     if type(state) == WaitingRoomState:
                         state.updatePatients()
-
 
 
 class WaitingRoomState(State):
@@ -117,7 +115,7 @@ class WaitingRoomState(State):
         self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png").convert_alpha(), .4)
         self.patients = []
         for patient in GameData.activePatients:
-            self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
+            self.patients.append(patient)
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
@@ -142,6 +140,13 @@ class WaitingRoomState(State):
         for patient in self.patients:
             patient.update()
 
+        for patient in self.patients:
+            if patient not in GameData.activePatients:
+                self.patients.remove(patient)
+                break
+    
+
+
     def handleInput(self, events):
         super().handleInput(events)
         for event in events:
@@ -151,16 +156,57 @@ class WaitingRoomState(State):
                     stateManager.push(PotionRoomState())
                 if self.rightArrow.checkClick():
                     stateManager.transition(False)
-                    stateManager.push(GardenState())
+                    stateManager.push(GardenState("garden 1"))
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
+                
+                for patient in GameData.activePatients:
+                    if patient.currentState != "walking":
+                        if patient.checkClick():
+                            stateManager.push(PatientPopupState(patient))
 
     def updatePatients(self):
         if len(GameData.activePatients) > len(self.patients):
             for i in range(len(self.patients), len(GameData.activePatients)):
                 patient = GameData.activePatients[i]
-                self.patients.append(Patient(patient["walkingAnimation"], patient["idleAnimation"], patient["talkingAnimation"], patient["state"], patient["pos"], patient["targetPos"], patient["speed"], patient["id"]))
+                self.patients.append(patient)
 
+class PatientPopupState(State):
+    def __init__(self, patient):
+        super().__init__()
+        self.background = pygame.Surface((500, 700))
+        self.background.fill((220,200,180))
+        self.rect = pygame.Rect(40,40, 500,700)
+        self.patient = patient
+
+        self.rects = []
+        for i in range(8):
+            self.rects.append(pygame.Rect(60+(i%4)*60, 450+(i//4)*60, 55,55))
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.blit(self.background, self.rect.topleft)
+        textRenderer.render(screen, self.patient.illness, (60, 150), 40, (255,255,255))
+        for rect in self.rects:
+            pygame.draw.rect(screen, (0,255,0), rect)
+    
+
+    def update(self):
+        super().update()
+    
+    def handleInput(self, events):
+        super().handleInput(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if not self.rect.collidepoint(pos):
+                    stateManager.pop()
+                
+                for i, rect in enumerate(self.rects):
+                    if rect.collidepoint(pygame.mouse.get_pos()):
+                        GameData.patientsInRooms[i] = self.patient
+                        GameData.activePatients.remove(self.patient)
+                        stateManager.pop()
 
 class PotionRoomState(State):
     def __init__(self):
@@ -272,7 +318,7 @@ class PotionMakingState(State):
                         self.ingredients = []
                         self.ingredientsText = []
                         self.canBrew = False
-                        
+
                 if self.xButton.checkClick():
                     stateManager.pop()
 
@@ -335,7 +381,7 @@ class PotionMakingState(State):
 
 
 class GardenState(State):
-    def __init__(self):
+    def __init__(self, garden):
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.Surface([orig_size[0], orig_size[1]])
@@ -346,6 +392,9 @@ class GardenState(State):
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
         self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
+        self.garden = garden
+        self.plants = GameData.gardenData[self.garden]["plots"]
+
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -353,10 +402,17 @@ class GardenState(State):
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
+        for plant in self.plants:
+            if plant != None:
+                plant.render(screen)
 
 
     def update(self):
         super().update()
+        for plant in self.plants:
+            if plant != None:
+                plant.update()
+
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -367,6 +423,7 @@ class GardenState(State):
                     stateManager.push(WaitingRoomState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
+
 
 
 class MapState(State):
@@ -381,6 +438,24 @@ class MapState(State):
         self.roomMap = pygame.transform.smoothscale_by(pygame.image.load("images/ui/room_map.png"), .25)
 
         self.patientRoomRect1 = pygame.Rect(645,365,80,80)
+        self.patientRoomRect2 = pygame.Rect(730, 365, 80,80)
+        self.patientRoomRect3 = pygame.Rect(810, 365, 80, 80)
+        self.patientRoomRect4 = pygame.Rect(890, 365, 80,80)
+        self.patientRoomRect5 = pygame.Rect(645, 445, 80,80)
+        self.patientRoomRect6 = pygame.Rect(730, 445, 80,80)
+        self.patientRoomRect7 = pygame.Rect(810, 445, 80,80)
+        self.patientRoomRect8 = pygame.Rect(890, 445, 80,80)
+
+        self.roomRects = [
+            self.patientRoomRect1,
+            self.patientRoomRect2,
+            self.patientRoomRect3,
+            self.patientRoomRect4,
+            self.patientRoomRect5,
+            self.patientRoomRect6,
+            self.patientRoomRect7,
+            self.patientRoomRect8
+        ]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -389,7 +464,8 @@ class MapState(State):
         screen.blit(self.roomMap, (330,200))
         self.mapIcon.render(screen)
 
-        pygame.draw.rect(screen, (255,0,0), self.patientRoomRect1, 2)
+        # for rect in self.roomRects:
+        #     pygame.draw.rect(screen, (255,0,0), rect, 2)
     
     def update(self):
         super().update()
@@ -402,23 +478,40 @@ class MapState(State):
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
                 
-                if self.patientRoomRect1.collidepoint(pos):
-                    stateManager.push(PatientRoomState(0))
-    
+                for i in range(len(self.roomRects)):
+                    if self.roomRects[i].collidepoint(pos):
+                        stateManager.push(PatientRoomState(i))
+
 
 class PatientRoomState(State):
     def __init__(self, index):
         super().__init__()
         self.index = index
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
-        self.patient = None
+        self.patient = GameData.patientsInRooms[self.index]
         self.inventoryButton = InventoryButton()
-        self.patient = GameData.patientsInRooms[self.index] # make it so patients are all the same and have a location specified instead. 
+        self.patient = GameData.patientsInRooms[self.index]
+
+        self.leftArrow = Arrow(True)
+        self.rightArrow = Arrow(False)
+        self.mapIconClosed = MapButton(True)
+        self.coins = Coins()
+        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
+
 
     def render(self, screen, offset):
         super().render(screen, offset)
         screen.blit(self.background, (0,0))
         self.inventoryButton.render(screen)
+        if self.patient != None:
+            self.patient.render(screen)
+        for element in self.uiElements:
+            element.render(screen)
+
+    def update(self):
+        super().update()
+        if self.patient != None:
+            self.patient.update()
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -426,7 +519,17 @@ class PatientRoomState(State):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.inventoryButton.checkClick():
                     stateManager.push(InventoryOpenState())
+                if self.leftArrow.checkClick():
+                    stateManager.transition(True)
+                    stateManager.push(PatientRoomState(self.index-1))
+                if self.rightArrow.checkClick():
+                    stateManager.push(PatientRoomState(self.index+1))
+                if self.mapIconClosed.checkClick():
+                    stateManager.push(MapState())
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DELETE or pygame.K_BACKSPACE:
+                    stateManager.pop()
 
 
 class InventoryOpenState(State):

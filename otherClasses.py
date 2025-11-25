@@ -160,8 +160,6 @@ class PotionIngredient:
     
 
 
-
-
 class PotionIngredientDragging:
     def __init__(self, image, category, name, offset):
         self.scale = 2
@@ -205,3 +203,110 @@ class PotionIngredientInCauldron:
         # textRenderer.render(screen, str(self.quantity), (self.endPos[0]+60, self.endPos[1]+60), 20, (255,255,255))
 
         
+
+GROW_TIME_UNIT = "minutes" # Set to minutes for easy testing!
+
+
+class GardenPlant:
+    """
+    Represents a plant that grows over real-world time.
+    Persistence requires saving and loading: currentState, plantTime, and pos.
+    """
+    def __init__(self, plantName, position):
+        self.plantName = plantName
+        self.plantData = plantInfo[plantName]
+        self.path = self.plantData["path"]
+        
+        # --- Image Loading (Unchanged) ---
+        # NOTE: You must ensure these files exist for Pygame to run.
+        try:
+            self.imgs = [
+                pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["seed"]), .25)
+            ]
+            for img in self.plantData["in betweens"]:
+                self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + img), .25))
+            self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["fullgrown"]), .25))
+            self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
+        except pygame.error as e:
+            print(f"Error loading images for {plantName}. Ensure files exist in '{self.path}': {e}")
+            # Use placeholders if images fail to load
+            self.imgs = [pygame.Surface((100, 100)) for _ in range(len(self.plantData["in betweens"]) + 2)]
+            self.dirt = pygame.Surface((100, 50))
+        # -----------------------------------
+        
+        
+        # New plant initialized
+        self.currentState = 0
+        self.plantTime = datetime.now() # Record the real-world time it was planted
+        self.pos = [position, 650]
+        print(f"Initialized new {self.plantName}.")
+            
+        self.currentImg = self.imgs[self.currentState]
+
+    def get_save_data(self):
+        """Returns a dict ready to be JSON serialized."""
+        return {
+            "plantName": self.plantName,
+            "currentState": self.currentState,
+            # datetime must be converted to an ISO string for saving
+            "plantTime": self.plantTime.isoformat(), 
+            "pos": self.pos
+        }
+
+    def render(self, screen):
+        """Draws the current plant stage and dirt."""
+        # Adjust height based on current image size
+        plant_y = self.pos[1] - self.currentImg.get_height()
+        screen.blit(self.currentImg, [self.pos[0], plant_y])
+        
+        # Dirt drawn slightly lower
+        dirt_y = self.pos[1] - self.dirt.get_height()
+        screen.blit(self.dirt, [self.pos[0], dirt_y])
+
+    def update(self):
+        """Checks real-world time and advances the plant's stage if time elapsed."""
+        
+        # The plant is fully grown and no longer needs updates
+        if self.currentState >= len(self.imgs) - 1:
+            return 
+        
+        current_real_time = datetime.now()
+        
+        # Calculate the time elapsed since the last stage transition
+        time_elapsed = current_real_time - self.plantTime
+        
+        # Get the required time (in the defined unit) for the current stage transition
+        # self.currentState maps to the required time index in growTime
+        required_unit_value = self.plantData["growTime"][self.currentState]
+        
+        # Convert the required value into a timedelta object for comparison
+        if GROW_TIME_UNIT == "minutes":
+            required_duration = timedelta(minutes=required_unit_value)
+        elif GROW_TIME_UNIT == "hours":
+            required_duration = timedelta(hours=required_unit_value)
+        elif GROW_TIME_UNIT == "days":
+            required_duration = timedelta(days=required_unit_value)
+        else: # Default to seconds if unit is unknown or seconds
+            required_duration = timedelta(seconds=required_unit_value)
+            
+        
+        # Check if the elapsed real-world time meets or exceeds the required duration
+        if time_elapsed >= required_duration:
+            # Advance to the next stage
+            self.currentState += 1
+            self.currentImg = self.imgs[self.currentState]
+            
+            # Reset the stage timer to NOW. This is crucial!
+            # The next transition will be measured from this new time.
+            self.plantTime = current_real_time 
+            
+            print(f"[{current_real_time.strftime('%H:%M:%S')}] {self.plantName} Grew to Stage {self.currentState}!")
+            
+            if self.currentState >= len(self.imgs) - 1:
+                print(f"{self.plantName} is now fully grown!")
+
+        else:
+            # Optional: Display time remaining for debugging/UI purposes
+            time_remaining = required_duration - time_elapsed
+            # print(f"Stage {self.currentState}: {time_remaining} remaining.")
+            pass
