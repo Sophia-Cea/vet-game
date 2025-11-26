@@ -77,6 +77,17 @@ class GameData:
         } 
     ]
 
+    seedInventory = [
+        {
+            "name" : "plant1",
+            "quantity" : 2
+        },
+        {
+            "name" : "plant2",
+            "quantity" : 3
+        }
+    ]
+
     gardenData = {
         "garden 1" : {
             "plots" : [

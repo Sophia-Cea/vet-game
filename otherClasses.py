@@ -216,9 +216,6 @@ class GardenPlant:
         self.plantName = plantName
         self.plantData = plantInfo[plantName]
         self.path = self.plantData["path"]
-        
-        # --- Image Loading (Unchanged) ---
-        # NOTE: You must ensure these files exist for Pygame to run.
         try:
             self.imgs = [
                 pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["seed"]), .25)
@@ -234,12 +231,10 @@ class GardenPlant:
             self.dirt = pygame.Surface((100, 50))
         # -----------------------------------
         
-        
-        # New plant initialized
+        self.fullyGrown = False
         self.currentState = 0
         self.plantTime = datetime.now() # Record the real-world time it was planted
         self.pos = [position, 650]
-        print(f"Initialized new {self.plantName}.")
             
         self.currentImg = self.imgs[self.currentState]
 
@@ -254,29 +249,18 @@ class GardenPlant:
         }
 
     def render(self, screen):
-        """Draws the current plant stage and dirt."""
-        # Adjust height based on current image size
         plant_y = self.pos[1] - self.currentImg.get_height()
         screen.blit(self.currentImg, [self.pos[0], plant_y])
-        
-        # Dirt drawn slightly lower
         dirt_y = self.pos[1] - self.dirt.get_height()
         screen.blit(self.dirt, [self.pos[0], dirt_y])
 
     def update(self):
-        """Checks real-world time and advances the plant's stage if time elapsed."""
-        
         # The plant is fully grown and no longer needs updates
         if self.currentState >= len(self.imgs) - 1:
             return 
         
         current_real_time = datetime.now()
-        
-        # Calculate the time elapsed since the last stage transition
         time_elapsed = current_real_time - self.plantTime
-        
-        # Get the required time (in the defined unit) for the current stage transition
-        # self.currentState maps to the required time index in growTime
         required_unit_value = self.plantData["growTime"][self.currentState]
         
         # Convert the required value into a timedelta object for comparison
@@ -290,20 +274,14 @@ class GardenPlant:
             required_duration = timedelta(seconds=required_unit_value)
             
         
-        # Check if the elapsed real-world time meets or exceeds the required duration
         if time_elapsed >= required_duration:
-            # Advance to the next stage
             self.currentState += 1
             self.currentImg = self.imgs[self.currentState]
             
-            # Reset the stage timer to NOW. This is crucial!
-            # The next transition will be measured from this new time.
             self.plantTime = current_real_time 
             
-            print(f"[{current_real_time.strftime('%H:%M:%S')}] {self.plantName} Grew to Stage {self.currentState}!")
-            
             if self.currentState >= len(self.imgs) - 1:
-                print(f"{self.plantName} is now fully grown!")
+                self.fullyGrown = True
 
         else:
             # Optional: Display time remaining for debugging/UI purposes

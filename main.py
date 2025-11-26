@@ -7,12 +7,14 @@ pygame.init()
 fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 display = pygame.Surface((orig_size[0], orig_size[1]))
+pygame.display.set_caption("Bloom and Brew")
 
 stateManager.everythingState = EverythingState()
 stateManager.push(WaitingRoomState())
 
 
 GameData.gardenData["garden 1"]["plots"][0] = GardenPlant("plant1", 300)
+GameData.gardenData["garden 1"]["plots"][1] = GardenPlant("plant2", 600)
 
 running = True
 while running:

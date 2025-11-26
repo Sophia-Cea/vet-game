@@ -153,17 +153,12 @@ class InventoryButton(UIthingy):
         self.rect = pygame.Rect(40,800,300,200)
 
 
-
-class PotionItemInInventory(UIthingy):
-    def __init__(self, potionObject, pos):
+class ItemInInventory(UIthingy):
+    def __init__(self, object, pos):
         super().__init__()
-        self.potionObject = potionObject
-        self.potionData = potionInfo["potions"][potionObject["name"]]
-        self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.potionData["image"]), 8)
         self.pos = [pos[0], pos[1]]
-        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
-        self.quantity = potionObject["quantity"]
-
+        self.object = object
+        self.quantity = object["quantity"]
 
     def render(self, screen):
         super().render(screen)
@@ -174,4 +169,26 @@ class PotionItemInInventory(UIthingy):
 
     def handleInput(self, events):
         super().handleInput(events)
+
+
+
+class PotionItemInInventory(ItemInInventory):
+    def __init__(self, potionObject, pos):
+        super().__init__(potionObject, pos)
+        self.data = potionInfo["potions"][self.object["name"]]
+        self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.data["image"]), 8)
+        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+
+
+
+    
+
+class SeedItemInInventory(ItemInInventory):
+    def __init__(self, seedObject, pos):
+        super().__init__(seedObject, pos)
+        self.data = plantInfo[seedObject["name"]]
+        self.image = pygame.transform.smoothscale_by(pygame.image.load(self.data["path"] + "seed.png"), .25)
+        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+
+        
     
