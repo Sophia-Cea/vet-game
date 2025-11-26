@@ -443,14 +443,27 @@ class MapState(State):
         self.mapIcon = MapButton(False)
         self.roomMap = pygame.transform.smoothscale_by(pygame.image.load("images/ui/room_map.png"), .25)
 
-        self.patientRoomRect1 = pygame.Rect(645,365,80,80)
-        self.patientRoomRect2 = pygame.Rect(730, 365, 80,80)
-        self.patientRoomRect3 = pygame.Rect(810, 365, 80, 80)
-        self.patientRoomRect4 = pygame.Rect(890, 365, 80,80)
-        self.patientRoomRect5 = pygame.Rect(645, 445, 80,80)
-        self.patientRoomRect6 = pygame.Rect(730, 445, 80,80)
-        self.patientRoomRect7 = pygame.Rect(810, 445, 80,80)
-        self.patientRoomRect8 = pygame.Rect(890, 445, 80,80)
+
+        self.patientRoomRect1 = pygame.Rect(635,370,85,85)
+        self.patientRoomRect2 = pygame.Rect(720, 370, 95,85)
+        self.patientRoomRect3 = pygame.Rect(815, 370, 85, 85)
+        self.patientRoomRect4 = pygame.Rect(900, 370, 85,85)
+        self.patientRoomRect5 = pygame.Rect(635, 450, 85,85)
+        self.patientRoomRect6 = pygame.Rect(720, 450, 95,85)
+        self.patientRoomRect7 = pygame.Rect(815, 450, 85,85)
+        self.patientRoomRect8 = pygame.Rect(900, 450, 85,85)
+
+        self.potionRoomRect = pygame.Rect(635, 280, 85,90)
+        self.waitingRoomRect = pygame.Rect(720, 280, 95,90)
+        self.garden1Rect = pygame.Rect(635, 535, 160, 75)
+        self.garden2Rect = pygame.Rect(800, 535, 160, 75)
+
+        self.otherRects = [
+            self.potionRoomRect,
+            self.waitingRoomRect,
+            self.garden1Rect,
+            self.garden2Rect
+        ]
 
         self.roomRects = [
             self.patientRoomRect1,
@@ -470,8 +483,11 @@ class MapState(State):
         screen.blit(self.roomMap, (330,200))
         self.mapIcon.render(screen)
 
-        # for rect in self.roomRects:
-        #     pygame.draw.rect(screen, (255,0,0), rect, 2)
+        for rect in self.roomRects:
+            pygame.draw.rect(screen, (255,0,0), rect, 2)
+        
+        for rect in self.otherRects:
+            pygame.draw.rect(screen, (255,0,0), rect, 2)
     
     def update(self):
         super().update()
