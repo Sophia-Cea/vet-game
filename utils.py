@@ -90,6 +90,7 @@ class GameData:
 
     gardenData = {
         "garden 1" : {
+            "locked" : False,
             "plots" : [
                 None,
                 None,
@@ -97,6 +98,7 @@ class GameData:
             ]
         },
         "garden 2" : {
+            "locked" : True,
             "plots" : [
                 None,
                 None,
@@ -114,6 +116,41 @@ class GameData:
         None,
         None,
         None
+    ]
+
+    roomData = [
+        {
+            "locked": False,
+            "patient" : None
+        },
+        {
+            "locked": False,
+            "patient" : None
+        },
+        {
+            "locked": True,
+            "patient" : None
+        },
+        {
+            "locked": True,
+            "patient" : None
+        },
+        {
+            "locked": True,
+            "patient" : None
+        },
+        {
+            "locked": True,
+            "patient" : None
+        },
+        {
+            "locked": True,
+            "patient" : None
+        },
+        {
+            "locked": True,
+            "patient" : None
+        }
     ]
 
     activePatients = [

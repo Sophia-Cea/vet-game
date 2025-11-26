@@ -6,11 +6,10 @@ from patient import *
 class Cauldron:
     def __init__(self, pos, scale=.5):
         self.animation = Animation("images/potionRoom/cauldronAnimation/", [
-            "Untitled_Artwork-1.png", "Untitled_Artwork-2.png", "Untitled_Artwork-3.png", "Untitled_Artwork-4.png",
-            "Untitled_Artwork-5.png", "Untitled_Artwork-6.png", "Untitled_Artwork-7.png", "Untitled_Artwork-8.png",
-            "Untitled_Artwork-9.png", "Untitled_Artwork-10.png", "Untitled_Artwork-11.png", "Untitled_Artwork-12.png",
-            "Untitled_Artwork-13.png", "Untitled_Artwork-14.png", "Untitled_Artwork-15.png", "Untitled_Artwork-16.png"
-        ], 2, scale)
+            "Cauldron_F1.png", "Cauldron_F2.png", "Cauldron_F3.png", "Cauldron_F4.png",
+            "Cauldron_F5.png", "Cauldron_F6.png", "Cauldron_F7.png", "Cauldron_F8.png",
+            "Cauldron_F9.png", "Cauldron_F10.png", "Cauldron_F11.png"
+        ], 1.83, scale)
         self.pos = pos
         self.rect = pygame.Rect(pos[0]+160,pos[1]+190,200,200)
         self.textcol = (67, 40, 24)

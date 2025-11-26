@@ -51,6 +51,25 @@ class Arrow(UIthingy):
             super().render(screen)
 
 
+class VerticalArrow(UIthingy):
+    def __init__(self, isDown):
+        super().__init__()
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/down_arrow.png"), .3)
+        self.hoverImage = pygame.transform.smoothscale_by(pygame.image.load("images/ui/down_arrow_hover.png"), .3)
+        if not isDown:
+            self.pos = (720, 20)
+            self.image = pygame.transform.flip(self.image, False, True)
+            self.hoverImage = pygame.transform.flip(self.hoverImage, False, True)
+        if isDown:
+            self.pos = (720, 830)
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
+
+    def render(self, screen):
+        if self.checkClick():
+            screen.blit(self.hoverImage, self.pos)
+        super().render(screen)
+
+
 class Coins:
     def __init__(self):
         self.copper = pygame.transform.smoothscale_by(pygame.image.load("images/ui/copper.png"), .1)
@@ -171,7 +190,6 @@ class ItemInInventory(UIthingy):
         super().handleInput(events)
 
 
-
 class PotionItemInInventory(ItemInInventory):
     def __init__(self, potionObject, pos):
         super().__init__(potionObject, pos)
@@ -179,9 +197,6 @@ class PotionItemInInventory(ItemInInventory):
         self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.data["image"]), 8)
         self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
 
-
-
-    
 
 class SeedItemInInventory(ItemInInventory):
     def __init__(self, seedObject, pos):

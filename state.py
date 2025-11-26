@@ -5,6 +5,7 @@ class StateManager:
         self.queue = []
         self.transitioning = False
         self.transitioningLeft = None
+        self.transitioningDown = None
         self.bgOldOffset = [0,0]
         self.bgNewOffset = [0,0]
         self.everythingState = None
@@ -13,15 +14,24 @@ class StateManager:
         self.queue.append(page)
         page.onEnter()
 
-    def transition(self, transitioningLeft):
+    def transition(self, transitioningLeft, transitioningDown=None):
         self.transitioning = True
         self.transitioningLeft = transitioningLeft
-        if self.transitioningLeft:
+        self.transitioningDown = transitioningDown
+        if self.transitioningLeft == True:
             self.bgOldOffset = [0,0]
             self.bgNewOffset = [-WIDTH,0]
-        else:
+        elif self.transitioningLeft == False:
             self.bgOldOffset = [0,0]
             self.bgNewOffset = [WIDTH,0]
+        
+        if self.transitioningDown == True:
+            self.bgOldOffset = [0,0]
+            self.bgNewOffset = [0,HEIGHT]
+        elif self.transitioningDown == False:
+            self.bgOldOffset = [0,0]
+            self.bgNewOffset = [0,-HEIGHT]
+
 
     def pop(self):
         self.queue[len(self.queue)-1].onExit()
@@ -43,14 +53,27 @@ class StateManager:
             self.queue[len(self.queue)-2].update()
             self.queue[len(self.queue)-1].render(surface, self.bgNewOffset)
             self.queue[len(self.queue)-2].render(surface, self.bgOldOffset)
-            movement = (self.bgNewOffset[0])/6
-            if abs(movement) < 5:
-                movement = 5 * (movement/abs(movement))
-            self.bgNewOffset[0] -= movement
-            self.bgOldOffset[0] -= movement
-            if self.bgNewOffset[0] > -6 and self.bgNewOffset[0] < 6:
-                self.transitioning = False
-                self.queue.remove(self.queue[-2])
+            if self.transitioningLeft != None:
+                movement = (self.bgNewOffset[0])/6
+                if abs(movement) < 5:
+                    movement = 5 * (movement/abs(movement))
+                self.bgNewOffset[0] -= movement
+                self.bgOldOffset[0] -= movement
+                if self.bgNewOffset[0] > -6 and self.bgNewOffset[0] < 6:
+                    self.transitioning = False
+                    self.transitioningLeft = None
+                    self.queue.remove(self.queue[-2])
+            
+            if self.transitioningDown != None:
+                movement = (self.bgNewOffset[1])/6
+                if abs(movement) < 5:
+                    movement = 5 * (movement/abs(movement))
+                self.bgNewOffset[1] -= movement
+                self.bgOldOffset[1] -= movement
+                if self.bgNewOffset[1] > -6 and self.bgNewOffset[1] < 6:
+                    self.transitioning = False
+                    self.transitioningDown = None
+                    self.queue.remove(self.queue[-2])
 
 class State:
     def __init__(self) -> None:
@@ -121,9 +144,10 @@ class WaitingRoomState(State):
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
+        self.downArrow = VerticalArrow(True)
         self.coins = Coins()
         self.book = Book()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.mapIconClosed, self.coins]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -157,8 +181,12 @@ class WaitingRoomState(State):
                     stateManager.transition(True)
                     stateManager.push(PotionRoomState())
                 if self.rightArrow.checkClick():
-                    stateManager.transition(False)
-                    stateManager.push(GardenState("garden 1"))
+                    # stateManager.transition(False)
+                    # stateManager.push(GardenState("garden 1"))
+                    pass
+                if self.downArrow.checkClick():
+                    stateManager.transition(None, True)
+                    stateManager.push(PatientRoomState(0))
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
                 
@@ -394,7 +422,8 @@ class GardenState(State):
         self.mapIconClosed = MapButton(True)
         self.inventoryButton = InventoryButton()
         self.coins = Coins()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
+        self.upArrow = VerticalArrow(False)
+        self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIconClosed, self.coins]
         self.garden = garden
         self.plants = GameData.gardenData[self.garden]["plots"]
 
@@ -425,10 +454,16 @@ class GardenState(State):
                 if self.inventoryButton.checkClick():
                     stateManager.push(SeedInventoryOpenState())
                 if self.leftArrow.checkClick():
-                    stateManager.transition(True)
-                    stateManager.push(WaitingRoomState())
+                    # stateManager.transition(True)
+                    # stateManager.push(WaitingRoomState())
+                    pass
+                if self.rightArrow.checkClick():
+                    pass
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
+                if self.upArrow.checkClick():
+                    stateManager.transition(None, False)
+                    stateManager.push(PatientRoomState(0))
 
 
 
@@ -442,21 +477,23 @@ class MapState(State):
         self.darkbg.set_alpha(90)
         self.mapIcon = MapButton(False)
         self.roomMap = pygame.transform.smoothscale_by(pygame.image.load("images/ui/room_map.png"), .25)
+        self.lockImageShort = pygame.transform.smoothscale_by(pygame.image.load("images/ui/lock_short.png"), .25)
+        self.lockImageLong = pygame.transform.smoothscale_by(pygame.image.load("images/ui/lock_long.png"), .25)
 
 
         self.patientRoomRect1 = pygame.Rect(635,370,85,85)
         self.patientRoomRect2 = pygame.Rect(720, 370, 95,85)
         self.patientRoomRect3 = pygame.Rect(815, 370, 85, 85)
         self.patientRoomRect4 = pygame.Rect(900, 370, 85,85)
-        self.patientRoomRect5 = pygame.Rect(635, 450, 85,85)
-        self.patientRoomRect6 = pygame.Rect(720, 450, 95,85)
-        self.patientRoomRect7 = pygame.Rect(815, 450, 85,85)
-        self.patientRoomRect8 = pygame.Rect(900, 450, 85,85)
+        self.patientRoomRect5 = pygame.Rect(635, 455, 85,80)
+        self.patientRoomRect6 = pygame.Rect(720, 455, 95,80)
+        self.patientRoomRect7 = pygame.Rect(815, 455, 85,80)
+        self.patientRoomRect8 = pygame.Rect(900, 455, 85,80)
 
         self.potionRoomRect = pygame.Rect(635, 280, 85,90)
         self.waitingRoomRect = pygame.Rect(720, 280, 95,90)
-        self.garden1Rect = pygame.Rect(635, 535, 160, 75)
-        self.garden2Rect = pygame.Rect(800, 535, 160, 75)
+        self.garden1Rect = pygame.Rect(635, 535, 180, 75)
+        self.garden2Rect = pygame.Rect(815, 535, 170, 75)
 
         self.otherRects = [
             self.potionRoomRect,
@@ -483,11 +520,32 @@ class MapState(State):
         screen.blit(self.roomMap, (330,200))
         self.mapIcon.render(screen)
 
-        for rect in self.roomRects:
-            pygame.draw.rect(screen, (255,0,0), rect, 2)
+        for i, rect in enumerate(self.roomRects):
+            # pygame.draw.rect(screen, (255,0,0), rect, 2)
+            if GameData.roomData[i]["locked"] == False:
+                textRenderer.render(screen, str(i+1), rect.center, 25, (255,255,255), align="center")
+            else:
+                screen.blit(self.lockImageShort, (rect.x-10, rect.y-10))
         
-        for rect in self.otherRects:
-            pygame.draw.rect(screen, (255,0,0), rect, 2)
+        textRenderer.render(screen, "Potion", (self.potionRoomRect.centerx, self.potionRoomRect.centery-10), 17, (255,255,255), align="center")
+        textRenderer.render(screen, "Room", (self.potionRoomRect.centerx, self.potionRoomRect.centery+10), 17, (255,255,255), align="center")
+
+
+        textRenderer.render(screen, "Waiting", (self.waitingRoomRect.centerx, self.waitingRoomRect.centery-10), 17, (255,255,255), align="center")
+        textRenderer.render(screen, "Room", (self.waitingRoomRect.centerx, self.waitingRoomRect.centery+10), 17, (255,255,255), align="center")
+
+        if GameData.gardenData["garden 1"]["locked"]:
+            screen.blit(self.lockImageLong, (self.garden1Rect.x-10, self.garden1Rect.y-10))
+        else:
+            textRenderer.render(screen, "Garden 1", self.garden1Rect.center, 20, (255,255,255), align="center")
+
+        if GameData.gardenData["garden 2"]["locked"]:
+            screen.blit(self.lockImageLong,  (self.garden2Rect.x-10, self.garden2Rect.y-10))
+        else:
+            textRenderer.render(screen, "Garden 2", self.garden2Rect.center, 20, (255,255,255), align="center")
+        
+        # for rect in self.otherRects:
+        #     pygame.draw.rect(screen, (255,0,0), rect, 2)
     
     def update(self):
         super().update()
@@ -502,8 +560,21 @@ class MapState(State):
                 
                 for i in range(len(self.roomRects)):
                     if self.roomRects[i].collidepoint(pos):
-                        stateManager.push(PatientRoomState(i))
+                        if not GameData.roomData[i]["locked"]:
+                            stateManager.push(PatientRoomState(i))
 
+                if self.garden1Rect.collidepoint(pos) and not GameData.gardenData["garden 1"]["locked"]:
+                    stateManager.push(GardenState("garden 1"))
+                
+                if self.garden2Rect.collidepoint(pos) and not GameData.gardenData["garden 2"]["locked"]:
+                    stateManager.push(GardenState("garden 2"))
+                
+                if self.potionRoomRect.collidepoint(pos):
+                    stateManager.push(PotionRoomState())
+                
+                if self.waitingRoomRect.collidepoint(pos):
+                    stateManager.push(WaitingRoomState())
+                
 
 class PatientRoomState(State):
     def __init__(self, index):
@@ -514,13 +585,18 @@ class PatientRoomState(State):
         self.patient = GameData.patientsInRooms[self.index]
         self.inventoryButton = InventoryButton()
         self.patient = GameData.patientsInRooms[self.index]
-
+        self.downArrow = VerticalArrow(True)
+        self.upArrow = VerticalArrow(False)
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
-
+        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.upArrow, self.mapIconClosed, self.coins]
+        if self.index == len(GameData.roomData)-1:
+            self.uiElements.remove(self.rightArrow)
+        
+        if self.index == 0:
+            self.uiElements.remove(self.leftArrow)
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -544,11 +620,19 @@ class PatientRoomState(State):
                 if self.inventoryButton.checkClick():
                     stateManager.push(PotionInventoryOpenState())
                 if self.leftArrow.checkClick():
-                    stateManager.transition(True)
-                    stateManager.push(PatientRoomState(self.index-1))
+                    if self.index > 0:
+                        stateManager.transition(True)
+                        stateManager.push(PatientRoomState(self.index-1))
                 if self.rightArrow.checkClick():
-                    stateManager.transition(False)
-                    stateManager.push(PatientRoomState(self.index+1))
+                    if self.index < len(GameData.roomData)-1:
+                        stateManager.transition(False)
+                        stateManager.push(PatientRoomState(self.index+1))
+                if self.downArrow.checkClick():
+                    stateManager.transition(None, True)
+                    stateManager.push(GardenState("garden 1"))
+                if self.upArrow.checkClick():
+                    stateManager.transition(None, False)
+                    stateManager.push(WaitingRoomState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
 
