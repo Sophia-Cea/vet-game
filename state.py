@@ -641,6 +641,25 @@ class PatientRoomState(State):
                     stateManager.pop()
 
 
+class InventoryButton:
+    def __init__(self):
+        self.image = pygame.image.load("images/ui/MedicalRoomShelfButton.png").convert_alpha()
+
+        self.image = pygame.transform.scale(self.image, (658 // 2.5, 913 // 2.5))
+
+        self.pos = (80, 150)
+        self.rect = self.image.get_rect()
+
+    def render(self, screen):
+        screen.blit(self.image, self.pos)
+
+    def checkClick(self):
+        mouse = pygame.mouse.get_pos()
+        if self.rect.collidepoint(mouse):
+            return True
+        return False
+
+
 class InventoryOpenState(State):
     def __init__(self):
         super().__init__()
