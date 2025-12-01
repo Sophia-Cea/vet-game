@@ -581,7 +581,7 @@ class PatientRoomState(State):
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.index = index
-        self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
+        self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/VetMedicalRoom.png"), (orig_size[0], orig_size[1]))
         self.patient = GameData.patientsInRooms[self.index]
         self.inventoryButton = InventoryButton()
         self.patient = GameData.patientsInRooms[self.index]
