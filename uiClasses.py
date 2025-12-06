@@ -172,6 +172,29 @@ class InventoryButton(UIthingy):
         self.rect = pygame.Rect(40,800,300,200)
 
 
+class MedicalRoomInventoryButton(InventoryButton):
+    def __init__(self):
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/MedicalRoomShelfButton.png").convert_alpha(), .4)
+        self.hoverImage = pygame.transform.smoothscale_by(pygame.image.load("images/ui/MedicalRoomShelfClickWHITEBACK.png").convert_alpha(), .4)
+        self.pos = (80, 150)
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
+
+        self.hoverPos = [80,150]
+        self.hoverPos[0] = self.hoverPos[0] - (self.hoverImage.get_width()-self.rect.w)/2
+        self.hoverPos[1] = self.hoverPos[1] - (self.hoverImage.get_height()-self.rect.h)/2
+
+    def render(self, screen):
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            screen.blit(self.hoverImage, self.hoverPos)
+        screen.blit(self.image, self.pos)
+
+
+class GardenInventoryButton(InventoryButton):
+    def __init__(self):
+        super().__init__()
+
+
+
 class ItemInInventory(UIthingy):
     def __init__(self, object, pos):
         super().__init__()

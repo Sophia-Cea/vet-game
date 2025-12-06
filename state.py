@@ -420,7 +420,7 @@ class GardenState(State):
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
-        self.inventoryButton = InventoryButton()
+        self.inventoryButton = GardenInventoryButton()
         self.coins = Coins()
         self.upArrow = VerticalArrow(False)
         self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIconClosed, self.coins]
@@ -464,7 +464,6 @@ class GardenState(State):
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(PatientRoomState(0))
-
 
 
 class MapState(State):
@@ -583,7 +582,7 @@ class PatientRoomState(State):
         self.index = index
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/VetMedicalRoom.png"), (orig_size[0], orig_size[1]))
         self.patient = GameData.patientsInRooms[self.index]
-        self.inventoryButton = InventoryButton()
+        self.inventoryButton = MedicalRoomInventoryButton()
         self.patient = GameData.patientsInRooms[self.index]
         self.downArrow = VerticalArrow(True)
         self.upArrow = VerticalArrow(False)
@@ -636,28 +635,6 @@ class PatientRoomState(State):
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DELETE or pygame.K_BACKSPACE:
-                    stateManager.pop()
-
-
-class InventoryButton:
-    def __init__(self):
-        self.image = pygame.image.load("images/ui/MedicalRoomShelfButton.png").convert_alpha()
-
-        self.image = pygame.transform.scale(self.image, (658 // 2.5, 913 // 2.5))
-
-        self.pos = (80, 150)
-        self.rect = self.image.get_rect()
-
-    def render(self, screen):
-        screen.blit(self.image, self.pos)
-
-    def checkClick(self):
-        mouse = pygame.mouse.get_pos()
-        if self.rect.collidepoint(mouse):
-            return True
-        return False
 
 
 class InventoryOpenState(State):
