@@ -155,6 +155,16 @@ class WaitingRoomState(State):
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
         self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png").convert_alpha(), .4)
+        self.fire = Animation("images/mainroom/fire/", [
+            "fire1.png",
+            "fire2.png",
+            "fire3.png",
+            "fire4.png",
+            "fire5.png",
+            "fire6.png",
+            "fire7.png",
+            "fire8.png"
+        ], 1, .15)
         self.patients = []
         for patient in GameData.activePatients:
             self.patients.append(patient)
@@ -169,6 +179,7 @@ class WaitingRoomState(State):
     def render(self, screen, offset):
         super().render(screen, offset)
         self.surface.blit(self.background, (0,0))
+        self.fire.render(self.surface, (680,330))
         for patient in self.patients:
             patient.render(self.surface)
         self.surface.blit(self.desk, (30, 40))
@@ -180,6 +191,7 @@ class WaitingRoomState(State):
 
     def update(self):
         super().update()
+        self.fire.update()
         for patient in self.patients:
             patient.update()
 
