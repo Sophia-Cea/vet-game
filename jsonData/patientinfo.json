@@ -1,39 +1,37 @@
 {
-    "cat" : {
+    "paige" : {
         "walkingAnimation" : {
             "path" : "images/patients/paige/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "WalkPass1.png",
+                "WalkUp2.png",
+                "WalkContact3.png",
+                "WalkDown4.png",
+                "WalkPass5.png",
+                "WalkUp6.png",
+                "WalkContact7.png",
+                "WalkDown8.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
-            "isFlipped" : true
+            "scale" : 0.25,
+            "isFlipped" : false
         },
         "idleAnimation" : {
             "path" : "images/patients/paige/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.25,
             "isFlipped" : false
         },
         "talkingAnimation" : {
             "path" : "images/patients/paige/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.25,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration"],
@@ -42,36 +40,30 @@
 
     "wolf" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/wolf/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "walk1.png",
+                "walk2.png",
+                "walk3.png",
+                "walk4.png"
             ],
             "duration" : 1,
             "scale" : 0.4,
             "isFlipped" : true
         },
         "idleAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/wolf/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
             "isFlipped" : false
         },
         "talkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/wolf/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
@@ -83,36 +75,30 @@
 
     "unicorn" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/unicorn/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "Walk1.png",
+                "Walk2.png",
+                "Walk3.png",
+                "Walk4.png"
             ],
             "duration" : 1,
             "scale" : 0.4,
             "isFlipped" : true
         },
         "idleAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/unicorn/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
             "isFlipped" : false
         },
         "talkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/unicorn/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
@@ -124,36 +110,30 @@
 
     "dragon" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/dragon/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "Walk1.png",
+                "Walk2.png",
+                "Walk3.png",
+                "Walk4.png"
             ],
             "duration" : 1,
             "scale" : 0.4,
             "isFlipped" : true
         },
         "idleAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/dragon/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
             "isFlipped" : false
         },
         "talkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/dragon/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
@@ -165,36 +145,30 @@
 
     "owl" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/owl/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "Walk1.png",
+                "Walk2.png",
+                "Walk3.png",
+                "Walk4.png"
             ],
             "duration" : 1,
             "scale" : 0.4,
             "isFlipped" : true
         },
         "idleAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/owl/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
             "isFlipped" : false
         },
         "talkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/owl/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
@@ -206,36 +180,30 @@
 
     "fox" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/fox/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "Walk1.png",
+                "Walk2.png",
+                "Walk3.png",
+                "Walk4.png"
             ],
             "duration" : 1,
             "scale" : 0.4,
             "isFlipped" : true
         },
         "idleAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/fox/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
             "isFlipped" : false
         },
         "talkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/fox/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
@@ -247,36 +215,30 @@
 
     "rabbit" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/rabbit/",
             "images" : [
-                "paigeWalking1.png",
-                "paigeWalking2.png",
-                "paigeWalking3.png",
-                "paigeWalking4.png"
+                "Walk1.png",
+                "Walk2.png",
+                "Walk3.png",
+                "Walk4.png"
             ],
             "duration" : 1,
             "scale" : 0.4,
             "isFlipped" : true
         },
         "idleAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/rabbit/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
             "isFlipped" : false
         },
         "talkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/rabbit/",
             "images" : [
-                "Blink1.png", "Blink2.png", "Blink3.png", "Blink4.png",
-                "Blink5.png", "Blink6.png", "Blink7.png", "Blink8.png",
-                "Blink9.png", "Blink10.png", "Blink11.png", "Blink12.png",
-                "Blink13.png", "Blink14.png", "Blink15.png", "Blink16.png"
+                "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.4,
