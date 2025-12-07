@@ -1,7 +1,7 @@
 {
     "paige" : {
         "walkingAnimation" : {
-            "path" : "images/patients/paige/",
+            "path" : "images/patients/paige/Walk/",
             "images" : [
                 "WalkPass1.png",
                 "WalkUp2.png",
@@ -28,7 +28,11 @@
         "talkingAnimation" : {
             "path" : "images/patients/paige/",
             "images" : [
-                "Stand.png"
+                "Blink/Blink1.png", "Blink/Blink2.png", "Blink/Blink3.png", "Blink/Blink2.png", "Blink/Blink1.png", 
+                "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", 
+                "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", 
+                "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", 
+                "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png"
             ],
             "duration" : 3,
             "scale" : 0.25,
