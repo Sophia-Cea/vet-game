@@ -41,25 +41,25 @@ class GameData:
 
     animalData = {
         "common" : {
-            "mouse" : 10,
-            "cat" : 10,
-            "dog" : 10,
+            # "mouse" : 10,
+            "paige" : 10,
+            # "dog" : 10,
             "rabbit" : 10,
-            "squirrel" : 10
+            # "squirrel" : 10
         },
         "rare" : {
             "wolf" : 5,
-            "panther" : 5,
-            "salamander" : 5,
+            # "panther" : 5,
+            # "salamander" : 5,
         },
         "uncommon" : {
             "fox" : 3,
             "owl" : 3,
-            "crow" : 3,
+            # "crow" : 3,
         },
         "super rare" : {
-            "pegasus" : 2,
-            "crystal fox" : 2,
+            "unicorn" : 2,
+            # "crystal fox" : 2,
         },
         "legendary" : {
             "dragon" : 1,

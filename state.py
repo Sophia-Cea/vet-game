@@ -115,16 +115,33 @@ class EverythingState(State):
             getsCustomer = False
 
             if len(GameData.activePatients) < GameData.customerLimit:
+                
+                # --- START NEW WEIGHTED LOGIC ---
+                all_animals = []
+                all_weights = []
+                
+                # Iterate through the nested dictionary to build our lists
+                for category in GameData.animalData.values():
+                    for animal, weight in category.items():
+                        all_animals.append(animal)
+                        all_weights.append(weight)
+
+                # Pick the animal
+                chosen_animal = random.choices(all_animals, weights=all_weights, k=1)[0]
+                # --- END NEW WEIGHTED LOGIC ---
+
                 newPatient = Patient(
-                    patientInfo["cat"]["walkingAnimation"],
-                    patientInfo["cat"]["idleAnimation"],
-                    patientInfo["cat"]["talkingAnimation"],
+                    # Use chosen_animal instead of "cat"
+                    patientInfo[chosen_animal]["walkingAnimation"],
+                    patientInfo[chosen_animal]["idleAnimation"],
+                    patientInfo[chosen_animal]["talkingAnimation"],
                     "walking",
-                    [1500,350],
-                    random.randint(100,1200),
-                    random.randint(2,5),
+                    [1500, 350],
+                    random.randint(100, 1200),
+                    random.randint(2, 5),
                     len(GameData.activePatients),
-                    random.choice(patientInfo["cat"]["potentialIllnesses"])
+                    # Also use chosen_animal for the illness lookup
+                    random.choice(patientInfo[chosen_animal]["potentialIllnesses"])
                 )
                 GameData.activePatients.append(newPatient)
                 for state in stateManager.queue:
