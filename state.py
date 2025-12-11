@@ -665,7 +665,6 @@ class PatientRoomState(State):
                     stateManager.push(MapState())
 
 
-
 class InventoryOpenState(State):
     def __init__(self):
         super().__init__()
