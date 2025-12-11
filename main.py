@@ -27,7 +27,7 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 pygame.display.toggle_fullscreen()
-        
+
     is_fullscreen = pygame.display.get_surface().get_flags() & pygame.FULLSCREEN
 
 

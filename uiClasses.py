@@ -21,8 +21,6 @@ class UIthingy:
 
 
 
-
-
 class Book(UIthingy):
     def __init__(self):
         super().__init__()
@@ -57,11 +55,11 @@ class VerticalArrow(UIthingy):
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/down_arrow.png"), .3)
         self.hoverImage = pygame.transform.smoothscale_by(pygame.image.load("images/ui/down_arrow_hover.png"), .3)
         if not isDown:
-            self.pos = (720, 20)
+            self.pos = (755, 5)
             self.image = pygame.transform.flip(self.image, False, True)
             self.hoverImage = pygame.transform.flip(self.hoverImage, False, True)
         if isDown:
-            self.pos = (720, 830)
+            self.pos = (755, 830)
         self.rect = pygame.Rect(self.pos[0], self.pos[1], self.image.get_width(), self.image.get_height())
 
     def render(self, screen):
@@ -142,12 +140,11 @@ class MapButton(UIthingy):
     def __init__(self, isClosed):
         super().__init__()
         if isClosed:
-            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .5)
+            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .4)
         else: 
-            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .5)
-        self.rect = pygame.Rect(1400,30,150,150)
-        self.pos = [1400,30]
-
+            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .4)
+        self.rect = pygame.Rect(1500,20,80,100)
+        self.pos = [1480,10]
 
 
 class BrewButton(UIthingy):
@@ -166,10 +163,24 @@ class BrewButton(UIthingy):
 class InventoryButton(UIthingy):
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((300,200))
-        self.image.fill((100,100,80))
-        self.pos = [40,800]
-        self.rect = pygame.Rect(40,800,300,200)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), .15)
+        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-open.png"), .15)
+        self.pos = (10,720)
+        self.rect = pygame.Rect(15,770, 130,120)
+        self.closed = True
+    
+    def render(self, screen):
+        pos = pygame.mouse.get_pos()
+        hovering = self.rect.collidepoint(pos)
+        if self.closed == False:
+            screen.blit(self.imageOpen, (self.pos[0], self.pos[1]))
+
+        else:
+            if not hovering:
+                screen.blit(self.image, self.pos)
+            else:
+                screen.blit(pygame.transform.smoothscale_by(self.image, 1.02), (self.pos[0], self.pos[1]))
+
 
 
 class MedicalRoomInventoryButton(InventoryButton):
@@ -188,21 +199,6 @@ class MedicalRoomInventoryButton(InventoryButton):
             screen.blit(self.hoverImage, self.hoverPos)
         screen.blit(self.image, self.pos)
 
-
-class GardenInventoryButton(InventoryButton):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), .2)
-        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-open.png"), .2)
-        self.pos = (20,660)
-        self.rect = pygame.Rect(40,740, 160,140)
-        self.closed = True
-    
-    def render(self, screen):
-        if self.closed == False:
-            screen.blit(self.imageOpen, (self.pos[0], self.pos[1]))
-        else:
-            screen.blit(self.image, self.pos)
 
 
 class ItemInInventory(UIthingy):
@@ -253,5 +249,4 @@ class InventoryStateRoundButton:
         if dist <= self.radius:
             return True
         return False
-   
-    
+

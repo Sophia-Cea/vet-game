@@ -168,13 +168,14 @@ class WaitingRoomState(State):
         self.patients = []
         for patient in GameData.activePatients:
             self.patients.append(patient)
+        self.inventoryButton = InventoryButton()
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
         self.downArrow = VerticalArrow(True)
         self.coins = Coins()
         self.book = Book()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.mapIconClosed, self.coins]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.mapIconClosed, self.coins, self.inventoryButton]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -200,8 +201,6 @@ class WaitingRoomState(State):
                 self.patients.remove(patient)
                 break
     
-
-
     def handleInput(self, events):
         super().handleInput(events)
         for event in events:
@@ -223,6 +222,9 @@ class WaitingRoomState(State):
                     if patient.currentState != "walking":
                         if patient.checkClick():
                             stateManager.push(PatientPopupState(patient))
+                
+                if self.inventoryButton.checkClick():
+                    stateManager.push(InventoryOpenState())
 
     def updatePatients(self):
         if len(GameData.activePatients) > len(self.patients):
@@ -275,11 +277,12 @@ class PotionRoomState(State):
         self.cauldron = Cauldron([530, 250])
         self.table = pygame.Surface((400,200))
         self.table.fill((64, 61, 57))
+        self.inventoryButton = InventoryButton()
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins, self.inventoryButton]
 
     def update(self):
         super().update()
@@ -305,6 +308,9 @@ class PotionRoomState(State):
                     stateManager.push(MapState())
                 if self.cauldron.checkClick():
                     stateManager.push(PotionMakingState())
+                
+                if self.inventoryButton.checkClick():
+                    stateManager.push(InventoryOpenState())
 
 
 class PotionMakingState(State):
@@ -449,10 +455,10 @@ class GardenState(State):
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
-        self.inventoryButton = GardenInventoryButton()
+        self.inventoryButton = InventoryButton()
         self.coins = Coins()
         self.upArrow = VerticalArrow(False)
-        self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIconClosed, self.coins]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIconClosed, self.coins, self.inventoryButton]
         self.garden = garden
         self.plants = GameData.gardenData[self.garden]["plots"]
 
@@ -463,7 +469,6 @@ class GardenState(State):
         for plant in self.plants:
             if plant != None:
                 plant.render(self.surface)
-        self.inventoryButton.render(self.surface)
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
@@ -630,7 +635,7 @@ class MapState(State):
                 
                 if self.waitingRoomRect.collidepoint(pos):
                     stateManager.push(WaitingRoomState())
-                
+
 
 class PatientRoomState(State):
     def __init__(self, index):
@@ -641,13 +646,14 @@ class PatientRoomState(State):
         self.patient = GameData.patientsInRooms[self.index]
         self.inventoryButton = MedicalRoomInventoryButton()
         self.patient = GameData.patientsInRooms[self.index]
+        self.inventoryButton = InventoryButton()
         self.downArrow = VerticalArrow(True)
         self.upArrow = VerticalArrow(False)
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.upArrow, self.mapIconClosed, self.coins]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.upArrow, self.mapIconClosed, self.coins, self.inventoryButton]
         if self.index == len(GameData.roomData)-1:
             self.uiElements.remove(self.rightArrow)
         
@@ -659,7 +665,6 @@ class PatientRoomState(State):
         self.surface.blit(self.background, (0,0))
         if self.patient != None:
             self.patient.render(self.surface)
-        self.inventoryButton.render(self.surface)
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
@@ -701,8 +706,7 @@ class InventoryOpenState(State):
         self.ingredientTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-3.png"), .4)
         self.seedTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-4.png"), .4)
         self.grid = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-5.png"), .4)
-        # self.xButton = XButton((20,600))
-        self.pos = [250,100]
+        self.pos = [400,100]
         self.rect = pygame.Rect(self.pos[0] + 65, self.pos[1] + 85, 740, 565)
 
         self.potionButton = InventoryStateRoundButton([self.pos[0]+170, self.pos[1]+160], 65)
