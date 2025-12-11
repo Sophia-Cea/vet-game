@@ -481,19 +481,47 @@ class GardenState(State):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.inventoryButton.checkClick():
+                    self.inventoryButton.closed = False
                     stateManager.push(SeedInventoryOpenState())
-                if self.leftArrow.checkClick():
-                    # stateManager.transition(True)
-                    # stateManager.push(WaitingRoomState())
-                    pass
-                if self.rightArrow.checkClick():
-                    pass
+
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(PatientRoomState(0))
 
+class Garden1(GardenState):
+    def __init__(self):
+        super().__init__("garden 1")
+        # put new garden background here. change the file path and adjust the scale factor to the desired size.
+        # self.background = pygame.transform.smoothscale_by(pygame.image.load(""), .5)
+
+    def handleInput(self, events):
+        super().handleInput(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.leftArrow.checkClick():
+                    pass
+                    # this will lead to the forest
+                if self.rightArrow.checkClick():
+                    stateManager.transition(False, None)
+                    stateManager.push(Garden2())
+
+class Garden2(GardenState):
+    def __init__(self):
+        super().__init__("garden 2")
+        self.uiElements.remove(self.rightArrow)
+        # put new garden background here. change the file path and adjust the scale factor to the desired size.
+        # self.background = pygame.transform.smoothscale_by(pygame.image.load(""), .5)
+    
+
+    def handleInput(self, events):
+        super().handleInput(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.leftArrow.checkClick():
+                    stateManager.transition(True, None)
+                    stateManager.push(Garden1())
 
 class MapState(State):
     def __init__(self):
@@ -657,7 +685,7 @@ class PatientRoomState(State):
                         stateManager.push(PatientRoomState(self.index+1))
                 if self.downArrow.checkClick():
                     stateManager.transition(None, True)
-                    stateManager.push(GardenState("garden 1"))
+                    stateManager.push(Garden1())
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(WaitingRoomState())
@@ -668,44 +696,45 @@ class PatientRoomState(State):
 class InventoryOpenState(State):
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((1500,300))
-        self.image.fill((175,175,175))
-        self.xButton = XButton((20,600))
-        self.pos = [40,600]
-        self.transitioningIn = True
-        self.transitioningOut = False
-        self.t = -20
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-1.png"), .4)
+        self.potionTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-2.png"), .4)
+        self.ingredientTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-3.png"), .4)
+        self.seedTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-4.png"), .4)
+        self.grid = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-5.png"), .4)
+        # self.xButton = XButton((20,600))
+        self.pos = [250,100]
+        self.rect = pygame.Rect(self.pos[0] + 65, self.pos[1] + 85, 740, 565)
+
+        self.potionButton = InventoryStateRoundButton([self.pos[0]+170, self.pos[1]+160], 65)
+        self.ingredientButton = InventoryStateRoundButton([self.pos[0]+340, self.pos[1]+160], 65)
+        self.seedButton = InventoryStateRoundButton([self.pos[0]+515, self.pos[1]+160], 65)
 
 
     def render(self, screen, offset):
         super().render(screen, offset)
         screen.blit(self.image, self.pos)
-        self.xButton.render(screen)
+        screen.blit(self.seedTab, self.pos)
+        screen.blit(self.potionTab, self.pos)
+        screen.blit(self.ingredientTab, self.pos)
+        screen.blit(self.grid, self.pos)
+
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+        # self.potionButton.render(screen)
+        # self.ingredientButton.render(screen)
+        # self.seedButton.render(screen)
 
     def update(self):
         super().update()
-        if self.transitioningIn:
-            self.t += 1
-            self.pos[1] = 2 * (self.t ** 2) + 550
-            self.xButton.pos[1] = self.pos[1] - 20
-            if self.t >= 5:
-                self.transitioningIn = False
-        
-        if self.transitioningOut:
-            self.t -= 1
-            self.pos[1] = 2 * (self.t ** 2) + 550
-            self.xButton.pos[1] = self.pos[1] - 20
-            if self.t <= -20:
-                self.transitioningOut = False
-                stateManager.pop()
+
 
     def handleInput(self, events):
         super().handleInput(events)
-        if not self.transitioningIn and not self.transitioningOut:
-            for event in events:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if self.xButton.checkClick():
-                        self.transitioningOut = True
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.rect.collidepoint(pos):
+                    stateManager.queue[-2].inventoryButton.closed = True
+                    stateManager.pop()
 
 
 class PotionInventoryOpenState(InventoryOpenState):
@@ -713,7 +742,7 @@ class PotionInventoryOpenState(InventoryOpenState):
         super().__init__()
         self.potions = []
         for i, potion in enumerate(GameData.potionsInInventory):
-            self.potions.append(PotionItemInInventory(potion, (100+i*100, self.pos[1] + 60)))
+            self.potions.append(PotionItemInInventory(potion, (self.pos[0] + 90 + 110*i, self.pos[1] + 240)))
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -722,14 +751,6 @@ class PotionInventoryOpenState(InventoryOpenState):
     
     def update(self):
         super().update()
-        if self.transitioningIn:
-            for potion in self.potions:
-                potion.pos[1] = self.pos[1] + 80
-                potion.rect.y = potion.pos[1]
-        if self.transitioningOut:
-            for potion in self.potions:
-                potion.pos[1] = self.pos[1] + 80
-                potion.rect.y = potion.pos[1]
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -740,7 +761,7 @@ class SeedInventoryOpenState(InventoryOpenState):
         super().__init__()
         self.seeds = []
         for i, seed in enumerate(GameData.seedInventory):
-            self.seeds.append(SeedItemInInventory(seed, (100+i*100, self.pos[1] + 60)))
+            self.seeds.append(SeedItemInInventory(seed, (self.pos[0] + 90 + 110*i, self.pos[1] + 240)))
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -749,14 +770,6 @@ class SeedInventoryOpenState(InventoryOpenState):
     
     def update(self):
         super().update()
-        if self.transitioningIn:
-            for seed in self.seeds:
-                seed.pos[1] = self.pos[1] + 80
-                seed.rect.y = seed.pos[1]
-        if self.transitioningOut:
-            for seed in self.seeds:
-                seed.pos[1] = self.pos[1] + 80
-                seed.rect.y = seed.pos[1]
 
     def handleInput(self, events):
         super().handleInput(events)

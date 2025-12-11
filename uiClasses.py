@@ -192,7 +192,17 @@ class MedicalRoomInventoryButton(InventoryButton):
 class GardenInventoryButton(InventoryButton):
     def __init__(self):
         super().__init__()
-
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), .2)
+        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-open.png"), .2)
+        self.pos = (20,660)
+        self.rect = pygame.Rect(40,740, 160,140)
+        self.closed = True
+    
+    def render(self, screen):
+        if self.closed == False:
+            screen.blit(self.imageOpen, (self.pos[0], self.pos[1]))
+        else:
+            screen.blit(self.image, self.pos)
 
 
 class ItemInInventory(UIthingy):
@@ -228,5 +238,20 @@ class SeedItemInInventory(ItemInInventory):
         self.image = pygame.transform.smoothscale_by(pygame.image.load(self.data["path"] + "seed.png"), .25)
         self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
 
-        
+
+class InventoryStateRoundButton:
+    def __init__(self, center, radius):
+        self.center = center
+        self.radius = radius
+
+    def render(self, screen):
+        pygame.draw.circle(screen, (255,0,0), self.center, self.radius, 2)
+
+    def checkClick(self):
+        pos = pygame.mouse.get_pos()
+        dist = math.sqrt((pos[1]-self.center[1])**2 + (pos[0]-self.center[0])**2)
+        if dist <= self.radius:
+            return True
+        return False
+   
     
