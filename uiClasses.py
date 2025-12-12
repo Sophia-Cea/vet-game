@@ -163,33 +163,25 @@ class BrewButton(UIthingy):
 class InventoryButton(UIthingy):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.smoothscale_by(
-            pygame.image.load("images/garden/inventory-bag-closed.png"), 0.15
-        )
-        self.imageOpen = pygame.transform.smoothscale_by(
-            pygame.image.load("images/garden/inventory-bag-open.png"), 0.15
-        )
-        self.pos = (1450, 110)  # Bag position
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), 0.1)
+        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-open.png"), 0.1)
+        self.imageBig = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), 0.105)
+        self.pos = (1490, 90)
         self.closed = True
-        self.rect = self.image.get_rect(topleft=self.pos)
-        # Optional: where the open inventory should appear
-        self.open_pos = (self.pos[0] - 200, self.pos[1] - 300)  # adjust as needed
+        self.rect = pygame.Rect(1500, 130, 80, 70)
 
     def render(self, screen):
         pos = pygame.mouse.get_pos()
         hovering = self.rect.collidepoint(pos)
 
         if not self.closed:
-            # Show open bag / inventory popup
-            screen.blit(self.imageOpen, self.open_pos)
+            screen.blit(self.imageOpen, self.pos)
         else:
             if not hovering:
                 screen.blit(self.image, self.pos)
             else:
-                # Slightly enlarge on hover
-                hover_image = pygame.transform.smoothscale_by(self.image, 1.02)
-                hover_rect = hover_image.get_rect(center=self.rect.center)
-                screen.blit(hover_image, hover_rect.topleft)
+                screen.blit(self.imageBig, self.pos)
+        
 
 
 

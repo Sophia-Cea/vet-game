@@ -224,7 +224,8 @@ class WaitingRoomState(State):
                             stateManager.push(PatientPopupState(patient))
                 
                 if self.inventoryButton.checkClick():
-                    stateManager.push(InventoryOpenState())
+                    self.inventoryButton.closed = False
+                    stateManager.push(SeedInventoryOpenState())
 
     def updatePatients(self):
         if len(GameData.activePatients) > len(self.patients):
@@ -310,7 +311,8 @@ class PotionRoomState(State):
                     stateManager.push(PotionMakingState())
                 
                 if self.inventoryButton.checkClick():
-                    stateManager.push(InventoryOpenState())
+                    self.inventoryButton.closed = False
+                    stateManager.push(SeedInventoryOpenState())
 
 
 class PotionMakingState(State):
@@ -519,21 +521,51 @@ class Garden1(GardenState):
 class Garden2(GardenState):
     def __init__(self):
         super().__init__("garden 2")
-        
         self.uiElements.remove(self.rightArrow)
-        
         img = pygame.image.load("images/backgrounds/Garden2.png").convert_alpha()
         self.background = pygame.transform.smoothscale_by(img, 0.45)
+        self.gateRect = pygame.Rect(1260,350,270,380)
+        self.transitioningOut = False
+        self.transitioningIn = False
+        self.transitionScreen = pygame.Surface((WIDTH,HEIGHT))
+        self.opacity = 0
+        self.transitionSpeed = 10
 
-    
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.blit(self.transitionScreen, (0,0))
+        self.transitionScreen.set_alpha(self.opacity)
+
+
+    def update(self):
+        super().update()
+        if self.transitioningIn:
+            self.opacity -= self.transitionSpeed
+            if self.opacity <= 0:
+                self.transitioningIn = False
+                self.opacity = 0
+        if self.transitioningOut:
+            self.opacity += self.transitionSpeed
+            if self.opacity >= 255:
+                self.opacity = 255
+                self.transitioningOut = False
+                stateManager.push(ForestState())
+
+
+
 
     def handleInput(self, events):
         super().handleInput(events)
+        pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.leftArrow.checkClick():
                     stateManager.transition(True, None)
                     stateManager.push(Garden1())
+                if self.gateRect.collidepoint(pos):
+                    self.transitioningOut = True
+                
 
 class MapState(State):
     def __init__(self):
@@ -643,7 +675,6 @@ class MapState(State):
                 if self.waitingRoomRect.collidepoint(pos):
                     stateManager.push(WaitingRoomState())
 
-
 class PatientRoomState(State):
     def __init__(self, index):
         super().__init__()
@@ -651,7 +682,8 @@ class PatientRoomState(State):
         self.index = index
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/VetMedicalRoom.png"), (orig_size[0], orig_size[1]))
         self.patient = GameData.patientsInRooms[self.index]
-        self.inventoryButton = MedicalRoomInventoryButton()
+        self.shelf = pygame.transform.smoothscale_by(pygame.image.load("images/ui/MedicalRoomShelfButton.png"), .4)
+
         self.patient = GameData.patientsInRooms[self.index]
         self.inventoryButton = InventoryButton()
         self.downArrow = VerticalArrow(True)
@@ -672,6 +704,7 @@ class PatientRoomState(State):
         self.surface.blit(self.background, (0,0))
         if self.patient != None:
             self.patient.render(self.surface)
+        self.surface.blit(self.shelf, (120,150))
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
@@ -686,6 +719,7 @@ class PatientRoomState(State):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.inventoryButton.checkClick():
+                    self.inventoryButton.closed = False
                     stateManager.push(PotionInventoryOpenState())
                 if self.leftArrow.checkClick():
                     if self.index > 0:
@@ -703,7 +737,6 @@ class PatientRoomState(State):
                     stateManager.push(WaitingRoomState())
                 if self.mapIconClosed.checkClick():
                     stateManager.push(MapState())
-
 
 class InventoryOpenState(State):
     def __init__(self):
@@ -747,7 +780,6 @@ class InventoryOpenState(State):
                     stateManager.queue[-2].inventoryButton.closed = True
                     stateManager.pop()
 
-
 class PotionInventoryOpenState(InventoryOpenState):
     def __init__(self):
         super().__init__()
@@ -766,7 +798,6 @@ class PotionInventoryOpenState(InventoryOpenState):
     def handleInput(self, events):
         super().handleInput(events)
 
-
 class SeedInventoryOpenState(InventoryOpenState):
     def __init__(self):
         super().__init__()
@@ -784,3 +815,79 @@ class SeedInventoryOpenState(InventoryOpenState):
 
     def handleInput(self, events):
         super().handleInput(events)
+
+class ForestState(State):
+    def __init__(self):
+        super().__init__()
+        self.backgroundMain = pygame.transform.smoothscale_by(pygame.image.load("images/forest/layermain.png"), .35)
+        self.backgroundLayer1 = pygame.transform.smoothscale_by(pygame.image.load("images/forest/layer1.png"), .35)
+        self.backgroundLayer3 = pygame.transform.smoothscale_by(pygame.image.load("images/forest/layer2.png"), .35)
+        self.backgroundLayer2 = pygame.transform.smoothscale_by(pygame.image.load("images/forest/layer3.png"), .35)
+        self.posMain = [0,50]
+        self.layer1Pos = [0,50]
+        self.layer2Pos = [0,50]
+        self.layer3Pos = [0,50]
+        self.transitioningIn = True
+        self.transitioningOut = False
+        self.transitionScreen = pygame.Surface((WIDTH,HEIGHT))
+        self.opacity = 255
+        self.transitionSpeed = 10
+        self.moveSpeed = 5
+
+        self.goingLeft = False
+        self.goingRight = False
+
+    def update(self):
+        super().update()
+        if self.transitioningIn:
+            self.opacity -= self.transitionSpeed
+            if self.opacity <= 0:
+                self.transitioningIn = False
+                self.opacity = 0
+        if self.transitioningOut:
+            self.opacity += self.transitionSpeed
+            if self.opacity >= 255:
+                self.opacity = 255
+                self.transitioningOut = False
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.fill((255,255,255))
+        screen.blit(self.backgroundMain, self.posMain)
+        screen.blit(self.backgroundLayer1, self.layer1Pos)
+        screen.blit(self.backgroundLayer2, self.layer2Pos)
+        screen.blit(self.backgroundLayer3, self.layer3Pos)
+
+        screen.blit(self.transitionScreen, (0,0))
+        self.transitionScreen.set_alpha(self.opacity)
+
+        if self.goingLeft:
+            self.posMain[0] += self.moveSpeed
+            self.layer1Pos[0] += self.moveSpeed * .8
+            self.layer2Pos[0] += self.moveSpeed * .6
+            self.layer3Pos[0] += self.moveSpeed * .4
+        
+        if self.goingRight:
+            self.posMain[0] -= self.moveSpeed
+            self.layer1Pos[0] -= self.moveSpeed * .8
+            self.layer2Pos[0] -= self.moveSpeed * .6
+            self.layer3Pos[0] -= self.moveSpeed * .4
+
+    def handleInput(self, events):
+        super().handleInput(events)
+        pos = pygame.mouse.get_pos()
+        if not self.transitioningIn and not self.transitioningOut:
+            for event in events:
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if pos[0] < 100:
+                        self.goingLeft = True
+                    if pos[0] > 1200:
+                        self.goingRight = True
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    self.goingLeft = False
+                    self.goingRight = False
+
+
+
+

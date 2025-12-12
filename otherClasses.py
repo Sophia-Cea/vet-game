@@ -233,7 +233,7 @@ class GardenPlant:
         self.fullyGrown = False
         self.currentState = 0
         self.plantTime = datetime.now() # Record the real-world time it was planted
-        self.pos = [position, 650]
+        self.pos = [position, 850] # plants position
             
         self.currentImg = self.imgs[self.currentState]
 
