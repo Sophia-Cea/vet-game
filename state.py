@@ -498,26 +498,33 @@ class GardenState(State):
 class Garden1(GardenState):
     def __init__(self):
         super().__init__("garden 1")
-        # put new garden background here. change the file path and adjust the scale factor to the desired size.
-        # self.background = pygame.transform.smoothscale_by(pygame.image.load(""), .5)
+        
+        self.uiElements.remove(self.leftArrow)
+
+
+        img = pygame.image.load("images/backgrounds/Garden1.png").convert_alpha()
+        self.background = pygame.transform.smoothscale_by(img, 0.45)
 
     def handleInput(self, events):
         super().handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.leftArrow.checkClick():
-                    pass
-                    # this will lead to the forest
+                    pass  # this will lead to the forest
                 if self.rightArrow.checkClick():
                     stateManager.transition(False, None)
                     stateManager.push(Garden2())
 
+
 class Garden2(GardenState):
     def __init__(self):
         super().__init__("garden 2")
+        
         self.uiElements.remove(self.rightArrow)
-        # put new garden background here. change the file path and adjust the scale factor to the desired size.
-        # self.background = pygame.transform.smoothscale_by(pygame.image.load(""), .5)
+        
+        img = pygame.image.load("images/backgrounds/Garden2.png").convert_alpha()
+        self.background = pygame.transform.smoothscale_by(img, 0.45)
+
     
 
     def handleInput(self, events):
