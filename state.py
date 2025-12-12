@@ -170,12 +170,11 @@ class WaitingRoomState(State):
             self.patients.append(patient)
         self.inventoryButton = InventoryButton()
         self.leftArrow = Arrow(True)
-        self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
         self.downArrow = VerticalArrow(True)
         self.coins = Coins()
         self.book = Book()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.mapIconClosed, self.coins, self.inventoryButton]
+        self.uiElements = [self.leftArrow, self.downArrow, self.mapIconClosed, self.coins, self.inventoryButton]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -208,10 +207,6 @@ class WaitingRoomState(State):
                 if self.leftArrow.checkClick():
                     stateManager.transition(True)
                     stateManager.push(PotionRoomState())
-                if self.rightArrow.checkClick():
-                    # stateManager.transition(False)
-                    # stateManager.push(GardenState("garden 1"))
-                    pass
                 if self.downArrow.checkClick():
                     stateManager.transition(None, True)
                     stateManager.push(PatientRoomState(0))
@@ -279,11 +274,10 @@ class PotionRoomState(State):
         self.table = pygame.Surface((400,200))
         self.table.fill((64, 61, 57))
         self.inventoryButton = InventoryButton()
-        self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
         self.mapIconClosed = MapButton(True)
         self.coins = Coins()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.mapIconClosed, self.coins, self.inventoryButton]
+        self.uiElements = [self.rightArrow, self.mapIconClosed, self.coins, self.inventoryButton]
 
     def update(self):
         super().update()
@@ -741,31 +735,43 @@ class PatientRoomState(State):
 class InventoryOpenState(State):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-1.png"), .4)
-        self.potionTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-2.png"), .4)
-        self.ingredientTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-3.png"), .4)
-        self.seedTab = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-4.png"), .4)
-        self.grid = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/Bag_UI-5.png"), .4)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventoryBackground.png"), .4)
+        self.imageTop = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventoryTop.png"), .4)
         self.pos = [400,100]
         self.rect = pygame.Rect(self.pos[0] + 65, self.pos[1] + 85, 740, 565)
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(180)
+        self.offset = 0
 
-        self.potionButton = InventoryStateRoundButton([self.pos[0]+170, self.pos[1]+160], 65)
-        self.ingredientButton = InventoryStateRoundButton([self.pos[0]+340, self.pos[1]+160], 65)
-        self.seedButton = InventoryStateRoundButton([self.pos[0]+515, self.pos[1]+160], 65)
+        self.potionButton = InventoryStateRoundButton(
+            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/potionButton.png"), .08),
+            [self.pos[0]+170, self.pos[1]+160], 65
+        )
+        self.ingredientButton = InventoryStateRoundButton(
+            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/ingredientButton.png"), .08),
+            [self.pos[0]+340, self.pos[1]+160], 65
+        )
+        self.seedButton = InventoryStateRoundButton(
+            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/seedButton.png"), .08),
+            [self.pos[0]+515, self.pos[1]+160], 65
+        )
 
 
     def render(self, screen, offset):
         super().render(screen, offset)
+        screen.blit(self.backgroundDark, (0,0))
         screen.blit(self.image, self.pos)
-        screen.blit(self.seedTab, self.pos)
-        screen.blit(self.potionTab, self.pos)
-        screen.blit(self.ingredientTab, self.pos)
-        screen.blit(self.grid, self.pos)
+        screen.blit(self.imageTop, self.pos)
+
+        # screen.blit(self.seedTab, self.)
+        # screen.blit(self.potionTab, self.pos)
+        # screen.blit(self.ingredientTab, self.pos)
+        # screen.blit(self.grid, self.pos)
 
         # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
-        # self.potionButton.render(screen)
-        # self.ingredientButton.render(screen)
-        # self.seedButton.render(screen)
+        self.potionButton.render(screen)
+        self.ingredientButton.render(screen)
+        self.seedButton.render(screen)
 
     def update(self):
         super().update()

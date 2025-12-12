@@ -43,6 +43,7 @@ class GameData:
         "common" : {
             # "mouse" : 10,
             "paige" : 10,
+            "cat" : 20,
             # "dog" : 10,
             "rabbit" : 10,
             # "squirrel" : 10

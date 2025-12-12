@@ -16,6 +16,7 @@ class Patient:
         }
         self.currentState = currentState
         self.askingBubble = pygame.transform.smoothscale_by(pygame.image.load("images/ui/bubble.png"), .2)
+        self.bubbleText = random.choice(["Dear god help me", "It hurts.", "I need to poop!", "Owwie ;n;", "I want my mommy.", "The plague!!!", "Meow"])
         self.pos = pos
         self.endPos = endPos
         self.rect = pygame.Rect(pos[0],pos[1], 200,400)
@@ -28,6 +29,7 @@ class Patient:
         self.states[self.currentState].render(screen, self.pos)
         if self.currentState == "talking":
             screen.blit(self.askingBubble, (self.pos[0]+75, self.pos[1]-160))
+            textRenderer.render(self.askingBubble, self.bubbleText, (130,100), 20, (0,0,0), align="center")
 
 
     def update(self):
@@ -55,12 +57,26 @@ class Patient:
 
 
 
+class PatientInVetRoom:
+    def __init__(self, animalName, illness):
+        self.animalName = animalName
+        self.animalData = patientInfo[animalName]
+        self.illness = illness
 
+        self.walkingAnimation = Animation(
+            self.animalData["walkingAnimation"]["path"], 
+            self.animalData["walkingAnimation"]["images"], 
+            self.animalData["walkingAnimation"]["duration"],
+            self.animalData["walkingAnimation"]["scale"],
+            self.animalData["walkingAnimation"]["isFlipped"]
+        )
 
-class EasyPatient(Patient):
-    def __init__(self):
-        super().__init__()
-        self.illness = random.choice(["die of beetus", "itchy pp", "sniffles"])
-
-    def render(self, screen):
-        super().render(screen)
+        self.idleAnimations = []
+        for animation in self.animalData["idleAnimations"]:
+            self.idleAnimations.append(Animation(
+                animation["path"],
+                animation["images"],
+                animation["duration"],
+                animation["scale"],
+                animation["isFlipped"]
+            ))
