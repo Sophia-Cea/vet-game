@@ -169,7 +169,7 @@ class InventoryButton(UIthingy):
         self.imageOpen = pygame.transform.smoothscale_by(
             pygame.image.load("images/garden/inventory-bag-open.png"), 0.15
         )
-        self.pos = (1450, 110) \
+        self.pos = (1450, 110)  # Bag position
         self.closed = True
         self.rect = self.image.get_rect(topleft=self.pos)
         # Optional: where the open inventory should appear
@@ -190,6 +190,7 @@ class InventoryButton(UIthingy):
                 hover_image = pygame.transform.smoothscale_by(self.image, 1.02)
                 hover_rect = hover_image.get_rect(center=self.rect.center)
                 screen.blit(hover_image, hover_rect.topleft)
+
 
 
 
