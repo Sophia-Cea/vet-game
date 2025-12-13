@@ -243,12 +243,16 @@ class SeedItemInInventory(ItemInInventory):
 class InventoryStateRoundButton:
     def __init__(self, image, center, radius):
         self.imageBig = image
-        self.image = pygame.transform.smoothscale_by(self.imageBig, 0.9)
+        self.image = pygame.transform.smoothscale_by(self.imageBig, 0.93)
         self.center = center
         self.radius = radius
+        self.isBig = False
 
     def render(self, screen):
-        screen.blit(self.image, (self.center[0]-self.radius-15, self.center[1]-self.radius-5))
+        if not self.isBig:
+            screen.blit(self.image, (self.center[0]-self.radius-15, self.center[1]-self.radius-5))
+        else:
+            screen.blit(self.imageBig, (self.center[0]-self.radius-20, self.center[1]-self.radius-10))
         # pygame.draw.circle(screen, (255,0,0), self.center, self.radius, 2)
 
     def checkClick(self):

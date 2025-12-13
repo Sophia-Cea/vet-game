@@ -270,7 +270,7 @@ class PotionRoomState(State):
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/potionroom.png"), (orig_size[0], orig_size[1]))
-        self.cauldron = Cauldron([530, 250])
+        self.cauldron = Cauldron([535, 330])
         self.table = pygame.Surface((400,200))
         self.table.fill((64, 61, 57))
         self.inventoryButton = InventoryButton()
@@ -285,6 +285,7 @@ class PotionRoomState(State):
 
     def render(self, screen, offset):
         super().render(screen, offset)
+        self.surface.fill((0,0,80))
         self.surface.blit(self.background, (0,0))
         self.cauldron.render(self.surface)
 
@@ -744,17 +745,19 @@ class InventoryOpenState(State):
         self.offset = 0
 
         self.potionButton = InventoryStateRoundButton(
-            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/potionButton.png"), .08),
-            [self.pos[0]+170, self.pos[1]+160], 65
+            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/potionButton.png"), .078),
+            [self.pos[0]+170, self.pos[1]+160], 60
         )
         self.ingredientButton = InventoryStateRoundButton(
-            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/ingredientButton.png"), .08),
-            [self.pos[0]+340, self.pos[1]+160], 65
+            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/ingredientButton.png"), .078),
+            [self.pos[0]+340, self.pos[1]+160], 60
         )
         self.seedButton = InventoryStateRoundButton(
-            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/seedButton.png"), .08),
-            [self.pos[0]+515, self.pos[1]+160], 65
+            pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/seedButton.png"), .078),
+            [self.pos[0]+515, self.pos[1]+160], 60
         )
+
+        self.buttons = [self.potionButton, self.ingredientButton, self.seedButton]
 
 
     def render(self, screen, offset):
@@ -762,16 +765,10 @@ class InventoryOpenState(State):
         screen.blit(self.backgroundDark, (0,0))
         screen.blit(self.image, self.pos)
         screen.blit(self.imageTop, self.pos)
-
-        # screen.blit(self.seedTab, self.)
-        # screen.blit(self.potionTab, self.pos)
-        # screen.blit(self.ingredientTab, self.pos)
-        # screen.blit(self.grid, self.pos)
-
-        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
         self.potionButton.render(screen)
         self.ingredientButton.render(screen)
         self.seedButton.render(screen)
+
 
     def update(self):
         super().update()
@@ -785,6 +782,11 @@ class InventoryOpenState(State):
                 if not self.rect.collidepoint(pos):
                     stateManager.queue[-2].inventoryButton.closed = True
                     stateManager.pop()
+                for button in self.buttons:
+                    if button.checkClick():
+                        for b in self.buttons:
+                            b.isBig = False
+                        button.isBig = True
 
 class PotionInventoryOpenState(InventoryOpenState):
     def __init__(self):
