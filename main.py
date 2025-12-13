@@ -4,6 +4,11 @@ from state import *
 
 
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load("audio/Cozy Audio Background.wav")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)
+
 fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 display = pygame.Surface((orig_size[0], orig_size[1]))
