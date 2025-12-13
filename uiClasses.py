@@ -243,7 +243,7 @@ class SeedItemInInventory(ItemInInventory):
 class InventoryStateRoundButton:
     def __init__(self, image, center, radius):
         self.imageBig = image
-        self.image = pygame.transform.smoothscale_by(self.imageBig, )
+        self.image = pygame.transform.smoothscale_by(self.imageBig, 0.15)
         self.center = center
         self.radius = radius
 
