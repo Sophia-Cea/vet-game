@@ -262,3 +262,59 @@ class InventoryStateRoundButton:
             return True
         return False
 
+
+class RelocatePopup(UIthingy):
+    def __init__(self, patient):
+        super().__init__()
+        self.patient = patient
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_.png"), .35)
+        self.pos = [500,100]
+        self.rect = pygame.Rect(510,115,580,510)
+        self.roomButton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button.png"), .35)
+        self.uibutton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button2.png"), .35)
+        self.selectedButton = None
+
+        self.sendToRoomRect = pygame.Rect(660, 575, 100, 30)
+        self.cancelRect = pygame.Rect(870, 575, 100, 30)
+
+    def render(self, screen):
+        super().render(screen)
+        screen.blit(self.image, self.pos)
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+        for i in range(8):
+            x = 600 + (i%4)*105
+            y = 340 + (i//4)*105
+            screen.blit(self.roomButton, (x,y))
+            textRenderer.render(screen, "Room", (x+53, y+35), 20, (40,20,10), align="center")
+            textRenderer.render(screen, str(i+1), (x+53, y+65), 35, (40,20,10), align="center")
+            if self.selectedButton != None:
+                if self.selectedButton == i:
+                    pygame.draw.circle(screen, (255,255,255), (x+52, y+51), 50, 5)
+        
+        textRenderer.render(screen, "Patient Check-In", (720, 170), 30, (40,20,10))
+        textRenderer.render(screen, "Patient:", (700, 215), 20, (40,20,10))
+        textRenderer.render(screen, "Illness:", (870, 215), 20, (40,20,10))
+
+        textRenderer.render(screen, "Paige", (790, 215), 20, (40,20,10))
+        textRenderer.render(screen, self.patient.illness, (960, 215), 20, (40,20,10))
+
+        screen.blit(self.uibutton, (310, 100))
+        screen.blit(self.uibutton, (520, 100))
+        textRenderer.render(screen, "Send to Room", (700, 595), 15, (40,20,10), align="center")
+        textRenderer.render(screen, "Cancel", (910, 595), 15, (40,20,10), align="center")
+
+        pygame.draw.rect(screen, (255,0,0), self.sendToRoomRect, 2)
+        pygame.draw.rect(screen, (255,0,0), self.cancelRect, 2)
+
+
+    def handleInput(self, events):
+        super().handleInput(events)
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for i in range(8):
+                    x = 652 + (i%4)*105
+                    y = 351 + (i//4)*105
+                    r = 45
+                    if math.sqrt((pos[0]-x)**2 + (pos[1]-y)**2) <= r:
+                        self.selectedButton = i

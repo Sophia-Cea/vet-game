@@ -44,9 +44,11 @@ class StateManager:
         self.everythingState.handleInput(events)
         if not self.transitioning:
             self.queue[len(self.queue)-1].update()
-            if len(self.queue) > 1:
-                self.queue[len(self.queue)-2].render(surface, [0,0])
-            self.queue[len(self.queue)-1].render(surface, [0,0])
+            # if len(self.queue) > 1:
+            #     self.queue[len(self.queue)-2].render(surface, [0,0])
+            # self.queue[len(self.queue)-1].render(surface, [0,0])
+            for state in self.queue:
+                state.render(surface, [0,0])
             self.queue[len(self.queue)-1].handleInput(events)
         else:
             self.queue[len(self.queue)-1].update()
@@ -216,7 +218,9 @@ class WaitingRoomState(State):
                 for patient in GameData.activePatients:
                     if patient.currentState != "walking":
                         if patient.checkClick():
-                            stateManager.push(PatientPopupState(patient))
+                            # stateManager.push(PatientPopupState(patient))
+                            stateManager.push(DialogueState(patient))
+                            # stateManager.push(RelocatePopupState(patient))
                 
                 if self.inventoryButton.checkClick():
                     self.inventoryButton.closed = False
@@ -227,47 +231,6 @@ class WaitingRoomState(State):
             for i in range(len(self.patients), len(GameData.activePatients)):
                 patient = GameData.activePatients[i]
                 self.patients.append(patient)
-
-class PatientPopupState(State):
-    def __init__(self, patient):
-        super().__init__()
-        self.background = pygame.Surface((500, 700))
-        self.background.fill((220, 200, 180))
-        self.rect = pygame.Rect(40, 40, 500, 700)
-        self.patient = patient
-
-        self.rects = []
-        for i in range(8):
-            self.rects.append(pygame.Rect(60 + (i % 4) * 60, 450 + (i // 4) * 60, 55, 55))
-
-    def get_hover_rects(self):
-        return self.rects
-
-
-    def render(self, screen, offset):
-        super().render(screen, offset)
-        screen.blit(self.background, self.rect.topleft)
-        textRenderer.render(screen, self.patient.illness, (60, 150), 40, (255,255,255))
-        for rect in self.rects:
-            pygame.draw.rect(screen, (0,255,0), rect)
-    
-
-    def update(self):
-        super().update()
-    
-    def handleInput(self, events):
-        super().handleInput(events)
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                if not self.rect.collidepoint(pos):
-                    stateManager.pop()
-                
-                for i, rect in enumerate(self.rects):
-                    if rect.collidepoint(pygame.mouse.get_pos()):
-                        GameData.patientsInRooms[i] = self.patient
-                        GameData.activePatients.remove(self.patient)
-                        stateManager.pop()
 
 class PotionRoomState(State):
     def __init__(self):
@@ -910,5 +873,96 @@ class ForestState(State):
                     self.goingRight = False
 
 
+
+
+
+
+
+
+
+
+class PatientPopupState(State):
+    def __init__(self, patient):
+        super().__init__()
+        self.background = pygame.Surface((500, 700))
+        self.background.fill((220, 200, 180))
+        self.rect = pygame.Rect(40, 40, 500, 700)
+        self.patient = patient
+
+        self.rects = []
+        for i in range(8):
+            self.rects.append(pygame.Rect(60 + (i % 4) * 60, 450 + (i // 4) * 60, 55, 55))
+
+    def get_hover_rects(self):
+        return self.rects
+
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.blit(self.background, self.rect.topleft)
+        textRenderer.render(screen, self.patient.illness, (60, 150), 40, (255,255,255))
+        for rect in self.rects:
+            pygame.draw.rect(screen, (0,255,0), rect)
+    
+
+    def update(self):
+        super().update()
+    
+    def handleInput(self, events):
+        super().handleInput(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                if not self.rect.collidepoint(pos):
+                    stateManager.pop()
+                
+                for i, rect in enumerate(self.rects):
+                    if rect.collidepoint(pygame.mouse.get_pos()):
+                        GameData.patientsInRooms[i] = self.patient
+                        GameData.activePatients.remove(self.patient)
+                        stateManager.pop()
+
+
+class DialogueState(State):
+    def __init__(self, patient):
+        super().__init__()
+        self.patient = patient
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(150)
+
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/box.png"), .3)
+        self.character = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/paige1.png"), .2)
+        self.characterPos = [800,500]
+        self.pos = [390,280]
+        self.rect = pygame.Rect(645,640,640,260)
+        self.text1 = random.choice(["My tummy hurts and I pooped the bed.", "My friends hurt my feelings.", "My poop is colorful.", "I burnt my snoot in my soup."])
+        self.text2 = random.choice(["I'm also very itchy.", "I also can't stop sneezing.", "I also have been seeing things.", "I'm also very sad."])
+        self.text3 = random.choice(["Help me!!!", "And my toes beans are stinky.", "And I miss my mommy."])
+
+        self.relocatePopup = RelocatePopup(self.patient)
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.blit(self.backgroundDark, (0,0))
+        screen.blit(self.image, self.pos)
+        screen.blit(self.character, self.characterPos)
+
+        textRenderer.render(screen, self.text1, (680, 680), 25, (20,10,2))
+        textRenderer.render(screen, self.text2, (680, 710), 25, (20,10,2))
+        textRenderer.render(screen, self.text3, (680, 740), 25, (20,10,2))
+
+        self.relocatePopup.render(screen)
+
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+    def handleInput(self, events):
+        super().handleInput(events)
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.rect.collidepoint(pos) and not self.relocatePopup.rect.collidepoint(pos):
+                    stateManager.pop()
+        
+        self.relocatePopup.handleInput(events)
 
 

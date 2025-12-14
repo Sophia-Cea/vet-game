@@ -35,8 +35,8 @@ class GameData:
     gold = 0
     silver = 0
     copper = 0 
-    # newCustomerChance = 60
-    newCustomerChance = 200
+    newCustomerChance = 60
+    # newCustomerChance = 200
     customerLimit = 3
 
     animalData = {
@@ -155,18 +155,6 @@ class GameData:
     ]
 
     activePatients = [
-        # {
-        #     "id" : 0,
-        #     "species" : "cat",
-        #     "walkingAnimation" : patientInfo["cat"]["walkingAnimation"],
-        #     "idleAnimation" : patientInfo["cat"]["idleAnimation"],
-        #     "talkingAnimation" : patientInfo["cat"]["talkingAnimation"],
-        #     "state" : "walking",
-        #     "pos" : [1500,350],
-        #     "targetPos" : 900,
-        #     "speed" : 3,
-        #     "illness" : "fleas" 
-        # }
     ]
 
 

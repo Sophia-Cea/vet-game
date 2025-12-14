@@ -34,6 +34,10 @@ GameData.gardenData["garden 1"]["plots"][0] = GardenPlant("plant1", 300)
 GameData.gardenData["garden 1"]["plots"][1] = GardenPlant("plant2", 600)
 GameData.gardenData["garden 2"]["plots"][0] = GardenPlant("sapling", 400)
 
+# GameData.activePatients.append(
+
+# )
+
 running = True
 while running:
     events = pygame.event.get()
