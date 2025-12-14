@@ -232,13 +232,17 @@ class PatientPopupState(State):
     def __init__(self, patient):
         super().__init__()
         self.background = pygame.Surface((500, 700))
-        self.background.fill((220,200,180))
-        self.rect = pygame.Rect(40,40, 500,700)
+        self.background.fill((220, 200, 180))
+        self.rect = pygame.Rect(40, 40, 500, 700)
         self.patient = patient
 
         self.rects = []
         for i in range(8):
-            self.rects.append(pygame.Rect(60+(i%4)*60, 450+(i//4)*60, 55,55))
+            self.rects.append(pygame.Rect(60 + (i % 4) * 60, 450 + (i // 4) * 60, 55, 55))
+
+    def get_hover_rects(self):
+        return self.rects
+
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -517,14 +521,23 @@ class Garden2(GardenState):
     def __init__(self):
         super().__init__("garden 2")
         self.uiElements.remove(self.rightArrow)
+
         img = pygame.image.load("images/backgrounds/Garden2.png").convert_alpha()
         self.background = pygame.transform.smoothscale_by(img, 0.45)
-        self.gateRect = pygame.Rect(1260,350,270,380)
+
+        self.gateRect = pygame.Rect(1260, 350, 270, 380)
+        self.interactive_rects = [self.gateRect]  
+
         self.transitioningOut = False
         self.transitioningIn = False
-        self.transitionScreen = pygame.Surface((WIDTH,HEIGHT))
+        self.transitionScreen = pygame.Surface((WIDTH, HEIGHT))
         self.opacity = 0
         self.transitionSpeed = 10
+
+    def get_hover_rects(self):
+        return self.interactive_rects
+
+
 
 
     def render(self, screen, offset):
