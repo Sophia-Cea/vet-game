@@ -107,7 +107,7 @@ class EverythingState(State):
 
     def update(self):
         super().update()
-        getsCustomer = False
+        getsCustomer = True
         time1 = pygame.time.get_ticks()
         if time1 - self.currentTime >= self.interval:
             self.currentTime = pygame.time.get_ticks()
@@ -948,12 +948,17 @@ class DialogueState(State):
         screen.blit(self.character, self.characterPos)
 
         textRenderer.render(screen, self.text1, (680, 680), 25, (20,10,2))
-        textRenderer.render(screen, self.text2, (680, 710), 25, (20,10,2))
-        textRenderer.render(screen, self.text3, (680, 740), 25, (20,10,2))
+        textRenderer.render(screen, self.text2, (680, 715), 25, (20,10,2))
+        textRenderer.render(screen, self.text3, (680, 750), 25, (20,10,2))
 
         self.relocatePopup.render(screen)
 
         # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+    def update(self):
+        super().update()
+        if self.relocatePopup.sentToRoom == True:
+            stateManager.pop()
 
     def handleInput(self, events):
         super().handleInput(events)

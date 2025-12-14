@@ -274,8 +274,9 @@ class RelocatePopup(UIthingy):
         self.uibutton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button2.png"), .35)
         self.selectedButton = None
 
-        self.sendToRoomRect = pygame.Rect(660, 575, 100, 30)
-        self.cancelRect = pygame.Rect(870, 575, 100, 30)
+        self.sendToRoomRect = pygame.Rect(630, 575, 140, 40)
+        self.cancelRect = pygame.Rect(840, 575, 140, 40)
+        self.sentToRoom = False
 
     def render(self, screen):
         super().render(screen)
@@ -298,13 +299,15 @@ class RelocatePopup(UIthingy):
         textRenderer.render(screen, "Paige", (790, 215), 20, (40,20,10))
         textRenderer.render(screen, self.patient.illness, (960, 215), 20, (40,20,10))
 
-        screen.blit(self.uibutton, (310, 100))
+        if self.selectedButton != None:
+            screen.blit(self.uibutton, (310, 100))
+            textRenderer.render(screen, "Send to Room", (700, 595), 15, (40,20,10), align="center")
+
         screen.blit(self.uibutton, (520, 100))
-        textRenderer.render(screen, "Send to Room", (700, 595), 15, (40,20,10), align="center")
         textRenderer.render(screen, "Cancel", (910, 595), 15, (40,20,10), align="center")
 
-        pygame.draw.rect(screen, (255,0,0), self.sendToRoomRect, 2)
-        pygame.draw.rect(screen, (255,0,0), self.cancelRect, 2)
+        # pygame.draw.rect(screen, (255,0,0), self.sendToRoomRect, 2)
+        # pygame.draw.rect(screen, (255,0,0), self.cancelRect, 2)
 
 
     def handleInput(self, events):
@@ -318,3 +321,7 @@ class RelocatePopup(UIthingy):
                     r = 45
                     if math.sqrt((pos[0]-x)**2 + (pos[1]-y)**2) <= r:
                         self.selectedButton = i
+                if self.selectedButton != None and self.sendToRoomRect.collidepoint(pos):
+                    GameData.patientsInRooms[self.selectedButton] = self.patient
+                    GameData.activePatients.remove(self.patient)
+                    self.sentToRoom = True
