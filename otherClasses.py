@@ -287,3 +287,45 @@ class GardenPlant:
             time_remaining = required_duration - time_elapsed
             # print(f"Stage {self.currentState}: {time_remaining} remaining.")
             pass
+
+
+
+class Beehive:
+    def __init__(self):
+        self.pos = [1050,250]
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/beehive.png"), .1)
+        self.honey = pygame.transform.smoothscale_by(pygame.image.load("images/garden/honey-splatters.png"), .1)
+        self.isReady = False
+        self.honeyTime = 10 # seconds
+        self.rect = pygame.Rect(1100,280,95,125)
+        self.harvestHoney = False
+        self.harvestTime = datetime.now()
+
+    def render(self, screen):
+        screen.blit(self.image, self.pos)
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+        if self.isReady:
+            screen.blit(self.honey, self.pos)
+
+    def update(self):
+        if self.isReady:
+            return
+        
+        current_real_time = datetime.now()
+        time_elapsed = current_real_time - self.harvestTime
+
+        required_duration = timedelta(seconds=self.honeyTime)
+        if time_elapsed >= required_duration:
+            self.isReady = True
+
+
+
+    def handleInput(self, events):
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.rect.collidepoint(pos) and self.isReady:
+                    self.harvestHoney = True
+                    self.isReady = False
+                    self.harvestTime = datetime.now()
+

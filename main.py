@@ -6,7 +6,7 @@ pygame.init()
 pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 pygame.mouse.set_visible(False)
 
-cursor_size = (100, 100)
+cursor_size = (80, 80)
 idle_cursor = pygame.image.load("images/ui/cursor/cursor_idle.png").convert_alpha()
 click_cursor = pygame.image.load("images/ui/cursor/cursor_click.png").convert_alpha()
 hover_cursor = pygame.image.load("images/ui/cursor/cursor_hover.png").convert_alpha()
@@ -14,8 +14,8 @@ idle_cursor = pygame.transform.scale(idle_cursor, cursor_size)
 click_cursor = pygame.transform.scale(click_cursor, cursor_size)
 hover_cursor = pygame.transform.scale(hover_cursor, cursor_size)
 
-offset_x = -10  
-offset_y = -10  
+offset_x = -50  
+offset_y = -15 
 
 pygame.mixer.init()
 pygame.mixer.music.load("audio/Cozy Audio Background.wav")
@@ -34,9 +34,7 @@ GameData.gardenData["garden 1"]["plots"][0] = GardenPlant("plant1", 300)
 GameData.gardenData["garden 1"]["plots"][1] = GardenPlant("plant2", 600)
 GameData.gardenData["garden 2"]["plots"][0] = GardenPlant("sapling", 400)
 
-# GameData.activePatients.append(
 
-# )
 
 running = True
 while running:

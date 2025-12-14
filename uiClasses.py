@@ -137,14 +137,26 @@ class Animation:
 
          
 class MapButton(UIthingy):
-    def __init__(self, isClosed):
+    def __init__(self):
         super().__init__()
-        if isClosed:
-            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .4)
-        else: 
-            self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .4)
+        self.isClosed = True
+        self.imageBig = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .43)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/scroll.png"), .4)
+        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/ui/map.png"), .4)
         self.rect = pygame.Rect(1500,20,80,100)
         self.pos = [1480,10]
+    
+    def render(self, screen):
+        pos = pygame.mouse.get_pos()
+        if self.isClosed:
+            if self.rect.collidepoint(pos):
+                screen.blit(self.imageBig, [self.pos[0]-3, self.pos[1]-3])
+            else:
+                screen.blit(self.image, self.pos)
+        else:
+            screen.blit(self.imageOpen, self.pos)
+
+
 
 
 class BrewButton(UIthingy):
@@ -163,12 +175,12 @@ class BrewButton(UIthingy):
 class InventoryButton(UIthingy):
     def __init__(self):
         super().__init__()
-        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), 0.1)
-        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-open.png"), 0.1)
-        self.imageBig = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), 0.105)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), 0.11)
+        self.imageOpen = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-open.png"), 0.11)
+        self.imageBig = pygame.transform.smoothscale_by(pygame.image.load("images/garden/inventory-bag-closed.png"), 0.115)
         self.pos = (1490, 90)
         self.closed = True
-        self.rect = pygame.Rect(1500, 130, 80, 70)
+        self.rect = pygame.Rect(1500, 132, 87, 75)
 
     def render(self, screen):
         pos = pygame.mouse.get_pos()
@@ -180,7 +192,9 @@ class InventoryButton(UIthingy):
             if not hovering:
                 screen.blit(self.image, self.pos)
             else:
-                screen.blit(self.imageBig, self.pos)
+                screen.blit(self.imageBig, [self.pos[0]-3, self.pos[1]-3])
+
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
         
 
 
@@ -306,8 +320,11 @@ class RelocatePopup(UIthingy):
         screen.blit(self.uibutton, (520, 100))
         textRenderer.render(screen, "Cancel", (910, 595), 15, (40,20,10), align="center")
 
-        # pygame.draw.rect(screen, (255,0,0), self.sendToRoomRect, 2)
-        # pygame.draw.rect(screen, (255,0,0), self.cancelRect, 2)
+        pos = pygame.mouse.get_pos()
+        if self.sendToRoomRect.collidepoint(pos) and self.selectedButton != None:
+            pygame.draw.rect(screen, (255,255,255), self.sendToRoomRect, 5)
+        if self.cancelRect.collidepoint(pos):
+            pygame.draw.rect(screen, (255,255,255), self.cancelRect, 5)
 
 
     def handleInput(self, events):
@@ -325,3 +342,39 @@ class RelocatePopup(UIthingy):
                     GameData.patientsInRooms[self.selectedButton] = self.patient
                     GameData.activePatients.remove(self.patient)
                     self.sentToRoom = True
+
+
+
+
+class ScrollBar:
+    def __init__(self, outsideRect, insideRect, outsideColor, insideColor):
+        self.insideRect = insideRect
+        self.outsideRect = outsideRect
+        self.scrollBarRange = [self.outsideRect.y+3, self.outsideRect.y+self.outsideRect.h-self.insideRect.h]
+        self.outsideColor = outsideColor
+        self.insideColor = insideColor
+        self.draggingBar = False
+        self.draggingBarOffset = 0
+
+    def render(self, screen):
+        pygame.draw.rect(screen, self.insideColor, self.insideRect, border_radius=10)
+        pygame.draw.rect(screen, self.outsideColor, self.outsideRect, 6, 10)
+
+    def update(self):
+        pos = pygame.mouse.get_pos()
+        if self.draggingBar:
+            self.insideRect.y = pos[1] - self.draggingBarOffset
+            if self.insideRect.y < self.scrollBarRange[0]:
+                self.insideRect.y = self.scrollBarRange[0]
+            if self.insideRect.y > self.scrollBarRange[1]:
+                self.insideRect.y = self.scrollBarRange[1]
+
+    def handleInput(self, events):
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.insideRect.collidepoint(pos):
+                    self.draggingBar = True
+                    self.draggingBarOffset = pos[1] - self.insideRect.y
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.draggingBar = False

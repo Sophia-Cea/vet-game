@@ -172,11 +172,11 @@ class WaitingRoomState(State):
             self.patients.append(patient)
         self.inventoryButton = InventoryButton()
         self.leftArrow = Arrow(True)
-        self.mapIconClosed = MapButton(True)
+        self.mapIcon = MapButton()
         self.downArrow = VerticalArrow(True)
         self.coins = Coins()
         self.book = Book()
-        self.uiElements = [self.leftArrow, self.downArrow, self.mapIconClosed, self.coins, self.inventoryButton]
+        self.uiElements = [self.leftArrow, self.downArrow, self.mapIcon, self.coins, self.inventoryButton]
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -212,7 +212,8 @@ class WaitingRoomState(State):
                 if self.downArrow.checkClick():
                     stateManager.transition(None, True)
                     stateManager.push(PatientRoomState(0))
-                if self.mapIconClosed.checkClick():
+                if self.mapIcon.checkClick():
+                    self.mapIcon.isClosed = False
                     stateManager.push(MapState())
                 
                 for patient in GameData.activePatients:
@@ -242,9 +243,9 @@ class PotionRoomState(State):
         self.table.fill((64, 61, 57))
         self.inventoryButton = InventoryButton()
         self.rightArrow = Arrow(False)
-        self.mapIconClosed = MapButton(True)
+        self.mapIcon = MapButton()
         self.coins = Coins()
-        self.uiElements = [self.rightArrow, self.mapIconClosed, self.coins, self.inventoryButton]
+        self.uiElements = [self.rightArrow, self.mapIcon, self.coins, self.inventoryButton]
 
     def update(self):
         super().update()
@@ -267,7 +268,8 @@ class PotionRoomState(State):
                 if self.rightArrow.checkClick():
                     stateManager.transition(False)
                     stateManager.push(WaitingRoomState())
-                if self.mapIconClosed.checkClick():
+                if self.mapIcon.checkClick():
+                    self.mapIcon.isClosed = False
                     stateManager.push(MapState())
                 if self.cauldron.checkClick():
                     stateManager.push(PotionMakingState())
@@ -418,11 +420,11 @@ class GardenState(State):
         pygame.draw.rect(self.background, (132, 169, 140), (0, 600, 1600, 500))
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
-        self.mapIconClosed = MapButton(True)
+        self.mapIcon = MapButton()
         self.inventoryButton = InventoryButton()
         self.coins = Coins()
         self.upArrow = VerticalArrow(False)
-        self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIconClosed, self.coins, self.inventoryButton]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIcon, self.coins, self.inventoryButton]
         self.garden = garden
         self.plants = GameData.gardenData[self.garden]["plots"]
 
@@ -453,7 +455,8 @@ class GardenState(State):
                     self.inventoryButton.closed = False
                     stateManager.push(SeedInventoryOpenState())
 
-                if self.mapIconClosed.checkClick():
+                if self.mapIcon.checkClick():
+                    self.mapIcon.isClosed = False
                     stateManager.push(MapState())
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
@@ -464,13 +467,32 @@ class Garden1(GardenState):
         super().__init__("garden 1")
         
         self.uiElements.remove(self.leftArrow)
+        self.beehive = Beehive()
 
 
         img = pygame.image.load("images/backgrounds/Garden1.png").convert_alpha()
         self.background = pygame.transform.smoothscale_by(img, 0.45)
 
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        self.surface.blit(self.background, (0,0))
+        for plant in self.plants:
+            if plant != None:
+                plant.render(self.surface)
+        self.beehive.render(self.surface)
+
+        screen.blit(self.surface, offset)
+        for element in self.uiElements:
+            element.render(screen)
+        # self.beehive.render(screen)
+    
+    def update(self):
+        super().update()
+        self.beehive.update()
+
     def handleInput(self, events):
         super().handleInput(events)
+        self.beehive.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.leftArrow.checkClick():
@@ -546,7 +568,7 @@ class MapState(State):
         self.darkbg = pygame.Surface(orig_size)
         self.darkbg.fill((0,0,0))
         self.darkbg.set_alpha(90)
-        self.mapIcon = MapButton(False)
+        # self.mapIcon = MapButton(False)
         self.roomMap = pygame.transform.smoothscale_by(pygame.image.load("images/ui/room_map.png"), .25)
         self.lockImageShort = pygame.transform.smoothscale_by(pygame.image.load("images/ui/lock_short.png"), .25)
         self.lockImageLong = pygame.transform.smoothscale_by(pygame.image.load("images/ui/lock_long.png"), .25)
@@ -589,7 +611,6 @@ class MapState(State):
         screen.blit(self.darkbg, (0,0))
         screen.blit(self.map, (310,130))
         screen.blit(self.roomMap, (330,200))
-        self.mapIcon.render(screen)
 
         for i, rect in enumerate(self.roomRects):
             # pygame.draw.rect(screen, (255,0,0), rect, 2)
@@ -628,6 +649,7 @@ class MapState(State):
                 pos = pygame.mouse.get_pos()
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
+                    stateManager.queue[-1].mapIcon.isClosed = True
                 
                 for i in range(len(self.roomRects)):
                     if self.roomRects[i].collidepoint(pos):
@@ -661,9 +683,9 @@ class PatientRoomState(State):
         self.upArrow = VerticalArrow(False)
         self.leftArrow = Arrow(True)
         self.rightArrow = Arrow(False)
-        self.mapIconClosed = MapButton(True)
+        self.mapIcon = MapButton()
         self.coins = Coins()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.upArrow, self.mapIconClosed, self.coins, self.inventoryButton]
+        self.uiElements = [self.leftArrow, self.rightArrow, self.downArrow, self.upArrow, self.mapIcon, self.coins, self.inventoryButton]
         if self.index == len(GameData.roomData)-1:
             self.uiElements.remove(self.rightArrow)
         
@@ -706,7 +728,8 @@ class PatientRoomState(State):
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(WaitingRoomState())
-                if self.mapIconClosed.checkClick():
+                if self.mapIcon.checkClick():
+                    self.mapIcon.isClosed = False
                     stateManager.push(MapState())
 
 class InventoryOpenState(State):
@@ -719,6 +742,7 @@ class InventoryOpenState(State):
         self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
         self.backgroundDark.set_alpha(180)
         self.offset = 0
+        self.rows = 8
 
         self.potionButton = InventoryStateRoundButton(
             pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/potionButton.png"), .078),
@@ -734,6 +758,8 @@ class InventoryOpenState(State):
         )
 
         self.buttons = [self.potionButton, self.ingredientButton, self.seedButton]
+        self.scrollBar = ScrollBar(pygame.Rect(1160,350, 25,360), pygame.Rect(1165, 353, 15, 100), (120,110,100), (160,140,130))
+        self.rows = 1
 
 
     def render(self, screen, offset):
@@ -744,15 +770,18 @@ class InventoryOpenState(State):
         self.potionButton.render(screen)
         self.ingredientButton.render(screen)
         self.seedButton.render(screen)
+        self.scrollBar.render(screen)
 
 
     def update(self):
         super().update()
+        self.scrollBar.update()
 
 
     def handleInput(self, events):
         super().handleInput(events)
         pos = pygame.mouse.get_pos()
+        self.scrollBar.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.rect.collidepoint(pos):
@@ -763,6 +792,12 @@ class InventoryOpenState(State):
                         for b in self.buttons:
                             b.isBig = False
                         button.isBig = True
+            #     if self.barRect.collidepoint(pos):
+            #         self.draggingBar = True
+            #         self.draggingBarOffset = pos[1] - self.barRect.y
+            # if event.type == pygame.MOUSEBUTTONUP:
+            #     self.draggingBar = False
+                
 
 class PotionInventoryOpenState(InventoryOpenState):
     def __init__(self):
