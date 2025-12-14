@@ -274,7 +274,7 @@ class PotionRoomState(State):
         super().__init__()
         self.surface = pygame.Surface(orig_size)
         self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/potionroom.png"), (orig_size[0], orig_size[1]))
-        self.cauldron = Cauldron([535, 330])
+        self.cauldron = Cauldron([535, 322])
         self.table = pygame.Surface((400,200))
         self.table.fill((64, 61, 57))
         self.inventoryButton = InventoryButton()
