@@ -114,6 +114,9 @@ class EverythingState(State):
             getsCustomer = (random.randint(0,GameData.newCustomerChance) == 1)
         
         if getsCustomer:
+            for state in stateManager.queue:
+                if type(state) == WaitingRoomState():
+                    state.arrivePatient()
             getsCustomer = False
 
             if len(GameData.activePatients) < GameData.customerLimit:
@@ -180,8 +183,14 @@ class WaitingRoomState(State):
     def __init__(self) -> None:
         super().__init__()
         self.surface = pygame.Surface(orig_size)
-        self.background = pygame.transform.scale(pygame.image.load("images/backgrounds/backgroundmain.png"), (orig_size[0], orig_size[1]))
-        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/desk.png").convert_alpha(), .4)
+        self.background = pygame.transform.smoothscale(pygame.image.load("images/mainroom/background_main.png"), (orig_size[0], orig_size[1]))
+        self.floor = pygame.transform.smoothscale(pygame.image.load("images/mainroom/floor.png"), (orig_size[0], orig_size[1]))
+        self.woodFrame = pygame.transform.smoothscale(pygame.image.load("images/mainroom/woodframe.png"), (orig_size[0], orig_size[1]))
+        self.fireplacebricks = pygame.transform.smoothscale(pygame.image.load("images/mainroom/fireplace_outside.png"), (orig_size[0], orig_size[1]))
+        self.fireplaceinside = pygame.transform.smoothscale(pygame.image.load("images/mainroom/fireplace_inside.png"), (orig_size[0], orig_size[1]))
+        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/deskNew.png"), .4)
+        self.doorClosed = pygame.transform.smoothscale(pygame.image.load("images/mainroom/door_closed.png"), (orig_size[0], orig_size[1]))
+        self.doorOpen = pygame.transform.smoothscale(pygame.image.load("images/mainroom/door_open.png"), (orig_size[0], orig_size[1]))
         self.fire = Animation("images/mainroom/fire/", [
             "fire1.png",
             "fire2.png",
@@ -204,11 +213,31 @@ class WaitingRoomState(State):
         self.settings = SettingsButton()
         self.uiElements = [self.leftArrow, self.downArrow, self.mapIcon, self.coins, self.inventoryButton, self.settings]
         self.backgroundColor = (222, 201, 168)
+        self.doorRect = pygame.Rect(1400,150,150,550)
+        self.patientArriving = False
+        self.patientArrivingTime = None
+
+    def arrivePatient(self):
+        self.patientArriving = True
+        self.patientArrivingTime = datetime.now()
+
 
     def render(self, screen, offset):
         super().render(screen, offset)
+        pos = pygame.mouse.get_pos()
         self.surface.blit(self.background, (0,0))
+        self.surface.blit(self.floor, (0,0))
+        self.surface.blit(self.woodFrame, (0,0))
+
+        if self.doorRect.collidepoint(pos) or self.patientArriving:
+            self.surface.blit(self.doorOpen, (0,0))
+        else:
+            self.surface.blit(self.doorClosed, (0,0))
+
+
+        self.surface.blit(self.fireplaceinside, (0,0))
         self.fire.render(self.surface, (680,330))
+        self.surface.blit(self.fireplacebricks, (0,0))
         for patient in self.patients:
             patient.render(self.surface)
         self.surface.blit(self.desk, (30, 40))
@@ -217,6 +246,9 @@ class WaitingRoomState(State):
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
+
+        # pygame.draw.rect(screen, (255,0,0), self.doorRect, 2)
+
 
     def update(self):
         super().update()
@@ -228,6 +260,13 @@ class WaitingRoomState(State):
             if patient not in GameData.activePatients:
                 self.patients.remove(patient)
                 break
+        
+        if self.patientArriving:
+            current_real_time = datetime.now()
+            time_elapsed = current_real_time - self.patientArrivingTime
+            required_duration = timedelta(seconds=5)
+            if time_elapsed >= required_duration:
+                self.patientArriving = False
     
     def handleInput(self, events):
         super().handleInput(events)
@@ -1054,7 +1093,7 @@ class DialogueState(State):
         pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if not self.rect.collidepoint(pos) and not self.relocatePopup.rect.collidepoint(pos):
+                if not self.rect.collidepoint(pos):
                     stateManager.pop()
             
             if event.type == pygame.KEYDOWN:
