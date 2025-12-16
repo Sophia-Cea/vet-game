@@ -180,12 +180,14 @@ class WaitingRoomState(State):
     def __init__(self) -> None:
         super().__init__()
         self.surface = pygame.Surface(orig_size)
-        self.background = pygame.transform.smoothscale(pygame.image.load("images/mainroom/background_main.png"), (orig_size[0], orig_size[1]))
-        self.floor = pygame.transform.smoothscale(pygame.image.load("images/mainroom/floor.png"), (orig_size[0], orig_size[1]))
-        self.woodFrame = pygame.transform.smoothscale(pygame.image.load("images/mainroom/woodframe.png"), (orig_size[0], orig_size[1]))
-        self.fireplacebricks = pygame.transform.smoothscale(pygame.image.load("images/mainroom/fireplace_outside.png"), (orig_size[0], orig_size[1]))
-        self.fireplaceinside = pygame.transform.smoothscale(pygame.image.load("images/mainroom/fireplace_inside.png"), (orig_size[0], orig_size[1]))
-        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/deskNew.png"), .4)
+        
+        self.background = pygame.transform.smoothscale(pygame.image.load("images/mainroom/background_main.png"), (orig_size[0], orig_size[1])).convert() # Use .convert()!
+        self.floor = pygame.transform.smoothscale(pygame.image.load("images/mainroom/floor.png"), (orig_size[0], orig_size[1])).convert_alpha()
+        self.woodFrame = pygame.transform.smoothscale(pygame.image.load("images/mainroom/woodframe.png"), (orig_size[0], orig_size[1])).convert_alpha()
+        self.fireplacebricks = pygame.transform.smoothscale(pygame.image.load("images/mainroom/fireplace_outside.png"), (orig_size[0], orig_size[1])).convert_alpha()
+        self.fireplaceinside = pygame.transform.smoothscale(pygame.image.load("images/mainroom/fireplace_inside.png"), (orig_size[0], orig_size[1])).convert_alpha()
+        self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/deskNew.png"), .4).convert_alpha()
+        
         self.doorClosed = pygame.transform.smoothscale(pygame.image.load("images/mainroom/door_closed.png"), (orig_size[0], orig_size[1]))
         self.doorOpen = pygame.transform.smoothscale(pygame.image.load("images/mainroom/door_open.png"), (orig_size[0], orig_size[1]))
         self.doorwayRight = pygame.transform.smoothscale(pygame.image.load("images/mainroom/doorway_right.png"), (orig_size[0], orig_size[1]))
@@ -199,6 +201,11 @@ class WaitingRoomState(State):
             "fire7.png",
             "fire8.png"
         ], 1, .15)
+
+        self.background.blit(self.floor, (0,0))
+        self.background.blit(self.woodFrame, (0,0))
+        self.background.blit(self.fireplaceinside, (0,0))
+
 
         self.patients = []
         for patient in GameData.activePatients:
@@ -225,9 +232,7 @@ class WaitingRoomState(State):
         super().render(screen, offset)
         pos = pygame.mouse.get_pos()
         self.surface.blit(self.background, (0,0))
-        self.surface.blit(self.floor, (0,0))
-        self.surface.blit(self.woodFrame, (0,0))
-        self.surface.blit(self.fireplaceinside, (0,0))
+
         self.fire.render(self.surface, (680,330))
         self.surface.blit(self.fireplacebricks, (0,0))
 
