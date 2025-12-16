@@ -323,8 +323,8 @@ class IngredientItemInPotionInventory(ItemInPotionInventory):
         self.path = potionInfo["potion ingredients"]["path"]
         self.image = pygame.transform.smoothscale_by(pygame.image.load(self.path + self.data["path"]), self.data["scale"])
         self.textOffset = [35,25]
-        self.pos[0] += 15
-        self.pos[1] += 20
+        self.pos[0] += 5
+        self.pos[1] += 10
 
 class PotionItemInPotionInventory(ItemInPotionInventory):
     def __init__(self, potionObject, pos):

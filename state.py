@@ -44,9 +44,6 @@ class StateManager:
         self.everythingState.handleInput(events)
         if not self.transitioning:
             self.queue[len(self.queue)-1].update()
-            # if len(self.queue) > 1:
-            #     self.queue[len(self.queue)-2].render(surface, [0,0])
-            # self.queue[len(self.queue)-1].render(surface, [0,0])
             for state in self.queue:
                 state.render(surface, [0,0])
             self.queue[len(self.queue)-1].handleInput(events)
@@ -107,7 +104,7 @@ class EverythingState(State):
 
     def update(self):
         super().update()
-        getsCustomer = True
+        getsCustomer = False
         time1 = pygame.time.get_ticks()
         if time1 - self.currentTime >= self.interval:
             self.currentTime = pygame.time.get_ticks()
@@ -115,7 +112,7 @@ class EverythingState(State):
         
         if getsCustomer:
             for state in stateManager.queue:
-                if type(state) == WaitingRoomState():
+                if type(state) == WaitingRoomState:
                     state.arrivePatient()
             getsCustomer = False
 
@@ -141,9 +138,9 @@ class EverythingState(State):
                     patientInfo[chosen_animal]["idleAnimation"],
                     patientInfo[chosen_animal]["talkingAnimation"],
                     "walking",
-                    [1500, 350],
+                    [1500, 220],
                     random.randint(100, 1200),
-                    random.randint(2, 5),
+                    random.randint(4, 7),
                     len(GameData.activePatients),
                     # Also use chosen_animal for the illness lookup
                     random.choice(patientInfo[chosen_animal]["potentialIllnesses"])
@@ -191,6 +188,7 @@ class WaitingRoomState(State):
         self.desk = pygame.transform.smoothscale_by(pygame.image.load("images/mainroom/deskNew.png"), .4)
         self.doorClosed = pygame.transform.smoothscale(pygame.image.load("images/mainroom/door_closed.png"), (orig_size[0], orig_size[1]))
         self.doorOpen = pygame.transform.smoothscale(pygame.image.load("images/mainroom/door_open.png"), (orig_size[0], orig_size[1]))
+        self.doorwayRight = pygame.transform.smoothscale(pygame.image.load("images/mainroom/doorway_right.png"), (orig_size[0], orig_size[1]))
         self.fire = Animation("images/mainroom/fire/", [
             "fire1.png",
             "fire2.png",
@@ -201,6 +199,7 @@ class WaitingRoomState(State):
             "fire7.png",
             "fire8.png"
         ], 1, .15)
+
         self.patients = []
         for patient in GameData.activePatients:
             self.patients.append(patient)
@@ -228,18 +227,23 @@ class WaitingRoomState(State):
         self.surface.blit(self.background, (0,0))
         self.surface.blit(self.floor, (0,0))
         self.surface.blit(self.woodFrame, (0,0))
-
-        if self.doorRect.collidepoint(pos) or self.patientArriving:
-            self.surface.blit(self.doorOpen, (0,0))
-        else:
-            self.surface.blit(self.doorClosed, (0,0))
-
-
         self.surface.blit(self.fireplaceinside, (0,0))
         self.fire.render(self.surface, (680,330))
         self.surface.blit(self.fireplacebricks, (0,0))
+
+        if self.doorRect.collidepoint(pos) or self.patientArriving:
+            self.surface.blit(self.doorOpen, (0,0))
+
+        else:
+            self.surface.blit(self.doorClosed, (0,0))
+        
         for patient in self.patients:
             patient.render(self.surface)
+        
+        pygame.draw.rect(self.surface, self.backgroundColor, (1550,100,200,630))
+        self.surface.blit(self.doorwayRight, (0,0))
+
+
         self.surface.blit(self.desk, (30, 40))
         self.surface.blit(self.desk, (30, 40))
         self.book.render(self.surface)
@@ -1182,5 +1186,7 @@ class RelocatePopupState(State):
                     GameData.patientsInRooms[self.selectedButton] = self.patient
                     GameData.activePatients.remove(self.patient)
                     self.sentToRoom = True
+                    stateManager.pop()
+                if self.cancelRect.collidepoint(pos):
                     stateManager.pop()
 
