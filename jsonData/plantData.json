@@ -3,6 +3,7 @@
         "name" : "Plant 1",
         "path" : "images/garden/plant1/",
         "seed" : "seed.png",
+        "seedPouch" : "seed-bag.png",
         "in betweens" : [
             "sprout.png",
             "plant1.png",
@@ -21,6 +22,7 @@
         "name" : "Plant 2",
         "path" : "images/garden/plant1/",
         "seed" : "seed.png",
+        "seedPouch" : "seed-bag.png",
         "in betweens" : [
             "sprout.png",
             "plant1.png",
@@ -39,6 +41,7 @@
         "name" : "Sapling",
         "path" : "images/garden/sapling/",
         "seed" : "seed.png",
+        "seedPouch" : "seed-bag.png",
         "in betweens" : [
             "plant1.png",
             "plant2.png",

@@ -226,10 +226,15 @@ class ItemInInventory(UIthingy):
         self.pos = [pos[0], pos[1]]
         self.object = object
         self.quantity = object["quantity"]
+        self.rectOriginal = pygame.Rect(self.pos[0]+5, self.pos[1]+10, 95,95)
+        self.rect = pygame.Rect(self.pos[0]+5, self.pos[1]+10, 95,95)
+        self.pos = [pos[0]-455, pos[1]-170]
+        self.textOffset = [60,60]
 
-    def render(self, screen):
-        super().render(screen)
-        textRenderer.render(screen, str(self.quantity), (self.pos[0]+60, self.pos[1]+60), 35, (255,255,255))
+    def render(self, screen, offset):
+        screen.blit(self.image, (self.pos[0], self.pos[1]-offset))
+        textRenderer.render(screen, str(self.quantity), (self.pos[0]+self.textOffset[0], self.pos[1]+self.textOffset[1]-offset), 35, (255,255,255))
+        self.rect.y = self.rectOriginal.y - offset
 
     def update(self):
         super().update()
@@ -242,16 +247,24 @@ class PotionItemInInventory(ItemInInventory):
     def __init__(self, potionObject, pos):
         super().__init__(potionObject, pos)
         self.data = potionInfo["potions"][self.object["name"]]
-        self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.data["image"]), 8)
-        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+        self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.data["image"]), 6)
+        # self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+        self.pos[0] += 25
+        self.pos[1] += 25
+        self.textOffset = [45,40]
+
 
 
 class SeedItemInInventory(ItemInInventory):
     def __init__(self, seedObject, pos):
         super().__init__(seedObject, pos)
         self.data = plantInfo[seedObject["name"]]
-        self.image = pygame.transform.smoothscale_by(pygame.image.load(self.data["path"] + "seed.png"), .25)
-        self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+        self.image = pygame.transform.smoothscale_by(pygame.image.load(self.data["path"] + "seed-bag.png"), .055)
+        self.textOffset = [55,45]
+        self.pos[0] += 15
+        self.pos[1] += 20
+        # self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+
 
 
 class InventoryStateRoundButton:
@@ -355,6 +368,7 @@ class ScrollBar:
         self.insideColor = insideColor
         self.draggingBar = False
         self.draggingBarOffset = 0
+        self.offset = 0
 
     def render(self, screen):
         pygame.draw.rect(screen, self.insideColor, self.insideRect, border_radius=10)
@@ -368,6 +382,8 @@ class ScrollBar:
                 self.insideRect.y = self.scrollBarRange[0]
             if self.insideRect.y > self.scrollBarRange[1]:
                 self.insideRect.y = self.scrollBarRange[1]
+
+        self.offset = self.insideRect.y - self.scrollBarRange[0]
 
     def handleInput(self, events):
         pos = pygame.mouse.get_pos()
