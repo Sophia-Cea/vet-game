@@ -1,71 +1,122 @@
 {
     "potion ingredients" : {
         "path" : "images/potionRoom/potionIngredients/",
-        "black_ball" : {
+        "Black Ball" : {
             "path" : "black_ball.png",
             "scale" : 5
         },
-        "blue_ball" : {
+        "Blue Ball" : {
             "path" : "blue_ball.png",
             "scale" : 5
         },
-        "red_ball" : {
+        "Red Ball" : {
             "path" : "red_ball.png",
             "scale" : 5
         },
-        "blue_crumbs" : {
+        "Blue Crumbs" : {
             "path" : "blue_crumbs.png",
             "scale" : 5
         },
-        "orange_crumbs" : {
+        "Orange Crumbs" : {
             "path" : "orange_crumbs.png",
             "scale" : 5
         },
-        "purple_crumbs" : {
+        "Purple Crumbs" : {
             "path" : "purple_crumbs.png",
             "scale" : 5
         },
-        "red_crumbs" : {
+        "Red Crumbs" : {
             "path" : "red_crumbs.png",
             "scale" : 5
         },
-        "yellow_crumbs" : {
+        "Yellow Crumbs" : {
             "path" : "yellow_crumbs.png",
             "scale" : 5
         },
-        "bones" : {
+        "Bones" : {
             "path" : "bones.png",
             "scale" : 5
         },
-        "gold_nugget" : {
+        "Gold Nugget" : {
             "path" : "gold_nugget.png",
             "scale" : 5
         },
-        "slime_glob" : {
+        "Slime Glob" : {
             "path" : "slime_glob.png",
             "scale" : 5
         },
-        "mushroom_blue" : {
+        "Mushroom Blue" : {
             "path" : "mushroom_blue.png",
             "scale" : 5
         },
-        "mushroom_green" : {
+        "Mushroom Green" : {
             "path" : "mushroom_green.png",
             "scale" : 5
         },
-        "mushroom_orange" : {
+        "Mushroom Orange" : {
             "path" : "mushroom_orange.png",
             "scale" : 5
         },
-        "mushroom_purple" : {
+        "Mushroom Purple" : {
             "path" : "mushroom_purple.png",
             "scale" : 5
         },
-        "mushroom_red" : {
+        "Mushroom Red" : {
             "path" : "mushroom_red.png",
             "scale" : 5
+        },
+        "Honeycomb" : {
+            "path" : "honeycomb.png",
+            "scale" : 0.05
+        },
+        "Sapling" : {
+            "path" : "sapling.png",
+            "scale" : 0.1
         }
     },
+
+    "potions" : {
+        "potionOfRed" : {
+            "image" : "potion_red.png",
+            "recipe" : [
+                "Yellow Crumbs",
+                "Slime Glob",
+                "Red Ball"
+            ],
+            "illnesses" : [
+                "halitosis"
+            ]
+        },
+        "potionOfBlue" : {
+            "image" : "potion_blue.png",
+            "recipe" : [
+                "Black Ball",
+                "Blue Ball",
+                "Blue Crumbs"
+            ],
+            "illnesses" : [
+                "die of beetus"
+            ]
+        },
+        "Slick Throat Syrup" : {
+            "image" : "slick-throat-syrup.png",
+            "recipe" : [
+                "Sapling",
+                "Honeycomb"
+            ],
+            "illnesses" : [
+                "Scullery Cough"
+            ]
+        }
+    },
+
+
+
+
+
+
+
+
     "potionRecipes" : {
         "potionOfRed" : {
             "image" : "images/potionRoom/potionBottles/potion_red.png",
@@ -78,31 +129,6 @@
             "mushroom_blue" : 2,
             "mushroom_orange" : 1,
             "bones" : 1
-        }
-    },
-
-    "potions" : {
-        "potionOfRed" : {
-            "image" : "potion_red.png",
-            "recipe" : [
-                "yellow_crumbs",
-                "slime_glob",
-                "red_ball"
-            ],
-            "illnesses" : [
-                "halitosis"
-            ]
-        },
-        "potionOfBlue" : {
-            "image" : "potion_blue.png",
-            "recipe" : [
-                "black_ball",
-                "blue_ball",
-                "blue_crumbs"
-            ],
-            "illnesses" : [
-                "die of beetus"
-            ]
         }
     }
 }

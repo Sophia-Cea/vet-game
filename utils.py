@@ -95,23 +95,23 @@ class GameData:
 
     ingredientsInInventory = [
         {
-            "name" : "honeycomb",
+            "name" : "Honeycomb",
             "quantity" : 5
         },
         {
-            "name" : "",
+            "name" : "Blue Ball",
             "quantity" : 2
         },
         {
-            "name" : "",
+            "name" : "Bones",
             "quantity" : 2
         },
         {
-            "name" : "",
+            "name" : "Mushroom Red",
             "quantity" : 2
         },
         {
-            "name" : "",
+            "name" : "Mushroom Green",
             "quantity" : 2
         }
     ]

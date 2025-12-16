@@ -203,6 +203,7 @@ class WaitingRoomState(State):
         self.book = Book()
         self.settings = SettingsButton()
         self.uiElements = [self.leftArrow, self.downArrow, self.mapIcon, self.coins, self.inventoryButton, self.settings]
+        self.backgroundColor = (222, 201, 168)
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -384,28 +385,6 @@ class PotionMakingState(State):
                 if self.xButton.checkClick():
                     stateManager.pop()
 
-                left_page_index = self.ingredientMenu.currentPageSet * 2
-                right_page_index = left_page_index + 1
-                
-                # left page
-                leftPage = self.ingredientMenu.pages[left_page_index]
-
-                # right page
-                rightPage = self.ingredientMenu.pages[right_page_index]
-
-
-                for ingredient in leftPage.ingredients:
-                    if ingredient.checkClick():
-                        if ingredient.quantity > 0:
-                            self.draggingItem = PotionIngredientDragging(ingredient.image, ingredient.category, ingredient.name, (pygame.mouse.get_pos()[0]-ingredient.rect.x, pygame.mouse.get_pos()[1]-ingredient.rect.y))
-                            ingredient.quantity -= 1
-
-                for ingredient in rightPage.ingredients:
-                    if ingredient.checkClick():
-                        if ingredient.quantity > 0:
-                            self.draggingItem = PotionIngredientDragging(ingredient.image, ingredient.category, ingredient.name, (pygame.mouse.get_pos()[0]-ingredient.rect.x, pygame.mouse.get_pos()[1]-ingredient.rect.y))
-                            ingredient.quantity -= 1
-
 
 
 
@@ -421,24 +400,7 @@ class PotionMakingState(State):
                             (570+(len(self.ingredients))*90, 760)
                         ))
                         self.ingredientsText.append(self.draggingItem.name)
-                    else:
-                        left_page_index = self.ingredientMenu.currentPageSet * 2
-                        right_page_index = left_page_index + 1
-                        
-                        # left page
-                        leftPage = self.ingredientMenu.pages[left_page_index]
-
-                        # right page
-                        rightPage = self.ingredientMenu.pages[right_page_index]
-
-
-                        for ingredient in leftPage.ingredients:
-                            if ingredient.name == self.draggingItem.name:
-                                ingredient.quantity += 1
-
-                        for ingredient in rightPage.ingredients:
-                            if ingredient.name == self.draggingItem.name:
-                                ingredient.quantity += 1
+                    
                     self.draggingItem = None
 
 
@@ -518,11 +480,13 @@ class Garden1(GardenState):
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
-        # self.beehive.render(screen)
     
     def update(self):
         super().update()
         self.beehive.update()
+
+
+                
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -809,6 +773,9 @@ class InventoryOpenState(State):
             self.potions.append(PotionItemInInventory(potion, (self.pos[0] + 90 + 110*(i%6), self.pos[1] + 240 + (i//6) * 110)))
 
         self.ingredients = []
+        for i, ingredient in enumerate(GameData.ingredientsInInventory):
+            self.ingredients.append(IngredientItemInInventory(ingredient, (self.pos[0] + 90 + 110*(i%6), self.pos[1] + 240 + (i//6) * 110)))
+
         self.itemLists = [self.potions, self.ingredients, self.seeds]
 
         self.scrollBar = ScrollBar(
@@ -842,9 +809,8 @@ class InventoryOpenState(State):
 
     def update(self):
         super().update()
-        if self.scrollBar:
-            self.scrollBar.update()
-            self.offset = self.scrollBar.offset
+        self.scrollBar.update()
+        self.offset = self.scrollBar.offset
 
 
     def handleInput(self, events):
@@ -1020,11 +986,53 @@ class DialogueState(State):
         self.characterPos = [800,500]
         self.pos = [390,280]
         self.rect = pygame.Rect(645,640,640,260)
-        self.text1 = random.choice(["My tummy hurts and I pooped the bed.", "My friends hurt my feelings.", "My poop is colorful.", "I burnt my snoot in my soup."])
-        self.text2 = random.choice(["I'm also very itchy.", "I also can't stop sneezing.", "I also have been seeing things.", "I'm also very sad."])
-        self.text3 = random.choice(["Help me!!!", "And my toes beans are stinky.", "And I miss my mommy."])
+        self.dialogue = [self.get3LineDialogue(), self.get3LineDialogue(), self.get3LineDialogue()]
+        self.dialogueTexts = []
+        self.currentLine = 0
+        self.currentChar = 0
+        self.createDialogue()
 
-        self.relocatePopup = RelocatePopup(self.patient)
+        self.dialogueFinished = False
+    
+        pygame.time.set_timer(pygame.USEREVENT, 50)
+
+    def createDialogue(self):
+        self.dialogueTexts = []
+        for l in range(len(self.dialogue)):
+            temp = []
+            for i in range(len(self.dialogue[l])):
+                temp2 = []
+                for j in range(len(self.dialogue[l][i])+1):
+                    temp3 = []
+                    k = 0
+                    if i>0:
+                        for _ in range(i):
+                            temp3.append([self.dialogue[l][k], (700, 680+30*k)])
+                            k += 1
+                    temp3.append([self.dialogue[l][i][:j], (700, 680+30*k)])
+                    temp2.append(temp3)
+                temp.append(temp2)
+            self.dialogueTexts.append(temp)
+
+        temp = []
+        for i in range(len(self.dialogueTexts)):
+            temp2 = []
+            for j in range(len(self.dialogueTexts[i])):
+                for k in range(len(self.dialogueTexts[i][j])):
+                    temp2.append(self.dialogueTexts[i][j][k])
+            temp.append(temp2)
+
+        self.dialogueTexts = temp
+
+
+
+    def get3LineDialogue(self):
+        text1 = random.choice(["My tummy hurts and I pooped the bed.", "My friends hurt my feelings.", "My poop is colorful.", "I burnt my snoot in my soup."])
+        text2 = random.choice(["I'm also very itchy.", "I also can't stop sneezing.", "I also have been seeing things.", "I'm also very sad."])
+        text3 = random.choice(["Help me!!!", "And my toes beans are stinky.", "And I miss my mommy."])
+        return [text1, text2, text3]
+
+
 
     def render(self, screen, offset):
         super().render(screen, offset)
@@ -1032,18 +1040,14 @@ class DialogueState(State):
         screen.blit(self.image, self.pos)
         screen.blit(self.character, self.characterPos)
 
-        textRenderer.render(screen, self.text1, (680, 680), 25, (20,10,2))
-        textRenderer.render(screen, self.text2, (680, 715), 25, (20,10,2))
-        textRenderer.render(screen, self.text3, (680, 750), 25, (20,10,2))
 
-        self.relocatePopup.render(screen)
+        for i in range(len(self.dialogueTexts[self.currentLine][self.currentChar])):
+            textRenderer.render(screen, self.dialogueTexts[self.currentLine][self.currentChar][i][0], self.dialogueTexts[self.currentLine][self.currentChar][i][1], 25, (20,10,2))
 
-        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
 
     def update(self):
         super().update()
-        if self.relocatePopup.sentToRoom == True:
-            stateManager.pop()
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -1052,7 +1056,92 @@ class DialogueState(State):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.rect.collidepoint(pos) and not self.relocatePopup.rect.collidepoint(pos):
                     stateManager.pop()
-        
-        self.relocatePopup.handleInput(events)
+            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    if self.currentChar < len(self.dialogueTexts[self.currentLine])-1:
+                        self.currentChar = len(self.dialogueTexts[self.currentLine])-1
+                    else:
+                        if self.currentLine < len(self.dialogue)-1:
+                            self.currentLine += 1
+                            self.currentChar = 0
+                        else:
+                            self.dialogueFinished = True
+                            stateManager.pop()
+                            stateManager.push(RelocatePopupState(self.patient))
 
+            if event.type == pygame.USEREVENT:
+                if self.currentChar < len(self.dialogueTexts[self.currentLine]) - 1:
+                    self.currentChar += 1
+
+
+
+class RelocatePopupState(State):
+    def __init__(self, patient):
+        super().__init__()
+        self.patient = patient
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(150)
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_.png"), .35)
+        self.pos = [500,100]
+        self.rect = pygame.Rect(510,115,580,510)
+        self.roomButton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button.png"), .35)
+        self.uibutton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button2.png"), .35)
+        self.selectedButton = None
+
+        self.sendToRoomRect = pygame.Rect(630, 575, 140, 40)
+        self.cancelRect = pygame.Rect(840, 575, 140, 40)
+        self.sentToRoom = False
+
+    def render(self, screen, offset):
+        super().render(screen, offset)
+        screen.blit(self.backgroundDark, (0,0))
+        screen.blit(self.image, self.pos)
+        for i in range(8):
+            x = 600 + (i%4)*105
+            y = 340 + (i//4)*105
+            screen.blit(self.roomButton, (x,y))
+            textRenderer.render(screen, "Room", (x+53, y+35), 20, (40,20,10), align="center")
+            textRenderer.render(screen, str(i+1), (x+53, y+65), 35, (40,20,10), align="center")
+            if self.selectedButton != None:
+                if self.selectedButton == i:
+                    pygame.draw.circle(screen, (255,255,255), (x+52, y+51), 50, 5)
+        
+        textRenderer.render(screen, "Patient Check-In", (720, 170), 30, (40,20,10))
+        textRenderer.render(screen, "Patient:", (700, 215), 20, (40,20,10))
+        textRenderer.render(screen, "Illness:", (870, 215), 20, (40,20,10))
+
+        textRenderer.render(screen, "Paige", (790, 215), 20, (40,20,10))
+        textRenderer.render(screen, self.patient.illness, (960, 215), 20, (40,20,10))
+
+        if self.selectedButton != None:
+            screen.blit(self.uibutton, (310, 100))
+            textRenderer.render(screen, "Send to Room", (700, 595), 15, (40,20,10), align="center")
+
+        screen.blit(self.uibutton, (520, 100))
+        textRenderer.render(screen, "Cancel", (910, 595), 15, (40,20,10), align="center")
+
+        pos = pygame.mouse.get_pos()
+        if self.sendToRoomRect.collidepoint(pos) and self.selectedButton != None:
+            pygame.draw.rect(screen, (255,255,255), self.sendToRoomRect, 5)
+        if self.cancelRect.collidepoint(pos):
+            pygame.draw.rect(screen, (255,255,255), self.cancelRect, 5)
+
+
+    def handleInput(self, events):
+        super().handleInput(events)
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for i in range(8):
+                    x = 652 + (i%4)*105
+                    y = 351 + (i//4)*105
+                    r = 45
+                    if math.sqrt((pos[0]-x)**2 + (pos[1]-y)**2) <= r:
+                        self.selectedButton = i
+                if self.selectedButton != None and self.sendToRoomRect.collidepoint(pos):
+                    GameData.patientsInRooms[self.selectedButton] = self.patient
+                    GameData.activePatients.remove(self.patient)
+                    self.sentToRoom = True
+                    stateManager.pop()
 

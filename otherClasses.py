@@ -26,7 +26,7 @@ class Cauldron:
         return clicked
 
 
-class PotionIngredientMenu:
+class PotionIngredientMenuOld:
     def __init__(self):
         self.ingredientMenu = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/ui/potioningredientsui.png"), .4)
         self.pages = []
@@ -79,6 +79,83 @@ class PotionIngredientMenu:
                     self.currentPageSet += 1
                     if self.currentPageSet >= self.max_page_sets:
                         self.currentPageSet = 0
+
+
+
+
+class PotionIngredientMenu:
+    def __init__(self):
+        self.ingredientMenu = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/ui/potioningredientsui.png"), .4)
+        self.rect1 = pygame.Rect(135,130, 570,205)
+        self.rect2 = pygame.Rect(860,130, 570,205)
+
+        self.leftSurf = pygame.Surface((570,205))
+        self.rightSurf = pygame.Surface((570,205))
+        self.scrollLeft = ScrollBar(pygame.Rect(680,140, 20, 180), pygame.Rect(683,143, 14, 60), (153, 88, 42), (255, 230, 167))
+        self.scrollRight = ScrollBar(pygame.Rect(1400,140, 20, 180), pygame.Rect(1403,143, 14, 60), (153, 88, 42), (255, 230, 167))
+        self.offsetLeft = 0
+        self.offsetRight = 0
+
+        self.ingredients = []
+        self.potions = []
+
+        for i, ingredient in enumerate(GameData.ingredientsInInventory):
+            self.ingredients.append(IngredientItemInPotionInventory(ingredient, (35 + (i%5) * 95, 20 + (i//5) * 95)))\
+            
+        for i, potion in enumerate(GameData.potionsInInventory):
+            self.potions.append(PotionItemInPotionInventory(potion, (35 + (i%5) * 95, 20 + (i//5) * 95)))
+    
+
+    def render(self, screen):
+        screen.blit(self.ingredientMenu, (10,-20))
+        screen.blit(self.ingredientMenu, (10,-20))
+        textRenderer.render(screen, "Ingredients", (420, 70), 35, (250,230,210), align="center")
+        textRenderer.render(screen, "Potions", (1140, 70), 35, (250,230,210), align="center")
+
+        self.leftSurf.fill((74, 38, 35))
+        self.rightSurf.fill((74, 38, 35))
+
+        for i in range(4): 
+            for j in range(5): 
+                pygame.draw.rect(self.leftSurf, (187, 148, 87), (35+j*95, 20+i*95-self.offsetLeft, 80,80), 3, 4)
+
+        for i in range(4):
+            for j in range(5):
+                pygame.draw.rect(self.rightSurf, (187, 148, 87), (35+j*95, 20+i*95-self.offsetRight, 80,80), 3, 4)
+
+        for item in self.ingredients:
+            item.render(self.leftSurf, self.offsetLeft)
+
+        for item in self.potions:
+            item.render(self.rightSurf, self.offsetRight)
+
+
+        screen.blit(self.leftSurf, self.rect1.topleft)
+        screen.blit(self.rightSurf, self.rect2.topleft)
+
+        self.scrollLeft.render(screen)
+        self.scrollRight.render(screen)
+
+
+    def update(self):
+        self.scrollLeft.update()
+        self.scrollRight.update()
+        self.offsetLeft = self.scrollLeft.offset * 2
+        self.offsetRight = self.scrollRight.offset * 2
+
+    def handleInput(self, events):
+        self.scrollLeft.handleInput(events)
+        self.scrollRight.handleInput(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pass
+
+
+
+
+
+
+
 
 
 class IngredientPage:
@@ -307,7 +384,6 @@ class HoneyCombItem:
     def render(self, screen):
         if self.dropping or self.dropped:
             screen.blit(self.honeycombImage, self.honeycombPos)
-            pygame.draw.rect(screen, (255,0,0), self.rect, 2)
 
     def update(self):
         if self.dropping:
@@ -344,12 +420,15 @@ class Beehive:
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/beehive.png"), .1)
         self.honey = pygame.transform.smoothscale_by(pygame.image.load("images/garden/honey-splatters.png"), .1)
         self.isReady = False
-        self.honeyTime = 3 # seconds
+        self.honeyTime = 10 # seconds
         self.rect = pygame.Rect(1100,280,95,125)
         self.harvestHoney = False
         self.harvestTime = datetime.now()
         self.honeycomb = HoneyCombItem()
         self.dropping = False
+
+    def resetHoneyComb(self):
+        self.honeycomb = HoneyCombItem()
 
     def render(self, screen):
         screen.blit(self.image, self.pos)
@@ -362,6 +441,11 @@ class Beehive:
     def update(self):
         self.honeycomb.update()
 
+        if self.honeycomb.pickUp:
+            self.addToInventory()
+            self.resetHoneyComb()
+    
+
         if self.isReady:
             return
         
@@ -372,9 +456,20 @@ class Beehive:
         if time_elapsed >= required_duration:
             self.isReady = True
         
-        if self.honeycomb.pickUp:
-            # GameData.
-            pass
+        
+    def addToInventory(self):
+        itemAdded = False
+        for i, item in enumerate(GameData.ingredientsInInventory):
+            if item["name"] == "Honeycomb":
+                GameData.ingredientsInInventory[i]["quantity"] += 1
+                itemAdded = True
+        if not itemAdded:
+            GameData.ingredientsInInventory.append(
+                {
+                    "name": "Honeycomb",
+                    "quantity" : 1
+                }
+            )
 
 
 
@@ -388,4 +483,7 @@ class Beehive:
                     self.isReady = False
                     self.harvestTime = datetime.now()
                     self.honeycomb.drop()
+                if self.honeycomb.dropped and self.honeycomb.rect.collidepoint(pos):
+                    self.addToInventory()
+                    self.resetHoneyComb()
 

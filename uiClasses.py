@@ -269,7 +269,6 @@ class PotionItemInInventory(ItemInInventory):
         self.textOffset = [45,40]
 
 
-
 class SeedItemInInventory(ItemInInventory):
     def __init__(self, seedObject, pos):
         super().__init__(seedObject, pos)
@@ -279,6 +278,63 @@ class SeedItemInInventory(ItemInInventory):
         self.pos[0] += 15
         self.pos[1] += 20
         # self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+
+class IngredientItemInInventory(ItemInInventory):
+    def __init__(self, ingredientObject, pos):
+        super().__init__(ingredientObject, pos)
+        self.data = potionInfo["potion ingredients"][ingredientObject["name"]]
+        self.path = potionInfo["potion ingredients"]["path"]
+        self.image = pygame.transform.smoothscale_by(pygame.image.load(self.path + self.data["path"]), self.data["scale"])
+        self.textOffset = [55,45]
+        self.pos[0] += 15
+        self.pos[1] += 20
+        # self.rect = pygame.Rect(pos[0], pos[1], self.image.get_width(), self.image.get_height())
+
+
+
+class ItemInPotionInventory:
+    def __init__(self, object, pos):
+        super().__init__()
+        self.pos = [pos[0], pos[1]]
+        self.object = object
+        self.quantity = object["quantity"]
+        self.rectOriginal = pygame.Rect(self.pos[0]+5, self.pos[1]+10, 95,95)
+        self.rect = pygame.Rect(self.pos[0]+5, self.pos[1]+10, 95,95)
+        self.textOffset = [60,60]
+
+    def render(self, screen, offset):
+        screen.blit(self.image, (self.pos[0], self.pos[1]-offset))
+        textRenderer.render(screen, str(self.quantity), (self.pos[0]+self.textOffset[0], self.pos[1]+self.textOffset[1]-offset), 35, (255,255,255))
+        self.rect.y = self.rectOriginal.y - offset
+
+    def update(self):
+        super().update()
+
+    def handleInput(self, events):
+        super().handleInput(events)
+
+
+class IngredientItemInPotionInventory(ItemInPotionInventory):
+    def __init__(self, ingredientObject, pos):
+        super().__init__(ingredientObject, pos)
+        self.data = potionInfo["potion ingredients"][ingredientObject["name"]]
+        self.path = potionInfo["potion ingredients"]["path"]
+        self.image = pygame.transform.smoothscale_by(pygame.image.load(self.path + self.data["path"]), self.data["scale"])
+        self.textOffset = [35,25]
+        self.pos[0] += 15
+        self.pos[1] += 20
+
+class PotionItemInPotionInventory(ItemInPotionInventory):
+    def __init__(self, potionObject, pos):
+        super().__init__(potionObject, pos)
+        self.data = potionInfo["potions"][self.object["name"]]
+        self.image = pygame.transform.scale_by(pygame.image.load("images/potionRoom/potionBottles/" + self.data["image"]), 6)
+        self.pos[0] += 5
+        self.pos[1] += 5
+        self.textOffset = [40,40]
+
+
+
 
 
 
@@ -305,72 +361,71 @@ class InventoryStateRoundButton:
         return False
 
 
-class RelocatePopup(UIthingy):
-    def __init__(self, patient):
-        super().__init__()
-        self.patient = patient
-        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_.png"), .35)
-        self.pos = [500,100]
-        self.rect = pygame.Rect(510,115,580,510)
-        self.roomButton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button.png"), .35)
-        self.uibutton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button2.png"), .35)
-        self.selectedButton = None
+# class RelocatePopup(UIthingy):
+#     def __init__(self, patient):
+#         super().__init__()
+    #     self.patient = patient
+    #     self.image = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_.png"), .35)
+    #     self.pos = [500,100]
+    #     self.rect = pygame.Rect(510,115,580,510)
+    #     self.roomButton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button.png"), .35)
+    #     self.uibutton = pygame.transform.smoothscale_by(pygame.image.load("images/dialogue/Dialogue_popup_button2.png"), .35)
+    #     self.selectedButton = None
 
-        self.sendToRoomRect = pygame.Rect(630, 575, 140, 40)
-        self.cancelRect = pygame.Rect(840, 575, 140, 40)
-        self.sentToRoom = False
+    #     self.sendToRoomRect = pygame.Rect(630, 575, 140, 40)
+    #     self.cancelRect = pygame.Rect(840, 575, 140, 40)
+    #     self.sentToRoom = False
 
-    def render(self, screen):
-        super().render(screen)
-        screen.blit(self.image, self.pos)
-        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
-        for i in range(8):
-            x = 600 + (i%4)*105
-            y = 340 + (i//4)*105
-            screen.blit(self.roomButton, (x,y))
-            textRenderer.render(screen, "Room", (x+53, y+35), 20, (40,20,10), align="center")
-            textRenderer.render(screen, str(i+1), (x+53, y+65), 35, (40,20,10), align="center")
-            if self.selectedButton != None:
-                if self.selectedButton == i:
-                    pygame.draw.circle(screen, (255,255,255), (x+52, y+51), 50, 5)
+    # def render(self, screen):
+    #     super().render(screen)
+    #     screen.blit(self.image, self.pos)
+    #     # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+    #     for i in range(8):
+    #         x = 600 + (i%4)*105
+    #         y = 340 + (i//4)*105
+    #         screen.blit(self.roomButton, (x,y))
+    #         textRenderer.render(screen, "Room", (x+53, y+35), 20, (40,20,10), align="center")
+    #         textRenderer.render(screen, str(i+1), (x+53, y+65), 35, (40,20,10), align="center")
+    #         if self.selectedButton != None:
+    #             if self.selectedButton == i:
+    #                 pygame.draw.circle(screen, (255,255,255), (x+52, y+51), 50, 5)
         
-        textRenderer.render(screen, "Patient Check-In", (720, 170), 30, (40,20,10))
-        textRenderer.render(screen, "Patient:", (700, 215), 20, (40,20,10))
-        textRenderer.render(screen, "Illness:", (870, 215), 20, (40,20,10))
+    #     textRenderer.render(screen, "Patient Check-In", (720, 170), 30, (40,20,10))
+    #     textRenderer.render(screen, "Patient:", (700, 215), 20, (40,20,10))
+    #     textRenderer.render(screen, "Illness:", (870, 215), 20, (40,20,10))
 
-        textRenderer.render(screen, "Paige", (790, 215), 20, (40,20,10))
-        textRenderer.render(screen, self.patient.illness, (960, 215), 20, (40,20,10))
+    #     textRenderer.render(screen, "Paige", (790, 215), 20, (40,20,10))
+    #     textRenderer.render(screen, self.patient.illness, (960, 215), 20, (40,20,10))
 
-        if self.selectedButton != None:
-            screen.blit(self.uibutton, (310, 100))
-            textRenderer.render(screen, "Send to Room", (700, 595), 15, (40,20,10), align="center")
+    #     if self.selectedButton != None:
+    #         screen.blit(self.uibutton, (310, 100))
+    #         textRenderer.render(screen, "Send to Room", (700, 595), 15, (40,20,10), align="center")
 
-        screen.blit(self.uibutton, (520, 100))
-        textRenderer.render(screen, "Cancel", (910, 595), 15, (40,20,10), align="center")
+    #     screen.blit(self.uibutton, (520, 100))
+    #     textRenderer.render(screen, "Cancel", (910, 595), 15, (40,20,10), align="center")
 
-        pos = pygame.mouse.get_pos()
-        if self.sendToRoomRect.collidepoint(pos) and self.selectedButton != None:
-            pygame.draw.rect(screen, (255,255,255), self.sendToRoomRect, 5)
-        if self.cancelRect.collidepoint(pos):
-            pygame.draw.rect(screen, (255,255,255), self.cancelRect, 5)
+    #     pos = pygame.mouse.get_pos()
+    #     if self.sendToRoomRect.collidepoint(pos) and self.selectedButton != None:
+    #         pygame.draw.rect(screen, (255,255,255), self.sendToRoomRect, 5)
+    #     if self.cancelRect.collidepoint(pos):
+    #         pygame.draw.rect(screen, (255,255,255), self.cancelRect, 5)
 
 
-    def handleInput(self, events):
-        super().handleInput(events)
-        pos = pygame.mouse.get_pos()
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for i in range(8):
-                    x = 652 + (i%4)*105
-                    y = 351 + (i//4)*105
-                    r = 45
-                    if math.sqrt((pos[0]-x)**2 + (pos[1]-y)**2) <= r:
-                        self.selectedButton = i
-                if self.selectedButton != None and self.sendToRoomRect.collidepoint(pos):
-                    GameData.patientsInRooms[self.selectedButton] = self.patient
-                    GameData.activePatients.remove(self.patient)
-                    self.sentToRoom = True
-
+    # def handleInput(self, events):
+    #     super().handleInput(events)
+    #     pos = pygame.mouse.get_pos()
+    #     for event in events:
+    #         if event.type == pygame.MOUSEBUTTONDOWN:
+    #             for i in range(8):
+    #                 x = 652 + (i%4)*105
+    #                 y = 351 + (i//4)*105
+    #                 r = 45
+    #                 if math.sqrt((pos[0]-x)**2 + (pos[1]-y)**2) <= r:
+    #                     self.selectedButton = i
+    #             if self.selectedButton != None and self.sendToRoomRect.collidepoint(pos):
+    #                 GameData.patientsInRooms[self.selectedButton] = self.patient
+    #                 GameData.activePatients.remove(self.patient)
+    #                 self.sentToRoom = True
 
 
 
