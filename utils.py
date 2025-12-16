@@ -31,7 +31,7 @@ with open("jsonData/plantData.json") as f:
 
 
 class GameData:
-    playerIngredients = gameData["playerIngredients"]
+    # playerIngredients = gameData["playerIngredients"]
     gold = 0
     silver = 0
     copper = 0 
@@ -88,100 +88,31 @@ class GameData:
             "quantity" : 3
         },
         {
-            "name" : "plant1",
+            "name" : "sapling",
+            "quantity" : 5
+        }
+    ]
+
+    ingredientsInInventory = [
+        {
+            "name" : "honeycomb",
+            "quantity" : 5
+        },
+        {
+            "name" : "",
             "quantity" : 2
         },
         {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
+            "name" : "",
             "quantity" : 2
         },
         {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
+            "name" : "",
             "quantity" : 2
         },
         {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
+            "name" : "",
             "quantity" : 2
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
-            "quantity" : 2
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
-            "quantity" : 2
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
-            "quantity" : 2
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant1",
-            "quantity" : 2
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
-        },
-        {
-            "name" : "plant2",
-            "quantity" : 3
         }
     ]
 

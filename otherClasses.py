@@ -289,6 +289,54 @@ class GardenPlant:
             pass
 
 
+class HoneyCombItem:
+    def __init__(self):
+        self.honeycombImage = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/potionIngredients/honeycomb.png"), .05)
+        self.honeycombPos = [1080,290]
+        self.rect = pygame.Rect(1100,580,65,50)
+        self.dropping = False
+        self.dropped = False
+        self.veloc = 0
+        self.accel = .7
+        self.finalPos = 550
+        self.bounced = False
+        self.waitTime = 5 # seconds
+        self.pickUp = None
+        self.dropTime = None
+    
+    def render(self, screen):
+        if self.dropping or self.dropped:
+            screen.blit(self.honeycombImage, self.honeycombPos)
+            pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+    def update(self):
+        if self.dropping:
+            self.honeycombPos[1] += self.veloc
+            self.veloc += self.accel
+            if self.honeycombPos[1] >= self.finalPos:
+                if self.bounced:
+                    self.dropped = True
+                    self.dropTime = datetime.now()
+                    self.dropping = False
+                if not self.bounced:
+                    self.bounced = True
+                    self.veloc = -5
+
+        if self.dropped:
+            current_real_time = datetime.now()
+            time_elapsed = current_real_time - self.dropTime
+
+            required_duration = timedelta(seconds=self.waitTime)
+            if time_elapsed >= required_duration:
+                self.pickUp = True
+
+    def handleInput(self, events):
+        for event in events:
+            pass
+
+    def drop(self):
+        self.dropping = True
+
 
 class Beehive:
     def __init__(self):
@@ -296,18 +344,24 @@ class Beehive:
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/beehive.png"), .1)
         self.honey = pygame.transform.smoothscale_by(pygame.image.load("images/garden/honey-splatters.png"), .1)
         self.isReady = False
-        self.honeyTime = 10 # seconds
+        self.honeyTime = 3 # seconds
         self.rect = pygame.Rect(1100,280,95,125)
         self.harvestHoney = False
         self.harvestTime = datetime.now()
+        self.honeycomb = HoneyCombItem()
+        self.dropping = False
 
     def render(self, screen):
         screen.blit(self.image, self.pos)
         # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
         if self.isReady:
             screen.blit(self.honey, self.pos)
+        self.honeycomb.render(screen)
 
+    
     def update(self):
+        self.honeycomb.update()
+
         if self.isReady:
             return
         
@@ -317,15 +371,21 @@ class Beehive:
         required_duration = timedelta(seconds=self.honeyTime)
         if time_elapsed >= required_duration:
             self.isReady = True
+        
+        if self.honeycomb.pickUp:
+            # GameData.
+            pass
 
 
 
     def handleInput(self, events):
         pos = pygame.mouse.get_pos()
+        self.honeycomb.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.rect.collidepoint(pos) and self.isReady:
                     self.harvestHoney = True
                     self.isReady = False
                     self.harvestTime = datetime.now()
+                    self.honeycomb.drop()
 

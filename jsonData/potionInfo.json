@@ -1,93 +1,69 @@
 {
     "potion ingredients" : {
         "path" : "images/potionRoom/potionIngredients/",
-        "orbs" : {
-             "black_ball" : {
-                "path" : "black_ball.png",
-                "scale" : 5,
-                "quantity" : 1
-            },
-            "blue_ball" : {
-                "path" : "blue_ball.png",
-                "scale" : 5,
-                "quantity" : 2
-            },
-            "red_ball" : {
-                "path" : "red_ball.png",
-                "scale" : 5,
-                "quantity" : 0
-            }
+        "black_ball" : {
+            "path" : "black_ball.png",
+            "scale" : 5
         },
-        "crumbs" : {
-            "blue_crumbs" : {
-                "path" : "blue_crumbs.png",
-                "scale" : 5,
-                "quantity" : 3
-            },
-            "orange_crumbs" : {
-                "path" : "orange_crumbs.png",
-                "scale" : 5,
-                "quantity" : 0
-            },
-            "purple_crumbs" : {
-                "path" : "purple_crumbs.png",
-                "scale" : 5,
-                "quantity" : 60
-            },
-            "red_crumbs" : {
-                "path" : "red_crumbs.png",
-                "scale" : 5,
-                "quantity" : 0
-            },
-            "yellow_crumbs" : {
-                "path" : "yellow_crumbs.png",
-                "scale" : 5,
-                "quantity" : 0
-            }
+        "blue_ball" : {
+            "path" : "blue_ball.png",
+            "scale" : 5
         },
-        "other" : {
-            "bones" : {
-                "path" : "bones.png",
-                "scale" : 5,
-                "quantity" : 2
-            },
-            "gold_nugget" : {
-                "path" : "gold_nugget.png",
-                "scale" : 5,
-                "quantity" : 3
-            },
-            "slime_glob" : {
-                "path" : "slime_glob.png",
-                "scale" : 5,
-                "quantity" : 5
-            }
+        "red_ball" : {
+            "path" : "red_ball.png",
+            "scale" : 5
         },
-        "mushrooms" : {
-            "mushroom_blue" : {
-                "path" : "mushroom_blue.png",
-                "scale" : 5,
-                "quantity" : 0
-            },
-            "mushroom_green" : {
-                "path" : "mushroom_green.png",
-                "scale" : 5,
-                "quantity" : 0
-            },
-            "mushroom_orange" : {
-                "path" : "mushroom_orange.png",
-                "scale" : 5,
-                "quantity" : 0
-            },
-            "mushroom_purple" : {
-                "path" : "mushroom_purple.png",
-                "scale" : 5,
-                "quantity" : 0
-            },
-            "mushroom_red" : {
-                "path" : "mushroom_red.png",
-                "scale" : 5,
-                "quantity" : 0
-            }
+        "blue_crumbs" : {
+            "path" : "blue_crumbs.png",
+            "scale" : 5
+        },
+        "orange_crumbs" : {
+            "path" : "orange_crumbs.png",
+            "scale" : 5
+        },
+        "purple_crumbs" : {
+            "path" : "purple_crumbs.png",
+            "scale" : 5
+        },
+        "red_crumbs" : {
+            "path" : "red_crumbs.png",
+            "scale" : 5
+        },
+        "yellow_crumbs" : {
+            "path" : "yellow_crumbs.png",
+            "scale" : 5
+        },
+        "bones" : {
+            "path" : "bones.png",
+            "scale" : 5
+        },
+        "gold_nugget" : {
+            "path" : "gold_nugget.png",
+            "scale" : 5
+        },
+        "slime_glob" : {
+            "path" : "slime_glob.png",
+            "scale" : 5
+        },
+        "mushroom_blue" : {
+            "path" : "mushroom_blue.png",
+            "scale" : 5
+        },
+        "mushroom_green" : {
+            "path" : "mushroom_green.png",
+            "scale" : 5
+        },
+        "mushroom_orange" : {
+            "path" : "mushroom_orange.png",
+            "scale" : 5
+        },
+        "mushroom_purple" : {
+            "path" : "mushroom_purple.png",
+            "scale" : 5
+        },
+        "mushroom_red" : {
+            "path" : "mushroom_red.png",
+            "scale" : 5
         }
     },
     "potionRecipes" : {

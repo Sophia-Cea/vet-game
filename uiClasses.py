@@ -156,7 +156,22 @@ class MapButton(UIthingy):
         else:
             screen.blit(self.imageOpen, self.pos)
 
+class SettingsButton(UIthingy):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/settingsIcon.png"), .06)
+        self.imageBig = pygame.transform.smoothscale_by(pygame.image.load("images/ui/settingsIcon.png"), .065)
+        self.pos = [1505,225]
+        self.rect = pygame.Rect(1505,225,75,75)
 
+    def render(self, screen):
+        # super().render(screen)
+        pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos):
+            screen.blit(self.imageBig, (self.pos[0]-3, self.pos[1]-3))
+        else:
+            screen.blit(self.image, self.pos)
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
 
 
 class BrewButton(UIthingy):
