@@ -14,6 +14,8 @@ idle_cursor = pygame.transform.scale(idle_cursor, cursor_size)
 click_cursor = pygame.transform.scale(click_cursor, cursor_size)
 hover_cursor = pygame.transform.scale(hover_cursor, cursor_size)
 
+click_sound = pygame.mixer.Sound('audio/Cursor - 1.ogg')
+
 offset_x = -50  
 offset_y = -15 
 
@@ -47,6 +49,9 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 pygame.display.toggle_fullscreen()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # 1 is Left Click
+                click_sound.play()
 
     is_fullscreen = pygame.display.get_surface().get_flags() & pygame.FULLSCREEN
 

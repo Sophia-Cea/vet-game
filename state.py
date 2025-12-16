@@ -733,19 +733,19 @@ class PatientRoomState(State):
                     stateManager.push(MapState())
 
 class InventoryOpenState(State):
-    def __init__(self):
+    def __init__(self, currentTab=2):
         super().__init__()
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventoryBackground.png"), .4)
         self.imageTop = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventoryTop.png"), .4)
+        self.imageBottom = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventory_bg_bottom.png"), .4)
         self.pos = [400,100]
-        self.surface = pygame.Surface((765,590), pygame.SRCALPHA)
+        self.surface = pygame.Surface((765,585), pygame.SRCALPHA)
         self.rect = pygame.Rect(self.pos[0] + 65, self.pos[1] + 85, 740, 565)
         self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
         self.backgroundDark.set_alpha(180)
         self.offset = 0
         self.rows = 8
-        self.currentTab = "seeds"
-        self.tabs = ["potions", "ingredients", "seeds"]
+        self.currentTab = currentTab
 
         self.potionButton = InventoryStateRoundButton(
             pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/potionButton.png"), .078),
@@ -762,18 +762,40 @@ class InventoryOpenState(State):
 
         self.seedButton.isBig = True
         self.buttons = [self.potionButton, self.ingredientButton, self.seedButton]
-        self.scrollBar = ScrollBar(pygame.Rect(1160,350, 25,360), pygame.Rect(1165, 353, 15, 100), (120,110,100), (160,140,130))
-        self.rows = 5
 
         self.seeds = []
         for i, seed in enumerate(GameData.seedInventory):
-            self.seeds.append(SeedItemInInventory(seed, (self.pos[0] + 90 + 110*i, self.pos[1] + 240)))
+            self.seeds.append(SeedItemInInventory(seed, (self.pos[0] + 90 + 110*(i%6), self.pos[1] + 240 + (i//6) * 110)))
 
         self.potions = []
         for i, potion in enumerate(GameData.potionsInInventory):
-            self.potions.append(PotionItemInInventory(potion, (self.pos[0] + 90 + 110*i, self.pos[1] + 240)))
+            self.potions.append(PotionItemInInventory(potion, (self.pos[0] + 90 + 110*(i%6), self.pos[1] + 240 + (i//6) * 110)))
 
         self.ingredients = []
+        self.itemLists = [self.potions, self.ingredients, self.seeds]
+
+        self.setRowsAndScrollBar()
+
+
+    def setRowsAndScrollBar(self):
+        self.rows = len(self.itemLists[self.currentTab])/6
+        if self.rows > int(self.rows):
+            self.rows = int(self.rows) + 1
+        else:
+            self.rows = int(self.rows)
+
+        self.excessRows = self.rows - 3
+        self.totalScrollHeight = 360
+        self.scrollBarHeight = self.totalScrollHeight - 100 * self.excessRows
+        if self.excessRows > 0:
+            self.scrollBar = ScrollBar(
+                pygame.Rect(1160,350, 25, self.totalScrollHeight), 
+                pygame.Rect(1165, 353, 15, self.scrollBarHeight), 
+                (120,110,100), (160,140,130))
+        else:
+            self.scrollBar = None
+
+
 
 
     def render(self, screen, offset):
@@ -783,13 +805,12 @@ class InventoryOpenState(State):
         for i in range(self.rows):
             for j in range(6):
                 pygame.draw.rect(self.surface, (40,20,10), (45 + j*110, 185 + i*110 - self.offset, 95,95), 3, 5)
-        if self.currentTab == "seeds":
-            for seed in self.seeds:
-                seed.render(self.surface, self.offset)
-        elif self.currentTab == "potions":
-            for potion in self.potions:
-                potion.render(self.surface, self.offset)
+
+        for item in self.itemLists[self.currentTab]:
+            item.render(self.surface, self.offset)
+        
         self.surface.blit(self.imageTop, (-50,-75))
+        self.surface.blit(self.imageBottom, (-50,-75))
         screen.blit(self.surface, (self.rect.x-15, self.rect.y-20))
 
         # for item in self.seeds:
@@ -798,20 +819,23 @@ class InventoryOpenState(State):
         self.potionButton.render(screen)
         self.ingredientButton.render(screen)
         self.seedButton.render(screen)
-        self.scrollBar.render(screen)
+        if self.scrollBar:
+            self.scrollBar.render(screen)
         
 
 
     def update(self):
         super().update()
-        self.scrollBar.update()
-        self.offset = self.scrollBar.offset
+        if self.scrollBar:
+            self.scrollBar.update()
+            self.offset = self.scrollBar.offset
 
 
     def handleInput(self, events):
         super().handleInput(events)
         pos = pygame.mouse.get_pos()
-        self.scrollBar.handleInput(events)
+        if self.scrollBar:
+            self.scrollBar.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.rect.collidepoint(pos):
@@ -819,11 +843,12 @@ class InventoryOpenState(State):
                     stateManager.pop()
                 for i, button in enumerate(self.buttons):
                     if button.checkClick():
-                        self.currentTab = self.tabs[i]
+                        self.currentTab = i
                         for b in self.buttons:
                             b.isBig = False
                         button.isBig = True
-                
+                        self.setRowsAndScrollBar()
+
 
 
 class ForestState(State):
