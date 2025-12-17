@@ -175,7 +175,6 @@ class SettingsOpenState(State):
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
 
-
 class WaitingRoomState(State):
     def __init__(self) -> None:
         super().__init__()
@@ -364,8 +363,8 @@ class PotionMakingState(State):
         super().__init__()
         self.background = pygame.transform.smoothscale_by(pygame.image.load("images/backgrounds/brew_background.png"), .42)
         self.cauldron = Cauldron((-120,-100), 1.75)
-        self.window = pygame.Surface((600,150))
-        self.window.fill((200,200,200))
+        self.ingredientLimit = 5
+        self.window = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/ui/ingredientHolder.png"), .2)
         self.ingredientMenu = PotionIngredientMenu()
         self.xButton = XButton((5,5))
         self.draggingItem = None
@@ -386,14 +385,12 @@ class PotionMakingState(State):
         if self.canBrew:
             self.brewButton.render(screen)
 
-        screen.blit(self.window, (500,740))
+        screen.blit(self.window, (480,680))
         for ingredient in self.ingredients:
             ingredient.render(screen)
 
         if self.draggingItem != None:
             self.draggingItem.render(screen)
-        
-
 
     def update(self):
         super().update()
@@ -405,11 +402,14 @@ class PotionMakingState(State):
                 self.currentPotion = potion
                 self.canBrew = True
 
+
     def handleInput(self, events):
         super().handleInput(events)
         self.ingredientMenu.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.ingredientMenu.draggingItem != None:
+                    self.draggingItem = self.ingredientMenu.draggingItem
                 if self.canBrew:
                     if self.brewButton.checkClick():
                         potionInInventory = False
@@ -434,20 +434,18 @@ class PotionMakingState(State):
                     stateManager.pop()
 
 
-
-
             if event.type == pygame.MOUSEBUTTONUP:
                 if self.draggingItem != None:
                     pos = pygame.mouse.get_pos()
                     if pos[0] in range(450,1150) and pos[1] < 600:
-                        self.ingredients.append(PotionIngredientInCauldron(
-                            self.draggingItem.image, 
-                            self.draggingItem.category, 
-                            self.draggingItem.name, 
-                            (pos[0]-self.draggingItem.offset[0], pos[1]-self.draggingItem.offset[1]),
-                            (570+(len(self.ingredients))*90, 760)
-                        ))
-                        self.ingredientsText.append(self.draggingItem.name)
+                        if len(self.ingredients) < self.ingredientLimit: 
+                            self.ingredients.append(PotionIngredientInCauldron(
+                                self.draggingItem.image, 
+                                self.draggingItem.name, 
+                                (pos[0]-self.draggingItem.offset[0], pos[1]-self.draggingItem.offset[1]),
+                                (570+(len(self.ingredients))*90, 760)
+                            ))
+                            self.ingredientsText.append(self.draggingItem.name)
                     
                     self.draggingItem = None
 

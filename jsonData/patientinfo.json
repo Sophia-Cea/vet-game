@@ -13,7 +13,7 @@
                 "WalkDown8.png"
             ],
             "duration" : 1,
-            "scale" : 0.25,
+            "scale" : 0.22,
             "isFlipped" : false
         },
         "idleAnimation" : {
@@ -22,7 +22,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.25,
+            "scale" : 0.22,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -35,7 +35,7 @@
                 "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png", "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.25,
+            "scale" : 0.22,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -52,7 +52,7 @@
                 "walk4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -61,7 +61,7 @@
                 "stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -70,7 +70,7 @@
                 "stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -87,7 +87,7 @@
                 "Walk4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -96,7 +96,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -105,7 +105,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -122,7 +122,7 @@
                 "Walk4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -131,7 +131,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -140,7 +140,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -157,7 +157,7 @@
                 "Walk4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -166,7 +166,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -175,7 +175,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -192,7 +192,7 @@
                 "Walk4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -201,7 +201,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -210,7 +210,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -227,7 +227,7 @@
                 "Walk4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -236,7 +236,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "talkingAnimation" : {
@@ -245,7 +245,7 @@
                 "Stand.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],
@@ -262,7 +262,7 @@
                 "paigeWalking4.png"
             ],
             "duration" : 1,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : true
         },
         "idleAnimation" : {
@@ -271,7 +271,7 @@
                 "paigeIdle1.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "idleAnimations" : [
@@ -284,7 +284,7 @@
                     "Blink16.png"
                 ],
                 "duration" : 3,
-                "scale" : 0.4,
+                "scale" : 0.3,
                 "isFlipped" : false
             },
             {
@@ -293,7 +293,7 @@
                     "sitting-1.png"
                 ],
                 "duration" : 3,
-                "scale" : 0.4,
+                "scale" : 0.3,
                 "isFlipped" : false
             }
         ],
@@ -307,7 +307,7 @@
                 "Blink16.png"
             ],
             "duration" : 3,
-            "scale" : 0.4,
+            "scale" : 0.3,
             "isFlipped" : false
         },
         "potentialIllnesses" : ["fleas", "tummy ache", "ear infection", "dehydration", "die of beetus", "itchy pp", "sniffles"],

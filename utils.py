@@ -113,6 +113,10 @@ class GameData:
         {
             "name" : "Mushroom Green",
             "quantity" : 2
+        },
+        {
+            "name" : "Sapling",
+            "quantity" : 5
         }
     ]
 
@@ -126,7 +130,7 @@ class GameData:
             ]
         },
         "garden 2" : {
-            "locked" : True,
+            "locked" : False,
             "plots" : [
                 None,
                 None,
@@ -156,27 +160,27 @@ class GameData:
             "patient" : None
         },
         {
-            "locked": True,
+            "locked": False,
             "patient" : None
         },
         {
-            "locked": True,
+            "locked": False,
             "patient" : None
         },
         {
-            "locked": True,
+            "locked": False,
             "patient" : None
         },
         {
-            "locked": True,
+            "locked": False,
             "patient" : None
         },
         {
-            "locked": True,
+            "locked": False,
             "patient" : None
         },
         {
-            "locked": True,
+            "locked": False,
             "patient" : None
         }
     ]

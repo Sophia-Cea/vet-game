@@ -19,7 +19,10 @@ class Patient:
         self.bubbleText = random.choice(["Dear god help me", "It hurts.", "I need to poop!", "Owwie ;n;", "I want my mommy.", "The plague!!!", "Meow"])
         self.pos = pos
         self.endPos = endPos
-        self.rect = pygame.Rect(pos[0],pos[1], 200,400)
+        self.image = self.states["talking"].images[0]
+        self.rect = pygame.Rect(pos[0],pos[1], self.image.get_width(),self.image.get_height())
+        self.rect.y = 700 - self.rect.h
+        self.pos[1] = self.rect.y
         self.speed = speed
 
         self.waiting = True
@@ -30,6 +33,8 @@ class Patient:
         if self.currentState == "talking":
             screen.blit(self.askingBubble, (self.pos[0]+75, self.pos[1]-160))
             textRenderer.render(self.askingBubble, self.bubbleText, (130,100), 20, (0,0,0), align="center")
+        
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
 
 
     def update(self):

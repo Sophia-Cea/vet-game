@@ -240,6 +240,8 @@ class MedicalRoomInventoryButton(InventoryButton):
 class ItemInInventory(UIthingy):
     def __init__(self, object, pos):
         super().__init__()
+        self.object = object
+        self.name = self.object["name"]
         self.pos = [pos[0], pos[1]]
         self.object = object
         self.quantity = object["quantity"]
@@ -298,6 +300,8 @@ class ItemInPotionInventory:
     def __init__(self, object, pos):
         super().__init__()
         self.pos = [pos[0], pos[1]]
+        self.object = object
+        self.name = object["name"]
         self.object = object
         self.quantity = object["quantity"]
         self.rectOriginal = pygame.Rect(self.pos[0]+5, self.pos[1]+10, 95,95)
