@@ -109,14 +109,6 @@ class PotionIngredientMenu:
 
 
 
-
-
-
-
-
-
-
-
 class PotionIngredientDragging:
     def __init__(self, image, name, offset):
         self.scale = 2
@@ -162,6 +154,35 @@ class PotionIngredientInCauldron:
 GROW_TIME_UNIT = "minutes" # Set to minutes for easy testing!
 
 
+class GardenPlot:
+    def __init__(self, pos, gardenName, plantIndex):
+        self.garden = gardenName
+        self.plantIndex = plantIndex
+        self.plant = GameData.gardenData[self.garden]["plots"][self.plantIndex]["plant"]
+        self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
+        self.pos = pos
+        self.rect = pygame.Rect(pos[0]-40, pos[1]+100, 180, 80)
+        self.planting = False
+        self.seedChoice = None
+
+    def render(self, screen):
+        if self.plant != None:
+            self.plant.render(screen)
+        screen.blit(self.dirt, (self.pos[0]-50, self.pos[1]-30))
+        # pygame.draw.rect(screen, (255,0,0), self.rect,  2)
+
+    def update(self):
+        if self.plant != None:
+            self.plant.update()
+
+    def handleInput(self, events):
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.rect.collidepoint(pygame.mouse.get_pos()):
+                    self.planting = True
+
+
+
 class GardenPlant:
     """
     Represents a plant that grows over real-world time.
@@ -178,20 +199,21 @@ class GardenPlant:
             for img in self.plantData["in betweens"]:
                 self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + img), .25))
             self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["fullgrown"]), .25))
-            self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
+            # self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
         except pygame.error as e:
             print(f"Error loading images for {plantName}. Ensure files exist in '{self.path}': {e}")
             # Use placeholders if images fail to load
             self.imgs = [pygame.Surface((100, 100)) for _ in range(len(self.plantData["in betweens"]) + 2)]
-            self.dirt = pygame.Surface((100, 50))
+            # self.dirt = pygame.Surface((100, 50))
         # -----------------------------------
         
         self.fullyGrown = False
         self.currentState = 0
         self.plantTime = datetime.now() # Record the real-world time it was planted
-        self.pos = [position, 850] # plants position
-            
+        self.pos = [position, 730] # plants position
         self.currentImg = self.imgs[self.currentState]
+
+
 
     def get_save_data(self):
         """Returns a dict ready to be JSON serialized."""
@@ -206,8 +228,8 @@ class GardenPlant:
     def render(self, screen):
         plant_y = self.pos[1] - self.currentImg.get_height()
         screen.blit(self.currentImg, [self.pos[0], plant_y])
-        dirt_y = self.pos[1] - self.dirt.get_height()
-        screen.blit(self.dirt, [self.pos[0], dirt_y])
+        # dirt_y = self.pos[1] - self.dirt.get_height()
+        # screen.blit(self.dirt, [self.pos[0], dirt_y])
 
     def update(self):
         # The plant is fully grown and no longer needs updates

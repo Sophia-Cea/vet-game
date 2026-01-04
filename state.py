@@ -466,15 +466,15 @@ class GardenState(State):
         self.settings = SettingsButton()
         self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIcon, self.coins, self.inventoryButton, self.settings]
         self.garden = garden
-        self.plants = GameData.gardenData[self.garden]["plots"]
+        # self.plants = GameData.gardenData[self.garden]["plots"]
+        self.plots = [None, None, None]
 
 
     def render(self, screen, offset):
         super().render(screen, offset)
         self.surface.blit(self.background, (0,0))
-        for plant in self.plants:
-            if plant != None:
-                plant.render(self.surface)
+        for plot in self.plots:
+            plot.render(self.surface)
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
@@ -482,13 +482,13 @@ class GardenState(State):
 
     def update(self):
         super().update()
-        for plant in self.plants:
-            if plant != None:
-                plant.update()
+        for plot in self.plots:
+            plot.update()
 
 
     def handleInput(self, events):
         super().handleInput(events)
+        pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.inventoryButton.checkClick():
@@ -497,42 +497,46 @@ class GardenState(State):
                 if self.settings.checkClick():
                     stateManager.push(SettingsOpenState())
 
+
                 if self.mapIcon.checkClick():
                     self.mapIcon.isClosed = False
                     stateManager.push(MapState())
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(PatientRoomState(0))
+                
+                for plot in self.plots:
+                    if plot != None:
+                        if plot.rect.collidepoint(pos):
+                            plot.planting = True
+                            stateManager.push(InventoryOpenState(2))
+    
 
 class Garden1(GardenState):
     def __init__(self):
         super().__init__("garden 1")
-        
         self.uiElements.remove(self.leftArrow)
         self.beehive = Beehive()
-
-
         img = pygame.image.load("images/backgrounds/Garden1.png").convert_alpha()
         self.background = pygame.transform.smoothscale_by(img, 0.45)
+        self.plots = [
+            GardenPlot((300, 550), "garden 1", 0), GardenPlot((600,550), "garden 1", 1), GardenPlot((900,550), "garden 1", 2)
+        ]
 
     def render(self, screen, offset):
         super().render(screen, offset)
-        self.surface.blit(self.background, (0,0))
-        for plant in self.plants:
-            if plant != None:
-                plant.render(self.surface)
+        # self.surface.blit(self.background, (0,0))
         self.beehive.render(self.surface)
 
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
-    
+
+
     def update(self):
         super().update()
         self.beehive.update()
-
-
-                
+        
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -555,7 +559,7 @@ class Garden2(GardenState):
         self.background = pygame.transform.smoothscale_by(img, 0.45)
 
         self.gateRect = pygame.Rect(1260, 350, 270, 380)
-        self.interactive_rects = [self.gateRect]  
+        self.interactive_rects = [self.gateRect]
 
         self.transitioningOut = False
         self.transitioningIn = False
@@ -563,17 +567,17 @@ class Garden2(GardenState):
         self.opacity = 0
         self.transitionSpeed = 10
 
+        self.plots = [
+            GardenPlot((300, 550), "garden 2", 0), GardenPlot((600,550), "garden 2", 1), GardenPlot((900,550), "garden 2", 2)
+        ]
+
     def get_hover_rects(self):
         return self.interactive_rects
-
-
-
 
     def render(self, screen, offset):
         super().render(screen, offset)
         screen.blit(self.transitionScreen, (0,0))
         self.transitionScreen.set_alpha(self.opacity)
-
 
     def update(self):
         super().update()
@@ -588,9 +592,6 @@ class Garden2(GardenState):
                 self.opacity = 255
                 self.transitioningOut = False
                 stateManager.push(ForestState())
-
-
-
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -971,13 +972,6 @@ class ForestState(State):
 
 
 
-
-
-
-
-
-
-
 class PatientPopupState(State):
     def __init__(self, patient):
         super().__init__()
@@ -1192,4 +1186,5 @@ class RelocatePopupState(State):
                     stateManager.pop()
                 if self.cancelRect.collidepoint(pos):
                     stateManager.pop()
+
 

@@ -124,17 +124,35 @@ class GameData:
         "garden 1" : {
             "locked" : False,
             "plots" : [
-                None,
-                None,
-                None
+                {
+                    "locked" : False,
+                    "plant" : None
+                },
+                {
+                    "locked" : False,
+                    "plant" : None
+                },
+                {
+                    "locked" : False,
+                    "plant" : None
+                }
             ]
         },
         "garden 2" : {
             "locked" : False,
             "plots" : [
-                None,
-                None,
-                None
+                {
+                    "locked" : False,
+                    "plant" : None
+                },
+                {
+                    "locked" : False,
+                    "plant" : None
+                },
+                {
+                    "locked" : False,
+                    "plant" : None
+                }
             ]
         }
     }

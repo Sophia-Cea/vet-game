@@ -3,8 +3,29 @@ import sys
 from state import *
 
 pygame.init()
-pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
+screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 pygame.mouse.set_visible(False)
+
+
+
+# screen = pygame.display.set_mode((WIDTH, HEIGHT))
+# is_fullscreen = False
+
+# def toggle_fullscreen():
+#     global screen, is_fullscreen
+
+#     is_fullscreen = not is_fullscreen
+
+#     if is_fullscreen:
+#         screen = pygame.display.set_mode(
+#             (WIDTH, HEIGHT),
+#             pygame.FULLSCREEN | pygame.SCALED
+#         )
+#     else:
+#         screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+
+
 
 cursor_size = (80, 80)
 idle_cursor = pygame.image.load("images/ui/cursor/cursor_idle.png").convert_alpha()
@@ -30,12 +51,17 @@ display = pygame.Surface((orig_size[0], orig_size[1]))
 pygame.display.set_caption("Bloom and Brew")
 
 stateManager.everythingState = EverythingState()
-stateManager.push(WaitingRoomState())
+stateManager.push(WaitingRoomState()) 
 
-GameData.gardenData["garden 1"]["plots"][0] = GardenPlant("plant1", 300)
-GameData.gardenData["garden 1"]["plots"][1] = GardenPlant("plant2", 600)
-GameData.gardenData["garden 2"]["plots"][0] = GardenPlant("sapling", 400)
 
+
+GameData.gardenData["garden 1"]["plots"][0]["plant"] = GardenPlant("plant1", 300)
+GameData.gardenData["garden 1"]["plots"][1]["plant"] = GardenPlant("plant2", 600)
+GameData.gardenData["garden 1"]["plots"][2]["plant"] = GardenPlant("sapling", 900)
+
+GameData.gardenData["garden 2"]["plots"][0]["plant"] = GardenPlant("sapling", 300)
+GameData.gardenData["garden 2"]["plots"][1]["plant"] = GardenPlant("plant1", 600)
+# GameData.gardenData["garden 2"]["plots"][2]["plant"] = GardenPlant("sapling", 900)
 
 
 running = True
@@ -50,9 +76,9 @@ while running:
             if event.key == pygame.K_SPACE:
                 # pygame.display.toggle_fullscreen()
                 pass
-            if event.key == pygame.K_ESCAPE:
-                pygame.display.toggle_fullscreen()
             if event.key == pygame.K_TAB:
+                pygame.display.toggle_fullscreen()
+            if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
