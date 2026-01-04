@@ -50,6 +50,8 @@ while running:
             if event.key == pygame.K_SPACE:
                 # pygame.display.toggle_fullscreen()
                 pass
+            if event.key == pygame.K_ESCAPE:
+                pygame.display.toggle_fullscreen()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # 1 is Left Click
                 click_sound.play()
