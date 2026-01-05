@@ -81,12 +81,14 @@ class GameData:
     seedInventory = [
         {
             "name" : "plant1",
-            "quantity" : 2
+            "quantity" : 1
         },
+
         {
             "name" : "plant2",
             "quantity" : 3
         },
+
         {
             "name" : "sapling",
             "quantity" : 5

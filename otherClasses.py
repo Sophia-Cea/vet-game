@@ -162,56 +162,34 @@ class GardenPlot:
         self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
         self.pos = pos
         self.rect = pygame.Rect(pos[0]-40, pos[1]+100, 180, 80)
+
+        self.diggingUp = False
         self.planting = False
-        self.seedChoice = None
-        self.popup = None
 
-    def render(self, screen):
+
+    def render(self, screen, offset):
         if self.plant != None:
-            self.plant.render(screen)
+            self.plant.render(screen) # no offset needed here
         screen.blit(self.dirt, (self.pos[0]-50, self.pos[1]-30))
-
-        if self.planting:
-            self.popup.render(screen)
-        # pygame.draw.rect(screen, (255,0,0), self.rect,  2)
 
     def update(self):
         if self.plant != None:
             self.plant.update()
-        
-        if self.planting:
-            self.popup.update()
+
 
     def handleInput(self, events):
         pos = pygame.mouse.get_pos()
-        if self.planting:
-            if self.popup.choice != None:
-                self.seedChoice = self.popup.choice
-                self.popup = None
-                self.planting = False
-                GameData.gardenData["garden 2"]["plots"][2]["plant"] = GardenPlant(self.seedChoice.name, self.pos[0])
-                for seed in GameData.seedInventory:
-                    if seed["name"] == self.seedChoice.name:
-                        seed["quantity"] -= 1
-                        break
-                self.seedChoice= None
-
-        
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(pygame.mouse.get_pos()):
-                    if self.plant == None:
+                if self.rect.collidepoint(pos):
+                    if self.plant != None:
+                        self.diggingUp = True
+                    elif self.plant == None:
                         self.planting = True
-                        self.popup = GardenPlotPopup()
-
-                if self.planting:
-                    if not self.popup.rect.collidepoint(pos):
-                        self.planting = False
-                        self.popup = None
-        if self.planting:
-            self.popup.handleInput(events)
+   
 
 
+'''
 class GardenPlotPopup:
     def __init__(self):
         self.backgroundImg = pygame.transform.smoothscale_by(pygame.image.load("images/ui/Settings_UI.png"), .4)
@@ -259,6 +237,8 @@ class GardenPlotPopup:
                 for seed in self.seeds:
                     if seed.rect.collidepoint(pos):
                         self.choice = seed
+'''
+
 
 class GardenPlant:
     """
@@ -269,20 +249,13 @@ class GardenPlant:
         self.plantName = plantName
         self.plantData = plantInfo[plantName]
         self.path = self.plantData["path"]
-        try:
-            self.imgs = [
-                pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["seed"]), .25)
-            ]
-            for img in self.plantData["in betweens"]:
-                self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + img), .25))
-            self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["fullgrown"]), .25))
-            # self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
-        except pygame.error as e:
-            print(f"Error loading images for {plantName}. Ensure files exist in '{self.path}': {e}")
-            # Use placeholders if images fail to load
-            self.imgs = [pygame.Surface((100, 100)) for _ in range(len(self.plantData["in betweens"]) + 2)]
-            # self.dirt = pygame.Surface((100, 50))
-        # -----------------------------------
+        self.imgs = [
+            pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["seed"]), .25)
+        ]
+        for img in self.plantData["in betweens"]:
+            self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + img), .25))
+        self.imgs.append(pygame.transform.smoothscale_by(pygame.image.load(self.path + self.plantData["fullgrown"]), .25))
+        
         
         self.fullyGrown = False
         self.currentState = 0
@@ -305,9 +278,7 @@ class GardenPlant:
     def render(self, screen):
         plant_y = self.pos[1] - self.currentImg.get_height()
         screen.blit(self.currentImg, [self.pos[0], plant_y])
-        # dirt_y = self.pos[1] - self.dirt.get_height()
-        # screen.blit(self.dirt, [self.pos[0], dirt_y])
-
+        
     def update(self):
         # The plant is fully grown and no longer needs updates
         if self.currentState >= len(self.imgs) - 1:
@@ -343,6 +314,61 @@ class GardenPlant:
             # print(f"Stage {self.currentState}: {time_remaining} remaining.")
             pass
 
+'''
+class AreYouSurePopup:
+    def __init__(self, question):
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(150)
+
+        self.popup = pygame.Surface((400,300))
+        self.popup.fill((200,180,150))
+        self.rect = pygame.Rect(600,250,400,300)
+        self.answer = None
+        self.question = question
+
+        self.button = pygame.Surface((100,50))
+        self.button.fill((200,180,150))
+        pygame.draw.rect(self.button, (40,20,10), (0,0,100,50), 4)
+
+        self.yesRect = pygame.Rect(650,470, 100,50)
+        self.noRect = pygame.Rect(910, 470, 100, 60)
+
+    def render(self, screen):
+        screen.blit(self.backgroundDark, (0,0))
+
+
+        textRenderer.render(self.popup, "Are you sure you want to", (200,30), 25, (40,20,10), align="center")
+        textRenderer.render(self.popup, self.question + "?", (200,60), 25, (40,20,10), align="center")
+
+        self.popup.blit(self.button, (50, 220))
+        self.popup.blit(self.button, (310, 220))
+
+        textRenderer.render(self.popup, "Yes", (60, 235), 15, (40,20,10), align="center")
+        textRenderer.render(self.popup, "No", (340, 235), 15, (40,20,10), align="center")
+
+        screen.blit(self.popup, (self.rect.x,self.rect.y))
+
+        pygame.draw.rect(screen, (255,0,0), self.yesRect, 2)
+        pygame.draw.rect(screen, (255,0,0), self.noRect, 2)
+
+        pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+
+    def update(self):
+        pass
+
+    def handleInput(self, events):
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.rect.collidepoint(pos):
+                    pass
+                if self.yesRect.collidepoint(pos):
+                    self.answer = True
+                if self.noRect.collidepoint(pos):
+                    self.answer = False
+                
+'''
 
 class HoneyCombItem:
     def __init__(self):

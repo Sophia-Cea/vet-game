@@ -467,27 +467,30 @@ class GardenState(State):
         self.settings = SettingsButton()
         self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIcon, self.coins, self.inventoryButton, self.settings]
         self.garden = garden
-        # self.plants = GameData.gardenData[self.garden]["plots"]
-        self.plots = [None, None, None]
+        self.plots = [
+            GardenPlot((300, 550), self.garden, 0), GardenPlot((600,550), self.garden, 1), GardenPlot((900,550), self.garden, 2)
+        ]
 
 
     def render(self, screen, offset):
         super().render(screen, offset)
         self.surface.blit(self.background, (0,0))
         for plot in self.plots:
-            plot.render(self.surface)
+            plot.render(self.surface, (0,0))
         screen.blit(self.surface, offset)
         for element in self.uiElements:
             element.render(screen)
 
-
     def update(self):
         super().update()
-        for plot in self.plots:
+        for i, plot in enumerate(self.plots):
             plot.update()
+            if plot.diggingUp == True:
+                stateManager.push(AreYouSureDigUpState(self.garden, i))
+            if plot.planting == True:
+                stateManager.push(GardenPlotPopupState(self.garden, i))
+    
         
-
-
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -521,13 +524,10 @@ class Garden1(GardenState):
         self.beehive = Beehive()
         img = pygame.image.load("images/backgrounds/Garden1.png").convert_alpha()
         self.background = pygame.transform.smoothscale_by(img, 0.45)
-        self.plots = [
-            GardenPlot((300, 550), "garden 1", 0), GardenPlot((600,550), "garden 1", 1), GardenPlot((900,550), "garden 1", 2)
-        ]
+        
 
     def render(self, screen, offset):
         super().render(screen, offset)
-        # self.surface.blit(self.background, (0,0))
         self.beehive.render(self.surface)
 
         screen.blit(self.surface, offset)
@@ -539,12 +539,6 @@ class Garden1(GardenState):
         super().update()
         self.beehive.update()
 
-        for i, plot in enumerate(self.plots):
-            gamedataPlant = GameData.gardenData["garden 1"]["plots"][i]["plant"]
-            if plot.plant == None and gamedataPlant != None:
-                plot.plant = gamedataPlant
-            if plot.plant != None and gamedataPlant == None:
-                plot.plant = gamedataPlant
         
 
     def handleInput(self, events):
@@ -552,8 +546,6 @@ class Garden1(GardenState):
         self.beehive.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.leftArrow.checkClick():
-                    pass  # this will lead to the forest
                 if self.rightArrow.checkClick():
                     stateManager.transition(False, None)
                     stateManager.push(Garden2())
@@ -576,9 +568,6 @@ class Garden2(GardenState):
         self.opacity = 0
         self.transitionSpeed = 10
 
-        self.plots = [
-            GardenPlot((300, 550), "garden 2", 0), GardenPlot((600,550), "garden 2", 1), GardenPlot((900,550), "garden 2", 2)
-        ]
 
     def get_hover_rects(self):
         return self.interactive_rects
@@ -619,7 +608,157 @@ class Garden2(GardenState):
                     stateManager.push(Garden1())
                 if self.gateRect.collidepoint(pos):
                     self.transitioningOut = True
+
+
+class GardenPlotPopupState(State):
+    def __init__(self, garden, index):
+        self.garden = garden
+        self.index = index
+        self.backgroundImg = pygame.transform.smoothscale_by(pygame.image.load("images/ui/Settings_UI.png"), .4)
+        self.borderImg = None
+        self.scrollBar = ScrollBar(
+            pygame.Rect(1070,280, 25, 360), 
+            pygame.Rect(1075, 283, 15, 100), 
+            (120,110,100), (160,140,130)
+        )
+        self.seeds = []
+        self.pos = (440,100)
+        for i, seed in enumerate(GameData.seedInventory):
+            self.seeds.append(SeedItemInInventory(seed, (self.pos[0] + 55 + 110*(i%6), self.pos[1] + 180 + (i//6) * 110)))
+
+        self.choice = None
+
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(150)
+        self.rect = pygame.Rect(475,140,665,585)
+        self.surface = pygame.Surface((670,590), pygame.SRCALPHA)
+
+
+    def render(self, screen, offset):
+        screen.blit(self.backgroundDark, (0,0))
+        self.surface.blit(self.backgroundImg,(-30,-40))
+        for seed in self.seeds:
+            seed.render(self.surface, self.scrollBar.offset)
+        screen.blit(self.surface, (475, 140))
+        
+        
+        self.scrollBar.render(screen)
+
+        textRenderer.render(screen, "Choose a Seed to Plant", (600,200), 35, (40,20,10))
+        
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+    def update(self):
+        self.scrollBar.update()
+
+        if self.choice != None:
+            for i, seed in enumerate(GameData.seedInventory):
+                if seed["name"] == self.choice.name:
+                    GameData.seedInventory[i]["quantity"] -= 1
+                    if GameData.seedInventory[i]["quantity"] <= 0:
+                        GameData.seedInventory.remove(seed)
+                    break
+                    
+            GameData.gardenData[self.garden]["plots"][self.index]["plant"] = GardenPlant(self.choice.name, (300+self.index*300))
+            stateManager.pop()
+            stateManager.queue[-1].plots[self.index].planting = False
+
+    def handleInput(self, events):
+        self.scrollBar.handleInput(events)
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for seed in self.seeds:
+                    if seed.rect.collidepoint(pos):
+                        self.choice = seed
+
+                if not self.rect.collidepoint(pos):
+                    stateManager.pop()
+
+
+
+class AreYouSurePopupState(State):
+    def __init__(self, question):
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(150)
+
+        self.popup = pygame.Surface((400,300))
+        self.popup.fill((200,180,150))
+        self.rect = pygame.Rect(600,250,400,300)
+        self.answer = None
+        self.question = question
+
+        self.button = pygame.Surface((100,50))
+        self.button.fill((200,180,150))
+        pygame.draw.rect(self.button, (40,20,10), (0,0,100,50), 4)
+
+        self.yesRect = pygame.Rect(650,470, 100,50)
+        self.noRect = pygame.Rect(910, 470, 100, 60)
+
+    def render(self, screen, offset):
+        screen.blit(self.backgroundDark, (0,0))
+
+
+        textRenderer.render(self.popup, "Are you sure you want to", (200,30), 25, (40,20,10), align="center")
+        textRenderer.render(self.popup, self.question + "?", (200,60), 25, (40,20,10), align="center")
+
+        self.popup.blit(self.button, (50, 220))
+        self.popup.blit(self.button, (310, 220))
+
+        textRenderer.render(self.popup, "Yes", (60, 235), 15, (40,20,10), align="center")
+        textRenderer.render(self.popup, "No", (340, 235), 15, (40,20,10), align="center")
+
+        screen.blit(self.popup, (self.rect.x,self.rect.y))
+
+        pygame.draw.rect(screen, (255,0,0), self.yesRect, 2)
+        pygame.draw.rect(screen, (255,0,0), self.noRect, 2)
+
+        pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+
+    def update(self):
+        pass
+
+    def handleInput(self, events):
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.rect.collidepoint(pos):
+                    pass
+                if self.yesRect.collidepoint(pos):
+                    self.answer = True
+                if self.noRect.collidepoint(pos):
+                    self.answer = False
                 
+
+class AreYouSureDigUpState(AreYouSurePopupState):
+    def __init__(self, garden, index):
+        super().__init__("dig up plant")
+        self.garden = garden
+        self.index = index
+
+    def update(self):
+        super().update()
+        if self.answer!= None:
+            if self.answer == True:
+                GameData.gardenData[self.garden]["plots"][self.index]["plant"] = None
+            elif self.answer == False:
+                pass
+
+            stateManager.pop()
+            stateManager.queue[-1].plots[self.index].diggingUp = False
+
+
+
+
+
+
+
+
+
+
+
+
 
 class MapState(State):
     def __init__(self):
