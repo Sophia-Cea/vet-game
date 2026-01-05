@@ -1,7 +1,6 @@
 from uiClasses import *
 
 
-
 class Patient:
     def __init__(self, walkingAnimation, idleAnimation, talkingAnimation, currentState, pos, endPos, speed, id, illness):
         self.illness = illness
@@ -56,10 +55,6 @@ class Patient:
     
     def toDict(self):
         pass
-
-
-
-
 
 
 class PatientInVetRoom:

@@ -54,7 +54,6 @@ stateManager.everythingState = EverythingState()
 stateManager.push(WaitingRoomState()) 
 
 
-
 GameData.gardenData["garden 1"]["plots"][0]["plant"] = GardenPlant("plant1", 300)
 GameData.gardenData["garden 1"]["plots"][1]["plant"] = GardenPlant("plant2", 600)
 GameData.gardenData["garden 1"]["plots"][2]["plant"] = GardenPlant("sapling", 900)

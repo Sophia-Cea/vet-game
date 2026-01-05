@@ -277,6 +277,7 @@ class SeedItemInInventory(ItemInInventory):
     def __init__(self, seedObject, pos):
         super().__init__(seedObject, pos)
         self.data = plantInfo[seedObject["name"]]
+        self.name = seedObject["name"]
         self.image = pygame.transform.smoothscale_by(pygame.image.load(self.data["path"] + "seed-bag.png"), .055)
         self.textOffset = [55,45]
         self.pos[0] += 15

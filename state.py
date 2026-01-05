@@ -297,6 +297,7 @@ class WaitingRoomState(State):
                         if patient.checkClick():
                             # stateManager.push(PatientPopupState(patient))
                             stateManager.push(DialogueState(patient))
+                            break
                             # stateManager.push(RelocatePopupState(patient))
                 
                 if self.inventoryButton.checkClick():
@@ -484,11 +485,17 @@ class GardenState(State):
         super().update()
         for plot in self.plots:
             plot.update()
+        
+
 
 
     def handleInput(self, events):
         super().handleInput(events)
         pos = pygame.mouse.get_pos()
+
+        for plot in self.plots:
+            plot.handleInput(events)
+
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.inventoryButton.checkClick():
@@ -504,12 +511,7 @@ class GardenState(State):
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(PatientRoomState(0))
-                
-                for plot in self.plots:
-                    if plot != None:
-                        if plot.rect.collidepoint(pos):
-                            plot.planting = True
-                            stateManager.push(InventoryOpenState(2))
+
     
 
 class Garden1(GardenState):
@@ -536,6 +538,13 @@ class Garden1(GardenState):
     def update(self):
         super().update()
         self.beehive.update()
+
+        for i, plot in enumerate(self.plots):
+            gamedataPlant = GameData.gardenData["garden 1"]["plots"][i]["plant"]
+            if plot.plant == None and gamedataPlant != None:
+                plot.plant = gamedataPlant
+            if plot.plant != None and gamedataPlant == None:
+                plot.plant = gamedataPlant
         
 
     def handleInput(self, events):
@@ -592,6 +601,13 @@ class Garden2(GardenState):
                 self.opacity = 255
                 self.transitioningOut = False
                 stateManager.push(ForestState())
+        
+        for i, plot in enumerate(self.plots):
+            gamedataPlant = GameData.gardenData["garden 2"]["plots"][i]["plant"]
+            if plot.plant == None and gamedataPlant != None:
+                plot.plant = gamedataPlant
+            if plot.plant != None and gamedataPlant == None:
+                plot.plant = gamedataPlant
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -781,7 +797,7 @@ class PatientRoomState(State):
                     stateManager.push(SettingsOpenState())
 
 class InventoryOpenState(State):
-    def __init__(self, currentTab=2):
+    def __init__(self, currentTab=2, locked=False):
         super().__init__()
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventoryBackground.png"), .4)
         self.imageTop = pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/inventoryTop.png"), .4)
@@ -794,6 +810,7 @@ class InventoryOpenState(State):
         self.offset = 0
         self.rows = 5
         self.currentTab = currentTab
+        self.locked = locked
 
         self.potionButton = InventoryStateRoundButton(
             pygame.transform.smoothscale_by(pygame.image.load("images/ui/inventory/potionButton.png"), .078),
@@ -869,12 +886,14 @@ class InventoryOpenState(State):
                 if not self.rect.collidepoint(pos):
                     stateManager.queue[-2].inventoryButton.closed = True
                     stateManager.pop()
-                for i, button in enumerate(self.buttons):
-                    if button.checkClick():
-                        self.currentTab = i
-                        for b in self.buttons:
-                            b.isBig = False
-                        button.isBig = True
+
+                if not self.locked:
+                    for i, button in enumerate(self.buttons):
+                        if button.checkClick():
+                            self.currentTab = i
+                            for b in self.buttons:
+                                b.isBig = False
+                            button.isBig = True
 
 
 
@@ -967,9 +986,6 @@ class ForestState(State):
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.goingLeft = False
                     self.goingRight = False
-
-
-
 
 
 class PatientPopupState(State):

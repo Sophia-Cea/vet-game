@@ -164,24 +164,101 @@ class GardenPlot:
         self.rect = pygame.Rect(pos[0]-40, pos[1]+100, 180, 80)
         self.planting = False
         self.seedChoice = None
+        self.popup = None
 
     def render(self, screen):
         if self.plant != None:
             self.plant.render(screen)
         screen.blit(self.dirt, (self.pos[0]-50, self.pos[1]-30))
+
+        if self.planting:
+            self.popup.render(screen)
         # pygame.draw.rect(screen, (255,0,0), self.rect,  2)
 
     def update(self):
         if self.plant != None:
             self.plant.update()
+        
+        if self.planting:
+            self.popup.update()
 
     def handleInput(self, events):
+        pos = pygame.mouse.get_pos()
+        if self.planting:
+            if self.popup.choice != None:
+                self.seedChoice = self.popup.choice
+                self.popup = None
+                self.planting = False
+                GameData.gardenData["garden 2"]["plots"][2]["plant"] = GardenPlant(self.seedChoice.name, self.pos[0])
+                for seed in GameData.seedInventory:
+                    if seed["name"] == self.seedChoice.name:
+                        seed["quantity"] -= 1
+                        break
+                self.seedChoice= None
+
+        
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.rect.collidepoint(pygame.mouse.get_pos()):
-                    self.planting = True
+                    if self.plant == None:
+                        self.planting = True
+                        self.popup = GardenPlotPopup()
+
+                if self.planting:
+                    if not self.popup.rect.collidepoint(pos):
+                        self.planting = False
+                        self.popup = None
+        if self.planting:
+            self.popup.handleInput(events)
 
 
+class GardenPlotPopup:
+    def __init__(self):
+        self.backgroundImg = pygame.transform.smoothscale_by(pygame.image.load("images/ui/Settings_UI.png"), .4)
+        self.borderImg = None
+        self.scrollBar = ScrollBar(
+            pygame.Rect(1070,280, 25, 360), 
+            pygame.Rect(1075, 283, 15, 100), 
+            (120,110,100), (160,140,130)
+        )
+        self.seeds = []
+        self.pos = (440,100)
+        for i, seed in enumerate(GameData.seedInventory):
+            self.seeds.append(SeedItemInInventory(seed, (self.pos[0] + 55 + 110*(i%6), self.pos[1] + 180 + (i//6) * 110)))
+
+        self.choice = None
+
+        self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
+        self.backgroundDark.set_alpha(150)
+        self.rect = pygame.Rect(475,140,665,585)
+        self.surface = pygame.Surface((670,590), pygame.SRCALPHA)
+
+
+    def render(self, screen):
+        screen.blit(self.backgroundDark, (0,0))
+        self.surface.blit(self.backgroundImg,(-30,-40))
+        for seed in self.seeds:
+            seed.render(self.surface, self.scrollBar.offset)
+        screen.blit(self.surface, (475, 140))
+        
+        
+        self.scrollBar.render(screen)
+
+        textRenderer.render(screen, "Choose a Seed to Plant", (600,200), 35, (40,20,10))
+        
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+    def update(self):
+        self.scrollBar.update()
+
+    def handleInput(self, events):
+        self.scrollBar.handleInput(events)
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for seed in self.seeds:
+                    if seed.rect.collidepoint(pos):
+                        self.choice = seed
 
 class GardenPlant:
     """
