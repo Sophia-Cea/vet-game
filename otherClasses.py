@@ -171,15 +171,40 @@ class GardenPlot:
 
 
     def calculateProgress(self):
-        if self.plant != None:
-            growTime = 0
-            timeSoFar = 0
-            for i, time in enumerate(self.plant.plantData["growTime"]):
-                growTime += time
-                if i < self.plant.currentState:
-                    timeSoFar += time
+        if self.plant is None:
+            self.progress = 0
+            return
+
+        # 1. Get the TOTAL time required (Denominator)
+        # Sum of all stages in the list
+        total_duration = sum(self.plant.plantData["growTime"]) 
+        
+        # 2. Get the time passed in COMPLETED stages
+        time_from_completed_stages = 0
+        for i in range(self.plant.currentState):
+            # Ensure we don't go out of bounds if currentState exceeds list length
+            if i < len(self.plant.plantData["growTime"]):
+                time_from_completed_stages += self.plant.plantData["growTime"][i]
+        
+        # 3. Get the time passed in the CURRENT stage
+        time_from_current_stage = 0
+        if self.plant.time_elapsed is not None:
+            # Convert timedelta to minutes to match your growTime data
+            # (Assuming growTime is in minutes because you divided by 60 previously)
+            time_from_current_stage = self.plant.time_elapsed.total_seconds() / 60
             
-            self.progress = timeSoFar/growTime * 100
+        # 4. Combine numerator: (Past Time + Current Time)
+        total_time_passed = time_from_completed_stages + time_from_current_stage
+
+        # 5. Calculate Final Percentage
+        if total_duration > 0:
+            self.progress = (total_time_passed / total_duration) * 100
+        else:
+            self.progress = 100
+            
+        # Clamp to 100 to prevent visual overflow
+        if self.progress > 100:
+            self.progress = 100
             
             
 
@@ -238,6 +263,8 @@ class GardenPlant:
         self.plantTime = datetime.now() # Record the real-world time it was planted
         self.pos = [position, 730] # plants position
         self.currentImg = self.imgs[self.currentState]
+        self.time_elapsed = None
+        self.required_duration = None
 
 
 
@@ -264,31 +291,35 @@ class GardenPlant:
         time_elapsed = current_real_time - self.plantTime
         required_unit_value = self.plantData["growTime"][self.currentState]
         
-        # Convert the required value into a timedelta object for comparison
+        # Convert the required value into a timedelta object
         if GROW_TIME_UNIT == "minutes":
             required_duration = timedelta(minutes=required_unit_value)
         elif GROW_TIME_UNIT == "hours":
             required_duration = timedelta(hours=required_unit_value)
         elif GROW_TIME_UNIT == "days":
             required_duration = timedelta(days=required_unit_value)
-        else: # Default to seconds if unit is unknown or seconds
+        else: 
             required_duration = timedelta(seconds=required_unit_value)
             
-        
+        self.time_elapsed = time_elapsed
+        self.required_duration = required_duration
+
         if time_elapsed >= required_duration:
             self.currentState += 1
             self.currentImg = self.imgs[self.currentState]
             
             self.plantTime = current_real_time 
             
+            # --- THE FIX IS HERE ---
+            # We must manually reset the elapsed time to 0 immediately, 
+            # otherwise the progress bar will use the OLD elapsed time 
+            # combined with the NEW current state.
+            self.time_elapsed = timedelta(0) 
+            # -----------------------
+
             if self.currentState >= len(self.imgs) - 1:
                 self.fullyGrown = True
 
-        else:
-            # Optional: Display time remaining for debugging/UI purposes
-            time_remaining = required_duration - time_elapsed
-            # print(f"Stage {self.currentState}: {time_remaining} remaining.")
-            pass
 
 
 
