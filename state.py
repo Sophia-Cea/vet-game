@@ -489,6 +489,14 @@ class GardenState(State):
                 stateManager.push(AreYouSureDigUpState(self.garden, i))
             if plot.planting == True:
                 stateManager.push(GardenPlotPopupState(self.garden, i))
+
+        
+        for i, plot in enumerate(self.plots):
+            gamedataPlant = GameData.gardenData[self.garden]["plots"][i]["plant"]
+            if plot.plant == None and gamedataPlant != None:
+                plot.plant = gamedataPlant
+            if plot.plant != None and gamedataPlant == None:
+                plot.plant = gamedataPlant
     
         
 
@@ -590,13 +598,6 @@ class Garden2(GardenState):
                 self.opacity = 255
                 self.transitioningOut = False
                 stateManager.push(ForestState())
-        
-        for i, plot in enumerate(self.plots):
-            gamedataPlant = GameData.gardenData["garden 2"]["plots"][i]["plant"]
-            if plot.plant == None and gamedataPlant != None:
-                plot.plant = gamedataPlant
-            if plot.plant != None and gamedataPlant == None:
-                plot.plant = gamedataPlant
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -674,6 +675,7 @@ class GardenPlotPopupState(State):
 
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
+                    stateManager.queue[-1].plots[self.index].planting = False
 
 
 
@@ -710,10 +712,10 @@ class AreYouSurePopupState(State):
 
         screen.blit(self.popup, (self.rect.x,self.rect.y))
 
-        pygame.draw.rect(screen, (255,0,0), self.yesRect, 2)
-        pygame.draw.rect(screen, (255,0,0), self.noRect, 2)
+        # pygame.draw.rect(screen, (255,0,0), self.yesRect, 2)
+        # pygame.draw.rect(screen, (255,0,0), self.noRect, 2)
 
-        pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+        # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
 
 
     def update(self):
@@ -741,12 +743,25 @@ class AreYouSureDigUpState(AreYouSurePopupState):
         super().update()
         if self.answer!= None:
             if self.answer == True:
+                # print("said yes")
                 GameData.gardenData[self.garden]["plots"][self.index]["plant"] = None
             elif self.answer == False:
+                # print("said no")
                 pass
 
             stateManager.pop()
             stateManager.queue[-1].plots[self.index].diggingUp = False
+    
+    def handleInput(self, events):
+        super().handleInput(events)
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not self.rect.collidepoint(pos):
+                    stateManager.pop()
+                    stateManager.queue[-1].plots[self.index].diggingUp = False
+
+        
 
 
 
