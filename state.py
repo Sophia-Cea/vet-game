@@ -523,7 +523,6 @@ class GardenState(State):
                     stateManager.transition(None, False)
                     stateManager.push(PatientRoomState(0))
 
-    
 
 class Garden1(GardenState):
     def __init__(self):
@@ -678,39 +677,37 @@ class GardenPlotPopupState(State):
                     stateManager.queue[-1].plots[self.index].planting = False
 
 
-
 class AreYouSurePopupState(State):
     def __init__(self, question):
         self.backgroundDark = pygame.Surface((WIDTH, HEIGHT))
         self.backgroundDark.set_alpha(150)
 
-        self.popup = pygame.Surface((400,300))
-        self.popup.fill((200,180,150))
-        self.rect = pygame.Rect(600,250,400,300)
+        self.popup = pygame.transform.smoothscale_by(pygame.image.load("images/ui/areyousurepopup.png"), .35)
+        self.rect = pygame.Rect(510,215,580,350)
         self.answer = None
         self.question = question
+        self.pos = (500,200)
 
-        self.button = pygame.Surface((100,50))
-        self.button.fill((200,180,150))
-        pygame.draw.rect(self.button, (40,20,10), (0,0,100,50), 4)
+        self.yesButton = pygame.transform.smoothscale_by(pygame.image.load("images/ui/areyousureyes.png"), .35)
+        self.noButton = pygame.transform.smoothscale_by(pygame.image.load("images/ui/areyousureno.png"), .35)
 
-        self.yesRect = pygame.Rect(650,470, 100,50)
-        self.noRect = pygame.Rect(910, 470, 100, 60)
+        self.yesRect = pygame.Rect(553, 450, 224,80)
+        self.noRect = pygame.Rect(820, 450, 226, 80)
 
     def render(self, screen, offset):
         screen.blit(self.backgroundDark, (0,0))
 
 
-        textRenderer.render(self.popup, "Are you sure you want to", (200,30), 25, (40,20,10), align="center")
-        textRenderer.render(self.popup, self.question + "?", (200,60), 25, (40,20,10), align="center")
+        textRenderer.render(self.popup, "Are you sure you want to", (290,80), 32, (40,20,10), align="center")
+        textRenderer.render(self.popup, self.question + "?", (290,115), 32, (40,20,10), align="center")
 
-        self.popup.blit(self.button, (50, 220))
-        self.popup.blit(self.button, (310, 220))
 
-        textRenderer.render(self.popup, "Yes", (60, 235), 15, (40,20,10), align="center")
-        textRenderer.render(self.popup, "No", (340, 235), 15, (40,20,10), align="center")
+        textRenderer.render(self.yesButton, "Yes", (180, 290), 35, (60,40,20), align="center")
+        textRenderer.render(self.noButton, "No", (470, 290), 35, (60,40,20), align="center")
 
-        screen.blit(self.popup, (self.rect.x,self.rect.y))
+        screen.blit(self.popup, self.pos)
+        screen.blit(self.yesButton, self.pos)
+        screen.blit(self.noButton, self.pos)
 
         # pygame.draw.rect(screen, (255,0,0), self.yesRect, 2)
         # pygame.draw.rect(screen, (255,0,0), self.noRect, 2)
