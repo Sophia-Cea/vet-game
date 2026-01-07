@@ -1237,9 +1237,9 @@ class DialogueState(State):
 
 
     def get3LineDialogue(self):
-        text1 = random.choice(["My tummy hurts and I pooped the bed.", "My friends hurt my feelings.", "My poop is colorful.", "I burnt my snoot in my soup."])
-        text2 = random.choice(["I'm also very itchy.", "I also can't stop sneezing.", "I also have been seeing things.", "I'm also very sad."])
-        text3 = random.choice(["Help me!!!", "And my toes beans are stinky.", "And I miss my mommy."])
+        text1 = random.choice(["Make it quick, Doc. I’ve got mice to watch and this coughing is giving away my position."])
+        text2 = random.choice(["Is it supposed to hurt this much to purr? Because it's very inconvenient."])
+        text3 = random.choice(["I look a mess, I feel like a burnt roast, and I’m ready for my medicine."])
         return [text1, text2, text3]
 
 
