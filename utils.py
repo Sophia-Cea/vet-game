@@ -81,7 +81,7 @@ class GameData:
     seedInventory = [
         {
             "name" : "plant1",
-            "quantity" : 1
+            "quantity" : 5
         },
 
         {
@@ -91,7 +91,7 @@ class GameData:
 
         {
             "name" : "sapling",
-            "quantity" : 5
+            "quantity" : 1
         }
     ]
 
@@ -123,40 +123,38 @@ class GameData:
     ]
 
     gardenData = {
-        "garden 1" : {
-            "locked" : False,
-            "plots" : [
-                {
-                    "locked" : False,
-                    "plant" : None
-                },
-                {
-                    "locked" : False,
-                    "plant" : None
-                },
-                {
-                    "locked" : False,
-                    "plant" : None
-                }
-            ]
-        },
-        "garden 2" : {
-            "locked" : False,
-            "plots" : [
-                {
-                    "locked" : False,
-                    "plant" : None
-                },
-                {
-                    "locked" : False,
-                    "plant" : None
-                },
-                {
-                    "locked" : False,
-                    "plant" : None
-                }
-            ]
-        }
+        "plots" : [
+            {
+                "locked" : False,
+                "plant" : None,
+                "pos" : [750,450]
+            },
+            {
+                "locked" : False,
+                "plant" : None,
+                "pos" : [1000, 450]
+            },
+            {
+                "locked" : False,
+                "plant" : None,
+                "pos" : [1250,450]
+            },
+            {
+                "locked" : False,
+                "plant" : None,
+                "pos" : [800,600]
+            },
+            {
+                "locked" : False,
+                "plant" : None,
+                "pos" : [1050,600]
+            },
+            {
+                "locked" : False,
+                "plant" : None,
+                "pos" : [1300,600]
+            }
+        ]
     }
 
     patientsInRooms = [

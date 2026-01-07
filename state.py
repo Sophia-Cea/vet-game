@@ -451,58 +451,91 @@ class PotionMakingState(State):
                     self.draggingItem = None
 
 
+
+
 class GardenState(State):
-    def __init__(self, garden):
+    def __init__(self):
         super().__init__()
-        self.surface = pygame.Surface(orig_size)
-        self.background = pygame.Surface([orig_size[0], orig_size[1]])
-        self.background.fill((182, 204, 254))
-        pygame.draw.rect(self.background, (132, 169, 140), (0, 600, 1600, 500))
-        self.leftArrow = Arrow(True)
-        self.rightArrow = Arrow(False)
+        self.background = pygame.transform.smoothscale_by(pygame.image.load("images/garden/garden.png"), .42)
+        self.beehive = Beehive()
+
         self.mapIcon = MapButton()
         self.inventoryButton = InventoryButton()
         self.coins = Coins()
         self.upArrow = VerticalArrow(False)
         self.settings = SettingsButton()
-        self.uiElements = [self.leftArrow, self.rightArrow, self.upArrow, self.mapIcon, self.coins, self.inventoryButton, self.settings]
-        self.garden = garden
-        self.plots = [
-            GardenPlot((300, 550), self.garden, 0), GardenPlot((600,550), self.garden, 1), GardenPlot((900,550), self.garden, 2)
-        ]
+        self.uiElements = [self.upArrow, self.mapIcon, self.coins, self.inventoryButton, self.settings]
+        self.plots = []
+        for i, plot in enumerate(GameData.gardenData["plots"]):
+            self.plots.append(GardenPlot(i))
+
+
+        self.offset = 0
+        self.offsetRange = (0,-1640)
+
+        self.forestDoorCenter = (3000, 460)
+        self.forestDoorRadius = 90
+
+        self.transitioningOut = False
+        self.transitioningIn = False
+        self.transitionScreen = pygame.Surface((WIDTH, HEIGHT))
+        self.opacity = 0
+        self.transitionSpeed = 10
 
 
     def render(self, screen, offset):
         super().render(screen, offset)
-        self.surface.blit(self.background, (0,0))
+        screen.blit(self.background, (self.offset,0))
         for plot in self.plots:
-            plot.render(self.surface, (0,0))
-        screen.blit(self.surface, offset)
+            plot.render(screen, self.offset)
+
+        self.beehive.render(screen, self.offset)
+
         for element in self.uiElements:
             element.render(screen)
 
+        pygame.draw.circle(screen, (255,0,0), [self.forestDoorCenter[0]+self.offset, self.forestDoorCenter[1]], self.forestDoorRadius, 2)
+
+        screen.blit(self.transitionScreen, (0,0))
+        self.transitionScreen.set_alpha(self.opacity)
+
     def update(self):
         super().update()
+        self.beehive.update()
+
         for i, plot in enumerate(self.plots):
             plot.update()
             if plot.diggingUp == True:
-                stateManager.push(AreYouSureDigUpState(self.garden, i))
+                stateManager.push(AreYouSureDigUpState(i))
             if plot.planting == True:
-                stateManager.push(GardenPlotPopupState(self.garden, i))
+                stateManager.push(GardenPlotPopupState(i))
 
         
         for i, plot in enumerate(self.plots):
-            gamedataPlant = GameData.gardenData[self.garden]["plots"][i]["plant"]
+            gamedataPlant = GameData.gardenData["plots"][i]["plant"]
             if plot.plant == None and gamedataPlant != None:
                 plot.plant = gamedataPlant
             if plot.plant != None and gamedataPlant == None:
                 plot.plant = gamedataPlant
+
+        if self.transitioningIn:
+            self.opacity -= self.transitionSpeed
+            if self.opacity <= 0:
+                self.transitioningIn = False
+                self.opacity = 0
+        if self.transitioningOut:
+            self.opacity += self.transitionSpeed
+            if self.opacity >= 255:
+                self.opacity = 255
+                self.transitioningOut = False
+                stateManager.push(ForestState())
     
         
 
     def handleInput(self, events):
         super().handleInput(events)
         pos = pygame.mouse.get_pos()
+        self.beehive.handleInput(events)
 
         for plot in self.plots:
             plot.handleInput(events)
@@ -515,104 +548,39 @@ class GardenState(State):
                 if self.settings.checkClick():
                     stateManager.push(SettingsOpenState())
 
-
                 if self.mapIcon.checkClick():
                     self.mapIcon.isClosed = False
                     stateManager.push(MapState())
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(PatientRoomState(0))
-
-
-class Garden1(GardenState):
-    def __init__(self):
-        super().__init__("garden 1")
-        self.uiElements.remove(self.leftArrow)
-        self.beehive = Beehive()
-        img = pygame.image.load("images/backgrounds/Garden1.png").convert_alpha()
-        self.background = pygame.transform.smoothscale_by(img, 0.45)
-        
-
-    def render(self, screen, offset):
-        super().render(screen, offset)
-        self.beehive.render(self.surface)
-
-        screen.blit(self.surface, offset)
-        for element in self.uiElements:
-            element.render(screen)
-
-
-    def update(self):
-        super().update()
-        self.beehive.update()
-
-        
-
-    def handleInput(self, events):
-        super().handleInput(events)
-        self.beehive.handleInput(events)
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.rightArrow.checkClick():
-                    stateManager.transition(False, None)
-                    stateManager.push(Garden2())
-
-
-class Garden2(GardenState):
-    def __init__(self):
-        super().__init__("garden 2")
-        self.uiElements.remove(self.rightArrow)
-
-        img = pygame.image.load("images/backgrounds/Garden2.png").convert_alpha()
-        self.background = pygame.transform.smoothscale_by(img, 0.45)
-
-        self.gateRect = pygame.Rect(1260, 350, 270, 380)
-        self.interactive_rects = [self.gateRect]
-
-        self.transitioningOut = False
-        self.transitioningIn = False
-        self.transitionScreen = pygame.Surface((WIDTH, HEIGHT))
-        self.opacity = 0
-        self.transitionSpeed = 10
-
-
-    def get_hover_rects(self):
-        return self.interactive_rects
-
-    def render(self, screen, offset):
-        super().render(screen, offset)
-        screen.blit(self.transitionScreen, (0,0))
-        self.transitionScreen.set_alpha(self.opacity)
-
-    def update(self):
-        super().update()
-        if self.transitioningIn:
-            self.opacity -= self.transitionSpeed
-            if self.opacity <= 0:
-                self.transitioningIn = False
-                self.opacity = 0
-        if self.transitioningOut:
-            self.opacity += self.transitionSpeed
-            if self.opacity >= 255:
-                self.opacity = 255
-                self.transitioningOut = False
-                stateManager.push(ForestState())
-
-    def handleInput(self, events):
-        super().handleInput(events)
-        pos = pygame.mouse.get_pos()
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.leftArrow.checkClick():
-                    stateManager.transition(True, None)
-                    stateManager.push(Garden1())
-                if self.gateRect.collidepoint(pos):
+                
+                # go to forest
+                if math.sqrt((pos[0]-(self.forestDoorCenter[0]+self.offset))**2 + (pos[1]-self.forestDoorCenter[1])**2) < self.forestDoorRadius:
                     self.transitioningOut = True
+            
+                if pos[0] < 150:
+                    self.offset = min(self.offsetRange[0], self.offset + 10)
+
+                # Scroll Right (near x=1450)
+                elif pos[0] > 1450:
+                    self.offset = max(self.offsetRange[1], self.offset - 10)
+
+        # --- Keyboard Movement Continuation ---
+        keys = pygame.key.get_pressed()
+
+        # Left Arrow or A key
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            self.offset = min(self.offsetRange[0], self.offset + 10)
+
+        # Right Arrow or D key
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.offset = max(self.offsetRange[1], self.offset - 10)
+
 
 
 class GardenPlotPopupState(State):
-    def __init__(self, garden, index):
-        self.garden = garden
+    def __init__(self, index):
         self.index = index
         self.backgroundImg = pygame.transform.smoothscale_by(pygame.image.load("images/ui/Settings_UI.png"), .4)
         self.borderImg = None
@@ -659,7 +627,7 @@ class GardenPlotPopupState(State):
                         GameData.seedInventory.remove(seed)
                     break
                     
-            GameData.gardenData[self.garden]["plots"][self.index]["plant"] = GardenPlant(self.choice.name, (300+self.index*300))
+            GameData.gardenData["plots"][self.index]["plant"] = GardenPlant(self.choice.name, GameData.gardenData["plots"][self.index]["pos"])
             stateManager.pop()
             stateManager.queue[-1].plots[self.index].planting = False
 
@@ -675,6 +643,8 @@ class GardenPlotPopupState(State):
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
                     stateManager.queue[-1].plots[self.index].planting = False
+
+
 
 
 class AreYouSurePopupState(State):
@@ -731,9 +701,8 @@ class AreYouSurePopupState(State):
                 
 
 class AreYouSureDigUpState(AreYouSurePopupState):
-    def __init__(self, garden, index):
+    def __init__(self, index):
         super().__init__("dig up plant")
-        self.garden = garden
         self.index = index
 
     def update(self):
@@ -741,7 +710,7 @@ class AreYouSureDigUpState(AreYouSurePopupState):
         if self.answer!= None:
             if self.answer == True:
                 # print("said yes")
-                GameData.gardenData[self.garden]["plots"][self.index]["plant"] = None
+                GameData.gardenData["plots"][self.index]["plant"] = None
             elif self.answer == False:
                 # print("said no")
                 pass
@@ -759,6 +728,9 @@ class AreYouSureDigUpState(AreYouSurePopupState):
                     stateManager.queue[-1].plots[self.index].diggingUp = False
 
         
+
+
+
 
 
 
@@ -838,15 +810,9 @@ class MapState(State):
         textRenderer.render(screen, "Waiting", (self.waitingRoomRect.centerx, self.waitingRoomRect.centery-10), 17, (255,255,255), align="center")
         textRenderer.render(screen, "Room", (self.waitingRoomRect.centerx, self.waitingRoomRect.centery+10), 17, (255,255,255), align="center")
 
-        if GameData.gardenData["garden 1"]["locked"]:
-            screen.blit(self.lockImageLong, (self.garden1Rect.x-10, self.garden1Rect.y-10))
-        else:
-            textRenderer.render(screen, "Garden 1", self.garden1Rect.center, 20, (255,255,255), align="center")
 
-        if GameData.gardenData["garden 2"]["locked"]:
-            screen.blit(self.lockImageLong,  (self.garden2Rect.x-10, self.garden2Rect.y-10))
-        else:
-            textRenderer.render(screen, "Garden 2", self.garden2Rect.center, 20, (255,255,255), align="center")
+        textRenderer.render(screen, "Garden", self.garden1Rect.center, 20, (255,255,255), align="center")
+        # textRenderer.render(screen, "Garden 2", self.garden2Rect.center, 20, (255,255,255), align="center")
         
         # for rect in self.otherRects:
         #     pygame.draw.rect(screen, (255,0,0), rect, 2)
@@ -868,11 +834,8 @@ class MapState(State):
                         if not GameData.roomData[i]["locked"]:
                             stateManager.push(PatientRoomState(i))
 
-                if self.garden1Rect.collidepoint(pos) and not GameData.gardenData["garden 1"]["locked"]:
-                    stateManager.push(Garden1())
-                
-                if self.garden2Rect.collidepoint(pos) and not GameData.gardenData["garden 2"]["locked"]:
-                    stateManager.push(Garden2())
+                if self.garden1Rect.collidepoint(pos):
+                    stateManager.push(GardenState())
                 
                 if self.potionRoomRect.collidepoint(pos):
                     stateManager.push(PotionRoomState())
@@ -937,7 +900,7 @@ class PatientRoomState(State):
                         stateManager.push(PatientRoomState(self.index+1))
                 if self.downArrow.checkClick():
                     stateManager.transition(None, True)
-                    stateManager.push(Garden1())
+                    stateManager.push(GardenState())
                 if self.upArrow.checkClick():
                     stateManager.transition(None, False)
                     stateManager.push(WaitingRoomState())

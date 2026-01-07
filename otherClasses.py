@@ -155,19 +155,19 @@ GROW_TIME_UNIT = "minutes" # Set to minutes for easy testing!
 
 
 class GardenPlot:
-    def __init__(self, pos, gardenName, plantIndex):
-        self.garden = gardenName
+    def __init__(self, plantIndex):
         self.plantIndex = plantIndex
-        self.plant = GameData.gardenData[self.garden]["plots"][self.plantIndex]["plant"]
+        self.plant = GameData.gardenData["plots"][self.plantIndex]["plant"]
         self.dirt = pygame.transform.smoothscale_by(pygame.image.load("images/garden/dirt.png"), .25)
-        self.pos = pos
-        self.rect = pygame.Rect(pos[0]-40, pos[1]+100, 180, 80)
+        self.pos = GameData.gardenData["plots"][self.plantIndex]["pos"]
+        self.rect = pygame.Rect(self.pos[0]-40, self.pos[1]+100, 180, 80)
 
         self.diggingUp = False
         self.planting = False
 
         self.progressBar = pygame.Surface((100,14), pygame.SRCALPHA)
         self.progress = 0
+        self.offset = 0
 
 
     def calculateProgress(self):
@@ -207,20 +207,22 @@ class GardenPlot:
             self.progress = 100
             
             
-
-
     def render(self, screen, offset):
-        if self.plant != None:
-            self.plant.render(screen)
-        screen.blit(self.dirt, (self.pos[0]-50, self.pos[1]-30))
-        
-        
-        pygame.draw.rect(self.progressBar, (200,190,170), (0,0, 100, 14), 0, 6) # background color
-        pygame.draw.rect(self.progressBar, (120,90,20), (0,0, self.progress, 14)) # progress bar
-        pygame.draw.rect(self.progressBar, (80,50,20), (0,0,100,14), 4, 6) # border
+        self.offset = offset
 
         if self.plant != None:
-            screen.blit(self.progressBar, (self.rect.x + 25, self.rect.y + 35))
+            self.plant.render(screen, offset)
+
+            screen.blit(self.dirt, (self.pos[0]-50+offset, self.pos[1]-30))
+        
+            pygame.draw.rect(self.progressBar, (200,190,170), (0,0, 100, 14), 0, 6) # background color
+            pygame.draw.rect(self.progressBar, (120,90,20), (0,0, self.progress, 14)) # progress bar
+            pygame.draw.rect(self.progressBar, (80,50,20), (0,0,100,14), 4, 6) # border
+
+            screen.blit(self.progressBar, (self.rect.x + 25+offset, self.rect.y + 35))
+        
+        elif self.plant == None:
+            screen.blit(self.dirt, (self.pos[0]-50+offset, self.pos[1]-30))
 
     def update(self):
         if self.plant != None:
@@ -233,7 +235,7 @@ class GardenPlot:
         pos = pygame.mouse.get_pos()
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(pos):
+                if pygame.Rect(self.rect.x+self.offset, self.rect.y, self.rect.w, self.rect.h).collidepoint(pos):
                     if self.plant != None:
                         self.diggingUp = True
                     elif self.plant == None:
@@ -246,7 +248,7 @@ class GardenPlant:
     Represents a plant that grows over real-world time.
     Persistence requires saving and loading: currentState, plantTime, and pos.
     """
-    def __init__(self, plantName, position):
+    def __init__(self, plantName, pos):
         self.plantName = plantName
         self.plantData = plantInfo[plantName]
         self.path = self.plantData["path"]
@@ -261,7 +263,7 @@ class GardenPlant:
         self.fullyGrown = False
         self.currentState = 0
         self.plantTime = datetime.now() # Record the real-world time it was planted
-        self.pos = [position, 730] # plants position
+        self.pos = [pos[0]-20, pos[1]+175] # plants position
         self.currentImg = self.imgs[self.currentState]
         self.time_elapsed = None
         self.required_duration = None
@@ -278,9 +280,9 @@ class GardenPlant:
             "pos": self.pos
         }
 
-    def render(self, screen):
+    def render(self, screen, offset):
         plant_y = self.pos[1] - self.currentImg.get_height()
-        screen.blit(self.currentImg, [self.pos[0], plant_y])
+        screen.blit(self.currentImg, [self.pos[0]+offset, plant_y])
         
     def update(self):
         # The plant is fully grown and no longer needs updates
@@ -310,12 +312,7 @@ class GardenPlant:
             
             self.plantTime = current_real_time 
             
-            # --- THE FIX IS HERE ---
-            # We must manually reset the elapsed time to 0 immediately, 
-            # otherwise the progress bar will use the OLD elapsed time 
-            # combined with the NEW current state.
             self.time_elapsed = timedelta(0) 
-            # -----------------------
 
             if self.currentState >= len(self.imgs) - 1:
                 self.fullyGrown = True
@@ -326,25 +323,30 @@ class GardenPlant:
 class HoneyCombItem:
     def __init__(self):
         self.honeycombImage = pygame.transform.smoothscale_by(pygame.image.load("images/potionRoom/potionIngredients/honeycomb.png"), .05)
-        self.honeycombPos = [1080,290]
-        self.rect = pygame.Rect(1100,580,65,50)
+        self.honeycombPos = [2500,290]
+        self.rect = pygame.Rect(2510,540,65,50)
         self.dropping = False
         self.dropped = False
         self.veloc = 0
-        self.accel = .7
-        self.finalPos = 550
+        self.accel = .9
+        self.finalPos = 540
         self.bounced = False
         self.waitTime = 5 # seconds
         self.pickUp = None
         self.dropTime = None
+        self.offset = 0
     
-    def render(self, screen):
+    def render(self, screen, offset):
+        self.offset = offset
         if self.dropping or self.dropped:
-            screen.blit(self.honeycombImage, self.honeycombPos)
+            screen.blit(self.honeycombImage, (self.honeycombPos[0] + offset, self.honeycombPos[1]))
+            # pygame.draw.rect(screen, (255,0,0), (self.rect.x+offset, self.rect.y, self.rect.w, self.rect.h), 2)
 
     def update(self):
         if self.dropping:
             self.honeycombPos[1] += self.veloc
+            if self.honeycombPos[1] > self.finalPos:
+                self.honeycombPos[1] = self.finalPos
             self.veloc += self.accel
             if self.honeycombPos[1] >= self.finalPos:
                 if self.bounced:
@@ -353,7 +355,7 @@ class HoneyCombItem:
                     self.dropping = False
                 if not self.bounced:
                     self.bounced = True
-                    self.veloc = -5
+                    self.veloc = -8
 
         if self.dropped:
             current_real_time = datetime.now()
@@ -373,26 +375,30 @@ class HoneyCombItem:
 
 class Beehive:
     def __init__(self):
-        self.pos = [1050,250]
+        self.pos = [2470,225]
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/beehive.png"), .1)
         self.honey = pygame.transform.smoothscale_by(pygame.image.load("images/garden/honey-splatters.png"), .1)
         self.isReady = False
         self.honeyTime = 10 # seconds
-        self.rect = pygame.Rect(1100,280,95,125)
+        self.rect = pygame.Rect(2515,255,105,125)
         self.harvestHoney = False
         self.harvestTime = datetime.now()
         self.honeycomb = HoneyCombItem()
         self.dropping = False
+        self.offset = 0
 
     def resetHoneyComb(self):
         self.honeycomb = HoneyCombItem()
 
-    def render(self, screen):
-        screen.blit(self.image, self.pos)
+    def render(self, screen, offset):
+        self.offset = offset
+        screen.blit(self.image, (self.pos[0] + offset, self.pos[1]))
         # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
         if self.isReady:
-            screen.blit(self.honey, self.pos)
-        self.honeycomb.render(screen)
+            screen.blit(self.honey, (self.pos[0] + offset, self.pos[1]))
+        self.honeycomb.render(screen, offset)
+
+        # pygame.draw.rect(screen, (255,0,0), pygame.Rect(self.rect.x + self.offset, self.rect.y, self.rect.w, self.rect.h), 2)
 
     
     def update(self):
@@ -435,12 +441,14 @@ class Beehive:
         self.honeycomb.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(pos) and self.isReady:
+                if pygame.Rect(self.rect.x + self.offset, self.rect.y, self.rect.w, self.rect.h).collidepoint(pos) and self.isReady:
+                    print("clicked")
                     self.harvestHoney = True
                     self.isReady = False
                     self.harvestTime = datetime.now()
                     self.honeycomb.drop()
-                if self.honeycomb.dropped and self.honeycomb.rect.collidepoint(pos):
+
+                if self.honeycomb.dropped and pygame.Rect(self.honeycomb.rect.x + self.offset, self.honeycomb.rect.y, self.honeycomb.rect.w, self.honeycomb.rect.h).collidepoint(pos):
                     self.addToInventory()
                     self.resetHoneyComb()
 
