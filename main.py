@@ -8,25 +8,6 @@ pygame.mouse.set_visible(False)
 
 
 
-# screen = pygame.display.set_mode((WIDTH, HEIGHT))
-# is_fullscreen = False
-
-# def toggle_fullscreen():
-#     global screen, is_fullscreen
-
-#     is_fullscreen = not is_fullscreen
-
-#     if is_fullscreen:
-#         screen = pygame.display.set_mode(
-#             (WIDTH, HEIGHT),
-#             pygame.FULLSCREEN | pygame.SCALED
-#         )
-#     else:
-#         screen = pygame.display.set_mode((WIDTH, HEIGHT))
-
-
-
-
 cursor_size = (80, 80)
 idle_cursor = pygame.image.load("images/ui/cursor/cursor_idle.png").convert_alpha()
 click_cursor = pygame.image.load("images/ui/cursor/cursor_click.png").convert_alpha()
