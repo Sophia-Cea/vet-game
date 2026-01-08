@@ -9,15 +9,16 @@
             "plant1.png",
             "plant2.png"
         ],
+        "item image" : "flower.png",
         "fullgrown" : "flower.png",
         "growTime" : [
-            0.1,
-            0.2,
-            0.3,
-            0.3
+            0.02,
+            0.02,
+            0.02,
+            0.02
         ], "size" : [105,320],
         "offset" : [-10, -10],
-        "testing" : true
+        "testing" : false
     },
 
     "plant2": {
@@ -30,16 +31,17 @@
             "plant1.png",
             "plant2.png"
         ],
+        "item image" : "flower.png",
         "fullgrown" : "flower.png",
         "growTime" : [
-            0.1,
-            0.1,
-            0.1,
-            0.2
+            0.01,
+            0.01,
+            0.01,
+            0.02
         ],
         "size" : [105,320],
         "offset" : [-10, -10],
-        "testing" : true
+        "testing" : false
     },
 
     "sapling": {
@@ -52,15 +54,16 @@
             "plant2.png",
             "plant3.png"
         ],
+        "item image" : "plant4.png",
         "fullgrown" : "plant4.png",
         "growTime" : [
-            0.1,
-            0.2,
-            0.1,
-            0.2
+            0.02,
+            0.02,
+            0.01,
+            0.02
         ],
         "size" : [105,160],
         "offset" : [-30, -10],
-        "testing" : true
+        "testing" : false
     }
 }

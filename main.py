@@ -6,6 +6,13 @@ pygame.init()
 screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 pygame.mouse.set_visible(False)
 
+# doing today:
+# - make plants harvestable
+# - redo patients coming in system
+# - tackle the potion room issues
+# - individualize characters and their dialogue and animations
+# - maybe make all images load at startup
+
 
 
 cursor_size = (80, 80)

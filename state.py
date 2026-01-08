@@ -806,13 +806,6 @@ class AreYouSureDigUpState(AreYouSurePopupState):
 
 
 
-
-
-
-
-
-
-
 class MapState(State):
     def __init__(self):
         super().__init__()

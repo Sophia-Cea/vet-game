@@ -165,9 +165,11 @@ class GardenPlot:
         self.diggingUp = False
         self.planting = False
 
-        self.progressBar = pygame.Surface((100,14), pygame.SRCALPHA)
+        self.progressBar = pygame.Surface((108,14), pygame.SRCALPHA)
         self.progress = 0
         self.offset = 0
+        self.plantItem = None
+        self.droppingItem = False
 
 
     def calculateProgress(self):
@@ -213,13 +215,17 @@ class GardenPlot:
         if self.plant != None:
             self.plant.render(screen, offset)
 
-            screen.blit(self.dirt, (self.pos[0]-50+offset, self.pos[1]-30))
-        
-            pygame.draw.rect(self.progressBar, (200,190,170), (0,0, 100, 14), 0, 6) # background color
-            pygame.draw.rect(self.progressBar, (120,90,20), (0,0, self.progress, 14)) # progress bar
-            pygame.draw.rect(self.progressBar, (80,50,20), (0,0,100,14), 4, 6) # border
+        screen.blit(self.dirt, (self.pos[0]-50+offset, self.pos[1]-30))
+
+        if self.plant != None and self.plant.harvesting == False:
+            pygame.draw.rect(self.progressBar, (200,190,170), (0,0, 108, 14), 0, 6) # background color
+            pygame.draw.rect(self.progressBar, (120,90,20), (4,0, self.progress, 14)) # progress bar
+            pygame.draw.rect(self.progressBar, (80,50,20), (0,0,108,14), 4, 6) # border
 
             screen.blit(self.progressBar, (self.rect.x + 25+offset, self.rect.y + 35))
+
+        if self.droppingItem:
+            self.plantItem.render(screen, offset)
         
         elif self.plant == None:
             screen.blit(self.dirt, (self.pos[0]-50+offset, self.pos[1]-30))
@@ -227,6 +233,9 @@ class GardenPlot:
     def update(self):
         if self.plant != None:
             self.plant.update()
+        
+        if self.droppingItem == True:
+            self.plantItem.update()
         
         self.calculateProgress()
 
@@ -240,6 +249,25 @@ class GardenPlot:
                         self.diggingUp = True
                     elif self.plant == None:
                         self.planting = True
+
+
+                if self.plant != None:
+                    if self.plant.fullyGrown:
+                        if pygame.Rect(self.plant.rect.x+self.offset, self.plant.rect.y, self.plant.rect.w, self.plant.rect.h).collidepoint(pos):
+                            if self.plantItem != None:
+                                # make it pick up whatever was there first so it doesnt go to waste
+                                self.plantItem = None
+                            if self.plantItem == None:
+                                self.plantItem = PlantItemDrop(self.plant.plantName, self.plant.path + self.plant.plantData["item image"], self.plant.rect)
+                            self.plant = None
+                            GameData.gardenData["plots"][self.plantIndex]["plant"] = None
+                            self.droppingItem = True
+
+                if self.plantItem != None and self.plantItem.readyForCollecting == True:
+                    if pygame.Rect(self.plantItem.rect.x+self.offset, self.plantItem.rect.y, self.plantItem.rect.w, self.plantItem.rect.h).collidepoint(pos):
+                        self.plantItem = None
+                        self.droppingItem = False
+                        # make sure to add item to inventory
 
 
 
@@ -271,8 +299,7 @@ class GardenPlant:
         size = plantInfo[self.plantName]["size"]
         self.plantOffset = plantInfo[self.plantName]["offset"]
         self.rect = pygame.Rect(self.pos[0]+10, self.pos[1]-size[1]-30, size[0], size[1])
-
-
+        self.harvesting = False
 
     def get_save_data(self):
         """Returns a dict ready to be JSON serialized."""
@@ -285,47 +312,89 @@ class GardenPlant:
         }
 
     def render(self, screen, offset):
-        plant_y = self.pos[1] - self.currentImg.get_height()
-        if self.currentState > 0:
-            screen.blit(self.currentImg, [self.pos[0]+offset+self.plantOffset[0], plant_y+self.plantOffset[1]])
-        else:
-            screen.blit(self.currentImg, [self.pos[0]+offset, plant_y])
+        if not self.harvesting:
+            plant_y = self.pos[1] - self.currentImg.get_height()
+            if self.currentState > 0:
+                screen.blit(self.currentImg, [self.pos[0]+offset+self.plantOffset[0], plant_y+self.plantOffset[1]])
+            else:
+                screen.blit(self.currentImg, [self.pos[0]+offset, plant_y])
 
-        if plantInfo[self.plantName]["testing"] == True:
-            pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+            if plantInfo[self.plantName]["testing"] == True:
+                pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+            
         
     def update(self):
-        # The plant is fully grown and no longer needs updates
-        if self.currentState >= len(self.imgs) - 1:
-            return 
-        
-        current_real_time = datetime.now()
-        time_elapsed = current_real_time - self.plantTime
-        required_unit_value = self.plantData["growTime"][self.currentState]
-        
-        # Convert the required value into a timedelta object
-        if GROW_TIME_UNIT == "minutes":
-            required_duration = timedelta(minutes=required_unit_value)
-        elif GROW_TIME_UNIT == "hours":
-            required_duration = timedelta(hours=required_unit_value)
-        elif GROW_TIME_UNIT == "days":
-            required_duration = timedelta(days=required_unit_value)
-        else: 
-            required_duration = timedelta(seconds=required_unit_value)
+        if not self.harvesting and not self.fullyGrown:
+            current_real_time = datetime.now()
+            time_elapsed = current_real_time - self.plantTime
+            required_unit_value = self.plantData["growTime"][self.currentState]
             
-        self.time_elapsed = time_elapsed
-        self.required_duration = required_duration
+            # Convert the required value into a timedelta object
+            if GROW_TIME_UNIT == "minutes":
+                required_duration = timedelta(minutes=required_unit_value)
+            elif GROW_TIME_UNIT == "hours":
+                required_duration = timedelta(hours=required_unit_value)
+            elif GROW_TIME_UNIT == "days":
+                required_duration = timedelta(days=required_unit_value)
+            else: 
+                required_duration = timedelta(seconds=required_unit_value)
+                
+            self.time_elapsed = time_elapsed
+            self.required_duration = required_duration
 
-        if time_elapsed >= required_duration:
-            self.currentState += 1
-            self.currentImg = self.imgs[self.currentState]
-            
-            self.plantTime = current_real_time 
-            
-            self.time_elapsed = timedelta(0) 
+            if time_elapsed >= required_duration:
+                self.currentState += 1
+                self.currentImg = self.imgs[self.currentState]
+                
+                self.plantTime = current_real_time 
+                
+                self.time_elapsed = timedelta(0) 
 
-            if self.currentState >= len(self.imgs) - 1:
-                self.fullyGrown = True
+                if self.currentState >= len(self.imgs) - 1:
+                    self.fullyGrown = True
+
+
+
+class PlantItemDrop:
+    def __init__(self, plantName, path, plantRect):
+        self.plantName = plantName
+        self.image = pygame.transform.smoothscale_by(pygame.image.load(path), .09)
+        self.horizontalVelocity = random.randint(-3,3)
+        self.verticalVelocity = random.randint(-10,-6)
+        self.verticalStartPoint = plantRect.y + random.randint(10, int(plantRect.h/3))
+        self.verticalEndPoint = self.verticalStartPoint + random.randint(80,100)
+        self.bounced = False
+        self.acceleration = 0.5
+        self.postBounceVelocity = random.randint(-5,-3)
+        self.rect = None
+        self.pos = [plantRect.x+plantRect.w/2-20, self.verticalStartPoint]
+        self.readyForCollecting = False
+
+
+    def render(self, screen, offset):
+        screen.blit(self.image, (self.pos[0] + offset, self.pos[1]))
+        if self.readyForCollecting:
+            pygame.draw.rect(screen, (255,0,0), self.rect, 2)
+
+    def update(self):
+        if not self.bounced:
+            self.pos[1] = self.pos[1] + self.verticalVelocity
+            self.pos[0] += self.horizontalVelocity
+            self.verticalVelocity += self.acceleration
+            if self.pos[1] >= self.verticalEndPoint:
+                self.bounced = True
+                self.verticalVelocity = self.postBounceVelocity
+        else:
+            if not self.readyForCollecting:
+                self.pos[1] = self.pos[1] + self.verticalVelocity
+                self.pos[0] += self.horizontalVelocity
+                self.verticalVelocity += self.acceleration
+                if self.pos[1] >= self.verticalEndPoint:
+                    self.readyForCollecting = True
+                    self.rect = pygame.Rect(self.pos[0], self.pos[1], 50,50)
+
+    def handleInput(self):
+        pass
 
 
 
