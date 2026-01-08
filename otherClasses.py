@@ -268,6 +268,10 @@ class GardenPlant:
         self.time_elapsed = None
         self.required_duration = None
 
+        size = plantInfo[self.plantName]["size"]
+        self.plantOffset = plantInfo[self.plantName]["offset"]
+        self.rect = pygame.Rect(self.pos[0]+10, self.pos[1]-size[1]-30, size[0], size[1])
+
 
 
     def get_save_data(self):
@@ -282,7 +286,13 @@ class GardenPlant:
 
     def render(self, screen, offset):
         plant_y = self.pos[1] - self.currentImg.get_height()
-        screen.blit(self.currentImg, [self.pos[0]+offset, plant_y])
+        if self.currentState > 0:
+            screen.blit(self.currentImg, [self.pos[0]+offset+self.plantOffset[0], plant_y+self.plantOffset[1]])
+        else:
+            screen.blit(self.currentImg, [self.pos[0]+offset, plant_y])
+
+        if plantInfo[self.plantName]["testing"] == True:
+            pygame.draw.rect(screen, (255,0,0), self.rect, 2)
         
     def update(self):
         # The plant is fully grown and no longer needs updates
