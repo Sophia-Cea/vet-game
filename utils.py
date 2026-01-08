@@ -206,6 +206,24 @@ class GameData:
     activePatients = [
     ]
 
+    currentData = {
+        "honey data": {
+            "lastHoneyHarvest" : None,
+            "frequencyOfHoney" : 10,
+            "readyForHarvest" : False,
+            "readyForPickup" : False,
+            "ready for reset" : False
+        },
+
+        "patient data" : {
+            "number patients" : 0,
+            "lastPatientTime" : None,
+            "minimum cooldown" : 3, # seconds
+            "chance of new patient" : 50,
+            "max patient limit" : 3,
+        }
+    }
+
 
 def sum_animal_values(data):
     total = []

@@ -351,6 +351,7 @@ class HoneyCombItem:
             if self.honeycombPos[1] >= self.finalPos:
                 if self.bounced:
                     self.dropped = True
+                    GameData.currentData["honey data"]["readyForPickup"] = True
                     self.dropTime = datetime.now()
                     self.dropping = False
                 if not self.bounced:
@@ -378,13 +379,12 @@ class Beehive:
         self.pos = [2470,225]
         self.image = pygame.transform.smoothscale_by(pygame.image.load("images/garden/beehive.png"), .1)
         self.honey = pygame.transform.smoothscale_by(pygame.image.load("images/garden/honey-splatters.png"), .1)
-        self.isReady = False
+        # self.isReady = False
         self.honeyTime = 10 # seconds
         self.rect = pygame.Rect(2515,255,105,125)
-        self.harvestHoney = False
-        self.harvestTime = datetime.now()
+        self.harvestedHoney = GameData.currentData["honey data"]["readyForHarvest"]
+        self.harvestTime = GameData.currentData["honey data"]["lastHoneyHarvest"]
         self.honeycomb = HoneyCombItem()
-        self.dropping = False
         self.offset = 0
 
     def resetHoneyComb(self):
@@ -394,7 +394,7 @@ class Beehive:
         self.offset = offset
         screen.blit(self.image, (self.pos[0] + offset, self.pos[1]))
         # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
-        if self.isReady:
+        if GameData.currentData["honey data"]["readyForHarvest"]== True:
             screen.blit(self.honey, (self.pos[0] + offset, self.pos[1]))
         self.honeycomb.render(screen, offset)
 
@@ -407,18 +407,8 @@ class Beehive:
         if self.honeycomb.pickUp:
             self.addToInventory()
             self.resetHoneyComb()
+            GameData.currentData["honey data"]["ready for reset"] = True
     
-
-        if self.isReady:
-            return
-        
-        current_real_time = datetime.now()
-        time_elapsed = current_real_time - self.harvestTime
-
-        required_duration = timedelta(seconds=self.honeyTime)
-        if time_elapsed >= required_duration:
-            self.isReady = True
-        
         
     def addToInventory(self):
         itemAdded = False
@@ -435,20 +425,21 @@ class Beehive:
             )
 
 
-
     def handleInput(self, events):
         pos = pygame.mouse.get_pos()
         self.honeycomb.handleInput(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if pygame.Rect(self.rect.x + self.offset, self.rect.y, self.rect.w, self.rect.h).collidepoint(pos) and self.isReady:
+                if pygame.Rect(self.rect.x + self.offset, self.rect.y, self.rect.w, self.rect.h).collidepoint(pos) and GameData.currentData["honey data"]["readyForHarvest"] == True:
                     print("clicked")
-                    self.harvestHoney = True
-                    self.isReady = False
+                    self.harvestedHoney = True
+                    GameData.currentData["honey data"]["readyForHarvest"] = False
                     self.harvestTime = datetime.now()
+                    GameData.currentData["honey data"]["lastHoneyHarvest"] = datetime.now()
                     self.honeycomb.drop()
 
                 if self.honeycomb.dropped and pygame.Rect(self.honeycomb.rect.x + self.offset, self.honeycomb.rect.y, self.honeycomb.rect.w, self.honeycomb.rect.h).collidepoint(pos):
+                    GameData.currentData["honey data"]["ready for reset"] = True
                     self.addToInventory()
                     self.resetHoneyComb()
 

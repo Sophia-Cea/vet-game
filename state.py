@@ -102,8 +102,49 @@ class EverythingState(State):
         self.interval = 100
         self.animalList = sum_animal_values(GameData.animalData)
 
-    def update(self):
-        super().update()
+        honeyData = GameData.currentData["honey data"]
+        
+        # 1. Handle the last harvest time as a datetime object
+        if GameData.currentData["honey data"]["lastHoneyHarvest"] == None:
+            GameData.currentData["honey data"]["lastHoneyHarvest"] = datetime.now()
+        
+        # 2. Define frequency as a timedelta (e.g., minutes, hours, or seconds)
+        # Assuming honeyData["frequencyOfHoney"] is now a value in minutes
+        self.honeyHarvestFrequency = timedelta(seconds=honeyData["frequencyOfHoney"])
+        
+
+    def handleHoneyLogic(self):
+        # 3. Compare current real-world time to the last harvest time
+        currentTime = datetime.now()
+        
+        if currentTime - GameData.currentData["honey data"]["lastHoneyHarvest"] >= self.honeyHarvestFrequency:
+            GameData.currentData["honey data"]["readyForHarvest"] = True
+        
+        if GameData.currentData["honey data"]["ready for reset"] == True:
+            print("resetting honey logic")
+            self.resetHoneyLogic()
+
+        # 4. Save the data back (Note: you may need to .isoformat() the 
+        # datetime object if you are saving this to a JSON file later)
+        # GameData.currentData["honey data"]["lastHoneyHarvest"] = self.lastHoneyHarvestTime
+        # GameData.currentData["honey data"]["readyForHarvest"] = self.honeyReadyForHarvest
+        # GameData.currentData["honey data"]["readyForPickup"] = self.honeyReadyForPickup
+
+
+    def resetHoneyLogic(self):
+        # self.lastHoneyHarvestTime = datetime.now()
+        # self.honeyReadyForHarvest = False
+        # self.honeyReadyForPickup = False
+
+        # GameData.currentData["honey data"]["lastHoneyHarvest"] = self.lastHoneyHarvestTime
+        GameData.currentData["honey data"]["readyForHarvest"] = False
+        GameData.currentData["honey data"]["readyForPickup"] = False
+        GameData.currentData["honey data"]["ready for reset"] = False
+
+
+
+
+    def handleCustomerLogic(self):
         getsCustomer = False
         time1 = pygame.time.get_ticks()
         if time1 - self.currentTime >= self.interval:
@@ -149,6 +190,14 @@ class EverythingState(State):
                 for state in stateManager.queue:
                     if type(state) == WaitingRoomState:
                         state.updatePatients()
+
+    
+
+    def update(self):
+        super().update()
+        self.handleCustomerLogic()
+        self.handleHoneyLogic()
+        
 
 
 class SettingsOpenState(State):
@@ -451,12 +500,11 @@ class PotionMakingState(State):
                     self.draggingItem = None
 
 
-
-
 class GardenState(State):
     def __init__(self):
         super().__init__()
-        self.background = pygame.transform.smoothscale_by(pygame.image.load("images/garden/garden.png"), .42)
+        self.background = pygame.transform.smoothscale_by(pygame.image.load("images/garden/garden-main.png"), .42)
+        self.sky = pygame.transform.smoothscale_by(pygame.image.load("images/garden/garden-sky.png"), .42)
         self.beehive = Beehive()
 
         self.mapIcon = MapButton()
@@ -471,7 +519,7 @@ class GardenState(State):
 
 
         self.offset = 0
-        self.offsetRange = (0,-1640)
+        self.offsetRange = (0,-1620)
 
         self.forestDoorCenter = (3000, 460)
         self.forestDoorRadius = 90
@@ -482,9 +530,13 @@ class GardenState(State):
         self.opacity = 0
         self.transitionSpeed = 10
 
+        self.movingLeft = False
+        self.movingRight = False
+
 
     def render(self, screen, offset):
         super().render(screen, offset)
+        screen.blit(self.sky, (self.offset,0))
         screen.blit(self.background, (self.offset,0))
         for plot in self.plots:
             plot.render(screen, self.offset)
@@ -494,7 +546,7 @@ class GardenState(State):
         for element in self.uiElements:
             element.render(screen)
 
-        pygame.draw.circle(screen, (255,0,0), [self.forestDoorCenter[0]+self.offset, self.forestDoorCenter[1]], self.forestDoorRadius, 2)
+        # pygame.draw.circle(screen, (255,0,0), [self.forestDoorCenter[0]+self.offset, self.forestDoorCenter[1]], self.forestDoorRadius, 2)
 
         screen.blit(self.transitionScreen, (0,0))
         self.transitionScreen.set_alpha(self.opacity)
@@ -529,7 +581,16 @@ class GardenState(State):
                 self.opacity = 255
                 self.transitioningOut = False
                 stateManager.push(ForestState())
+
+        if self.movingLeft:
+            leftAmount = max(abs(self.offsetRange[0]-self.offset)/20, 10)
+            self.offset = min(self.offsetRange[0], self.offset + leftAmount)
+
+        if self.movingRight:
+            rightAmount = max(abs(self.offset - self.offsetRange[1])/20, 10)
+            self.offset = max(self.offsetRange[1], self.offset - rightAmount)
     
+
         
 
     def handleInput(self, events):
@@ -558,24 +619,32 @@ class GardenState(State):
                 # go to forest
                 if math.sqrt((pos[0]-(self.forestDoorCenter[0]+self.offset))**2 + (pos[1]-self.forestDoorCenter[1])**2) < self.forestDoorRadius:
                     self.transitioningOut = True
+
             
                 if pos[0] < 150:
-                    self.offset = min(self.offsetRange[0], self.offset + 10)
+                    self.movingLeft = True
 
                 # Scroll Right (near x=1450)
                 elif pos[0] > 1450:
-                    self.offset = max(self.offsetRange[1], self.offset - 10)
+                    self.movingRight = True
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.movingLeft = False
+                self.movingRight = False
 
         # --- Keyboard Movement Continuation ---
         keys = pygame.key.get_pressed()
 
         # Left Arrow or A key
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.offset = min(self.offsetRange[0], self.offset + 10)
+        if keys[pygame.K_LEFT]:
+            leftAmount = max(abs(self.offsetRange[0]-self.offset)/20, 5)
+            # self.offset = min(self.offsetRange[0], self.offset + 10)
+            self.offset = min(self.offsetRange[0], self.offset + leftAmount)
 
         # Right Arrow or D key
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.offset = max(self.offsetRange[1], self.offset - 10)
+        if keys[pygame.K_RIGHT]:
+            rightAmount = max(abs(self.offset - self.offsetRange[1])/20, 5)
+            self.offset = max(self.offsetRange[1], self.offset - rightAmount)
 
 
 
@@ -832,15 +901,23 @@ class MapState(State):
                 for i in range(len(self.roomRects)):
                     if self.roomRects[i].collidepoint(pos):
                         if not GameData.roomData[i]["locked"]:
+                            stateManager.pop()
+                            stateManager.pop()
                             stateManager.push(PatientRoomState(i))
 
                 if self.garden1Rect.collidepoint(pos):
+                    stateManager.pop()
+                    stateManager.pop()
                     stateManager.push(GardenState())
                 
                 if self.potionRoomRect.collidepoint(pos):
+                    stateManager.pop()
+                    stateManager.pop()
                     stateManager.push(PotionRoomState())
                 
                 if self.waitingRoomRect.collidepoint(pos):
+                    stateManager.pop()
+                    stateManager.pop()
                     stateManager.push(WaitingRoomState())
 
 class PatientRoomState(State):
@@ -1197,10 +1274,11 @@ class DialogueState(State):
 
 
     def get3LineDialogue(self):
-        text1 = random.choice(["Make it quick, Doc. I’ve got mice to watch and this coughing is giving away my position."])
-        text2 = random.choice(["Is it supposed to hurt this much to purr? Because it's very inconvenient."])
-        text3 = random.choice(["I look a mess, I feel like a burnt roast, and I’m ready for my medicine."])
-        return [text1, text2, text3]
+        option1 = ["Make it quick, Doc. I’ve got mice to", "watch and this coughing is giving", "away my position."]
+        option2 = ["Is it supposed to hurt this much to", "purr? Because it's very inconvenient."]
+        option3 = ["I look a mess, I feel like a burnt", "roast, and I’m ready for my medicine."]
+        text = random.choice([option1, option2, option3])
+        return text
 
 
 
