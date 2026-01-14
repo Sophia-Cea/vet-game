@@ -213,7 +213,6 @@ class SettingsOpenState(State):
         super().update()
         self.volumeScrollBar.update()
         GameData.musicVolume = self.volumeScrollBar.offset/(self.volumeScrollBar.scrollBarRange[1]-self.volumeScrollBar.scrollBarRange[0]) # make sure to test if volume changing works
-        print(GameData.musicVolume)
         pygame.mixer.music.set_volume(GameData.musicVolume)
 
     def handleInput(self, events):
