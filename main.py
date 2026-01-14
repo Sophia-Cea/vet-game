@@ -7,8 +7,8 @@ screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 pygame.mouse.set_visible(False)
 
 # doing today:
-# - make plants harvestable
-# - redo patients coming in system
+# - make plants harvestable √
+# - redo patients coming in system 
 # - tackle the potion room issues
 # - individualize characters and their dialogue and animations
 # - maybe make all images load at startup
@@ -28,10 +28,6 @@ click_sound = pygame.mixer.Sound('audio/Cursor - 1.ogg')
 offset_x = -50  
 offset_y = -15 
 
-pygame.mixer.init()
-pygame.mixer.music.load("audio/Cozy Audio Background.wav")
-pygame.mixer.music.set_volume(0.5)
-# pygame.mixer.music.play(-1)
 
 fpsClock = pygame.time.Clock()
 screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)

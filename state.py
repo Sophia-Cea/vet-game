@@ -124,19 +124,8 @@ class EverythingState(State):
             print("resetting honey logic")
             self.resetHoneyLogic()
 
-        # 4. Save the data back (Note: you may need to .isoformat() the 
-        # datetime object if you are saving this to a JSON file later)
-        # GameData.currentData["honey data"]["lastHoneyHarvest"] = self.lastHoneyHarvestTime
-        # GameData.currentData["honey data"]["readyForHarvest"] = self.honeyReadyForHarvest
-        # GameData.currentData["honey data"]["readyForPickup"] = self.honeyReadyForPickup
-
 
     def resetHoneyLogic(self):
-        # self.lastHoneyHarvestTime = datetime.now()
-        # self.honeyReadyForHarvest = False
-        # self.honeyReadyForPickup = False
-
-        # GameData.currentData["honey data"]["lastHoneyHarvest"] = self.lastHoneyHarvestTime
         GameData.currentData["honey data"]["readyForHarvest"] = False
         GameData.currentData["honey data"]["readyForPickup"] = False
         GameData.currentData["honey data"]["ready for reset"] = False
@@ -209,12 +198,23 @@ class SettingsOpenState(State):
         self.rect = pygame.Rect(470,125,670,590)
         self.pos = [440,90]
 
+        self.volumeScrollBar = SidewaysScrollBar(pygame.Rect(610, 300, 140,24), pygame.Rect(650, 304, 20, 16), (40,20,10), (100,80,60))
+
     def render(self, screen, offset):
         super().render(screen, offset)
         screen.blit(self.backgroundDark, (0,0))
         screen.blit(self.image, self.pos)
         # pygame.draw.rect(screen, (255,0,0), self.rect, 2)
         textRenderer.render(screen, "Settings", (800, 200), 45, (40,20,10), align="center")
+        textRenderer.render(screen, "Music", (520, 300), 25, (40,20,10))
+        self.volumeScrollBar.render(screen)
+
+    def update(self):
+        super().update()
+        self.volumeScrollBar.update()
+        GameData.musicVolume = self.volumeScrollBar.offset/(self.volumeScrollBar.scrollBarRange[1]-self.volumeScrollBar.scrollBarRange[0]) # make sure to test if volume changing works
+        print(GameData.musicVolume)
+        pygame.mixer.music.set_volume(GameData.musicVolume)
 
     def handleInput(self, events):
         super().handleInput(events)
@@ -223,6 +223,8 @@ class SettingsOpenState(State):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if not self.rect.collidepoint(pos):
                     stateManager.pop()
+        
+        self.volumeScrollBar.handleInput(events)
 
 class WaitingRoomState(State):
     def __init__(self) -> None:

@@ -362,10 +362,10 @@ class PlantItemDrop:
         self.horizontalVelocity = random.randint(-3,3)
         self.verticalVelocity = random.randint(-10,-6)
         self.verticalStartPoint = plantRect.y + random.randint(10, int(plantRect.h/3))
-        self.verticalEndPoint = self.verticalStartPoint + random.randint(80,100)
+        self.verticalEndPoint = max(self.verticalStartPoint + random.randint(80,100), 530)
         self.bounced = False
-        self.acceleration = 0.5
-        self.postBounceVelocity = random.randint(-5,-3)
+        self.acceleration = 0.8
+        self.postBounceVelocity = random.randint(-8,-5)
         self.rect = None
         self.pos = [plantRect.x+plantRect.w/2-20, self.verticalStartPoint]
         self.readyForCollecting = False
@@ -376,12 +376,14 @@ class PlantItemDrop:
         if self.readyForCollecting:
             pygame.draw.rect(screen, (255,0,0), self.rect, 2)
 
+
     def update(self):
         if not self.bounced:
             self.pos[1] = self.pos[1] + self.verticalVelocity
             self.pos[0] += self.horizontalVelocity
             self.verticalVelocity += self.acceleration
             if self.pos[1] >= self.verticalEndPoint:
+                self.pos[1] = self.verticalEndPoint
                 self.bounced = True
                 self.verticalVelocity = self.postBounceVelocity
         else:

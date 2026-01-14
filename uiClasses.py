@@ -404,3 +404,37 @@ class ScrollBar:
                     self.draggingBarOffset = pos[1] - self.insideRect.y
             if event.type == pygame.MOUSEBUTTONUP:
                 self.draggingBar = False
+
+
+
+class SidewaysScrollBar(ScrollBar):
+    def __init__(self, outsideRect, insideRect, outsideColor, insideColor):
+        super().__init__(outsideRect, insideRect, outsideColor, insideColor)
+        self.scrollBarRange = [self.outsideRect.x+3, self.outsideRect.x+self.outsideRect.w-self.insideRect.w]
+        self.outsideColor = outsideColor
+        self.insideColor = insideColor
+        self.draggingBar = False
+        self.draggingBarOffset = 0
+        self.offset = 0
+        self.insideRect.x = self.outsideRect.x + (self.scrollBarRange[1]-self.scrollBarRange[0]) * GameData.musicVolume
+
+    def update(self):
+        pos = pygame.mouse.get_pos()
+        if self.draggingBar:
+            self.insideRect.x = pos[0] - self.draggingBarOffset
+            if self.insideRect.x < self.scrollBarRange[0]:
+                self.insideRect.x = self.scrollBarRange[0]
+            if self.insideRect.x > self.scrollBarRange[1]:
+                self.insideRect.x = self.scrollBarRange[1]
+
+        self.offset = self.insideRect.x - self.scrollBarRange[0]
+
+    def handleInput(self, events):
+        pos = pygame.mouse.get_pos()
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.insideRect.collidepoint(pos):
+                    self.draggingBar = True
+                    self.draggingBarOffset = pos[0] - self.insideRect.x
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.draggingBar = False

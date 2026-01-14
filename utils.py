@@ -9,6 +9,11 @@ from datetime import datetime, timedelta
 pygame.init()
 
 
+pygame.mixer.init()
+pygame.mixer.music.load("audio/Cozy Audio Background.wav")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)
+
 def resize(image, scale):
     imgSize = image.get_size()
     imgSizeScaled = [imgSize[0]*scale, imgSize[1]*scale]
@@ -35,6 +40,7 @@ class GameData:
     gold = 0
     silver = 0
     copper = 0 
+    musicVolume = .5
     newCustomerChance = 60
     # newCustomerChance = 200
     customerLimit = 3
