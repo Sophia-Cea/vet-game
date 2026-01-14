@@ -524,3 +524,109 @@ class Beehive:
                     self.addToInventory()
                     self.resetHoneyComb()
 
+
+
+class Cloud:
+    def __init__(self):
+        self.image = random.choice([
+            pygame.image.load("images/garden/cloud-1.png"),
+            pygame.image.load("images/garden/cloud-2.png"),
+            pygame.image.load("images/garden/cloud-3.png"),
+            pygame.image.load("images/garden/cloud-4.png")
+        ])
+        self.image = pygame.transform.smoothscale_by(self.image, .25)
+        self.speed = random.randint(4,12)/5
+        self.pos = [random.randint(3000,5000), random.randint(-200, 0)]
+        self.finished = False
+
+    def render(self, screen, offset):
+        screen.blit(self.image, (self.pos[0]+offset, self.pos[1]))
+
+    def update(self):
+        self.pos[0] -= self.speed
+        if self.pos[0] < -400:
+            self.finished = True
+
+    def handleInput(self, events):
+        pass
+
+class Raincloud:
+    def __init__(self):
+        self.image = random.choice([
+            pygame.image.load("images/garden/raincloud-1.png"),
+            pygame.image.load("images/garden/raincloud-2.png"),
+            pygame.image.load("images/garden/raincloud-3.png"),
+            pygame.image.load("images/garden/raincloud-4.png")
+        ])
+        self.image = pygame.transform.smoothscale_by(self.image, .25)
+        self.speed = random.randint(4,12)/5
+        self.pos = [3000,random.randint(150, 400)]
+        self.finished = False
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], 300, 100)
+
+    def render(self, screen, offset):
+        screen.blit(self.image, (self.pos[0]+offset, self.pos[1]))
+
+    def update(self):
+        self.pos[0] -= self.speed
+        self.rect.x -= self.speed
+        if self.pos[0] < -400:
+            self.finished = True
+
+    def handleInput(self, events):
+        pass
+
+
+
+
+class GardenSky:
+    def __init__(self):
+        self.clouds = []
+        self.rainClouds = []
+        self.raining = False
+        self.rainstormDuration = None
+        self.rainstormStart = None
+
+        for i in range(10):
+            self.clouds.append(Cloud())
+
+    def render(self, screen, offset):
+        for cloud in self.clouds:
+            cloud.render(screen, offset)
+
+        for cloud in self.rainClouds:
+            cloud.render(screen, offset)
+
+
+    def update(self):
+        for cloud in self.clouds:
+            cloud.update()
+            if cloud.finished == True:
+                self.clouds.remove(cloud)
+                if self.raining == False:
+                    self.clouds.append(Cloud())
+        
+        for cloud in self.rainClouds:
+            cloud.update()
+            if cloud.finished == True:
+                self.rainClouds.remove(cloud)
+                if self.raining == True:
+                    self.rainClouds.append(Raincloud())
+
+            
+            if len(self.rainClouds) == 0:
+                for i in range(10):
+                    self.rainClouds.append(Raincloud())
+        
+        if not self.raining and len(self.clouds) < 10:
+            self.clouds.append(Cloud())
+            
+        
+
+
+    def handleInput(self, events):
+        for cloud in self.clouds:
+            cloud.handleInput(events)
+        
+        for cloud in self.rainClouds:
+            cloud.handleInput(events)

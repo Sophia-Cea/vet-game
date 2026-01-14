@@ -518,6 +518,8 @@ class GardenState(State):
         for i, plot in enumerate(GameData.gardenData["plots"]):
             self.plots.append(GardenPlot(i))
 
+        self.gardenSky = GardenSky()
+
 
         self.offset = 0
         self.offsetRange = (0,-1620)
@@ -538,6 +540,7 @@ class GardenState(State):
     def render(self, screen, offset):
         super().render(screen, offset)
         screen.blit(self.sky, (self.offset,0))
+        self.gardenSky.render(screen, self.offset)
         screen.blit(self.background, (self.offset,0))
         for plot in self.plots:
             plot.render(screen, self.offset)
@@ -555,6 +558,7 @@ class GardenState(State):
     def update(self):
         super().update()
         self.beehive.update()
+        self.gardenSky.update()
 
         for i, plot in enumerate(self.plots):
             plot.update()
@@ -598,6 +602,7 @@ class GardenState(State):
         super().handleInput(events)
         pos = pygame.mouse.get_pos()
         self.beehive.handleInput(events)
+        self.gardenSky.handleInput(events)
 
         for plot in self.plots:
             plot.handleInput(events)
