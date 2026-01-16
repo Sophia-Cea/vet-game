@@ -550,6 +550,8 @@ class Cloud:
     def handleInput(self, events):
         pass
 
+
+
 class Raincloud:
     def __init__(self):
         self.image = random.choice([
@@ -560,7 +562,7 @@ class Raincloud:
         ])
         self.image = pygame.transform.smoothscale_by(self.image, .25)
         self.speed = random.randint(4,12)/5
-        self.pos = [3000,random.randint(150, 400)]
+        self.pos = [random.randint(3000,5000),random.randint(-200, 0)]
         self.finished = False
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 300, 100)
 
@@ -583,50 +585,47 @@ class GardenSky:
     def __init__(self):
         self.clouds = []
         self.rainClouds = []
-        self.raining = False
-        self.rainstormDuration = None
-        self.rainstormStart = None
-
+        # We no longer need local duration/start variables here
         for i in range(10):
+            self.clouds.append(Cloud())
+
+    def update(self):
+        # Mirror the global state
+        is_raining_globally = GameData.currentData["rain data"]["is raining"]
+
+        # Update existing clouds
+        for cloud in self.clouds[:]:
+            cloud.update()
+            if cloud.finished:
+                self.clouds.remove(cloud)
+                # Only replace if it's NOT raining
+                if not is_raining_globally:
+                    self.clouds.append(Cloud())
+        
+        for cloud in self.rainClouds[:]:
+            cloud.update()
+            if cloud.finished:
+                self.rainClouds.remove(cloud)
+                # Only replace if it IS raining
+                if is_raining_globally:
+                    self.rainClouds.append(Raincloud())
+
+        # Logic to fill the sky based on global state
+        if is_raining_globally and len(self.rainClouds) == 0:
+            for i in range(10):
+                self.rainClouds.append(Raincloud())
+        
+        if not is_raining_globally and len(self.clouds) < 10:
             self.clouds.append(Cloud())
 
     def render(self, screen, offset):
         for cloud in self.clouds:
             cloud.render(screen, offset)
-
         for cloud in self.rainClouds:
             cloud.render(screen, offset)
-
-
-    def update(self):
-        for cloud in self.clouds:
-            cloud.update()
-            if cloud.finished == True:
-                self.clouds.remove(cloud)
-                if self.raining == False:
-                    self.clouds.append(Cloud())
-        
-        for cloud in self.rainClouds:
-            cloud.update()
-            if cloud.finished == True:
-                self.rainClouds.remove(cloud)
-                if self.raining == True:
-                    self.rainClouds.append(Raincloud())
-
-            
-            if len(self.rainClouds) == 0:
-                for i in range(10):
-                    self.rainClouds.append(Raincloud())
-        
-        if not self.raining and len(self.clouds) < 10:
-            self.clouds.append(Cloud())
-            
-        
-
 
     def handleInput(self, events):
         for cloud in self.clouds:
             cloud.handleInput(events)
-        
         for cloud in self.rainClouds:
             cloud.handleInput(events)

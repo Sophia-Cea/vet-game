@@ -36,7 +36,6 @@ with open("jsonData/plantData.json") as f:
 
 
 class GameData:
-    # playerIngredients = gameData["playerIngredients"]
     gold = 0
     silver = 0
     copper = 0 
@@ -227,6 +226,14 @@ class GameData:
             "minimum cooldown" : 3, # seconds
             "chance of new patient" : 50,
             "max patient limit" : 3,
+        },
+
+        "rain data" : {
+            "last rainstorm" : None,
+            "is raining" : False,
+            "rainstorm start" : None,
+            "minimum cooldown" : 5, # seconds
+            "rainstorm duration" : None
         }
     }
 

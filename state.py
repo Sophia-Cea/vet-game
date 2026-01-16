@@ -101,6 +101,7 @@ class EverythingState(State):
         self.currentTime = pygame.time.get_ticks()
         self.interval = 100
         self.animalList = sum_animal_values(GameData.animalData)
+        self.rainCheckTimer = pygame.time.get_ticks()
 
         honeyData = GameData.currentData["honey data"]
         
@@ -131,6 +132,38 @@ class EverythingState(State):
         GameData.currentData["honey data"]["ready for reset"] = False
 
 
+    def handleRainstormLogic(self):
+        rain_data = GameData.currentData["rain data"]
+        now = datetime.now()
+
+        # Only run this logic once every 1000ms (1 second)
+        if pygame.time.get_ticks() - self.rainCheckTimer >= 1000:
+            self.rainCheckTimer = pygame.time.get_ticks()
+
+            if not rain_data["is raining"]:
+                # 1. Check Cooldown
+                can_rain = True
+                if rain_data["last rainstorm"] is not None:
+                    cooldown_period = timedelta(seconds=rain_data["minimum cooldown"])
+                    if now - rain_data["last rainstorm"] < cooldown_period:
+                        can_rain = False
+
+                # 2. Roll for rain
+                if can_rain:
+                    if random.randint(1, 40) == 1: # chance of rain
+                        print("A rainstorm is starting!")
+                        rain_data["is raining"] = True
+                        rain_data["rainstorm start"] = now
+                        rain_data["rainstorm duration"] = random.randint(10, 20)
+            
+            else:
+                # 3. Handle Ongoing Rain Expiration
+                elapsed = (now - rain_data["rainstorm start"]).total_seconds()
+                if elapsed >= rain_data["rainstorm duration"]:
+                    print("The rain has stopped.")
+                    rain_data["is raining"] = False
+                    rain_data["last rainstorm"] = now # Start cooldown now
+                    rain_data["rainstorm start"] = None
 
 
     def handleCustomerLogic(self):
@@ -186,6 +219,7 @@ class EverythingState(State):
         super().update()
         self.handleCustomerLogic()
         self.handleHoneyLogic()
+        self.handleRainstormLogic()
         
 
 
@@ -559,6 +593,7 @@ class GardenState(State):
         super().update()
         self.beehive.update()
         self.gardenSky.update()
+
 
         for i, plot in enumerate(self.plots):
             plot.update()
