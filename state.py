@@ -589,6 +589,9 @@ class GardenState(State):
         screen.blit(self.transitionScreen, (0,0))
         self.transitionScreen.set_alpha(self.opacity)
 
+        for drop in self.gardenSky.droplets:
+            drop.render(screen, self.offset)
+
     def update(self):
         super().update()
         self.beehive.update()

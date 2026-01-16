@@ -525,7 +525,7 @@ class Beehive:
                     self.resetHoneyComb()
 
 
-
+'''
 class Raindrop:
     def __init__(self, pos):
         self.animation = Animation("images/garden/raindrop/", [
@@ -545,6 +545,26 @@ class Raindrop:
         self.animation.update()
         if self.animation.currentFrame == len(self.animation.images) - 1:
             self.animationFinished == True
+'''
+
+class Raindrop:
+    def __init__(self, pos):
+        self.pos = pos
+        self.velocity = 0.1
+        self.acceleration = 1
+        self.dropRad = 3
+        self.animationFinished = False
+        self.endPos = random.randint(500,900)
+
+    def render(self, screen, offset):
+        pygame.draw.ellipse(screen, (50,100,255), (self.pos[0]+offset, self.pos[1], self.dropRad, min(max(self.dropRad*self.velocity/6, 3), 50)))
+
+
+    def update(self):
+        self.pos[1] += self.velocity
+        self.velocity += self.acceleration
+        if self.pos[1] >= self.endPos:
+            self.animationFinished = True
 
 class Cloud:
     def __init__(self):
@@ -584,11 +604,8 @@ class Raincloud:
         self.pos = [random.randint(3000,5000),random.randint(-200, 0)]
         self.finished = False
         self.rect = pygame.Rect(self.pos[0]+50, self.pos[1]+150, 300, 100)
-        self.droplets = []
 
     def render(self, screen, offset):
-        for drop in self.droplets:
-            drop.render(screen, offset)
         screen.blit(self.image, (self.pos[0]+offset, self.pos[1]))
         # pygame.draw.rect(screen, (255,0,0), (self.rect.x+offset, self.rect.y, self.rect.w, self.rect.h), 2)
 
@@ -597,18 +614,7 @@ class Raincloud:
         self.rect.x -= self.speed
         if self.pos[0] < -400:
             self.finished = True
-        
-        for drop in self.droplets:
-            drop.update()
-            drop.pos[0] -= self.speed
-            if drop.animationFinished:
-                self.droplets.pos = [random.randint(self.rect.x, self.rect.x+self.rect.w), self.rect.y + self.rect.h * .75]
-        
-        if len(self.droplets) < 10 and self.pos[0] < 2500:
-            if random.randint(1,100) == 1:
-                self.droplets.append(Raindrop([random.randint(self.rect.x, self.rect.x+self.rect.w), self.rect.y + self.rect.h * .75]))
 
-        
 
     def handleInput(self, events):
         pass
@@ -623,41 +629,85 @@ class GardenSky:
         # We no longer need local duration/start variables here
         for i in range(10):
             self.clouds.append(Cloud())
+        
+        self.droplets = []
+        self.maxDroplets = 1000
+        
+        self.greyOverlay = pygame.Surface((WIDTH, HEIGHT))
+        self.greyOverlay.fill((40,40,60))
+        self.greyOverlay.set_alpha(0)
+        self.maxOpacity = 100
+        self.currentOpacity = 0
+        self.transitioningIn = False
+        self.transitioningOut = False
 
     def update(self):
         # Mirror the global state
-        is_raining_globally = GameData.currentData["rain data"]["is raining"]
+        is_raining = GameData.currentData["rain data"]["is raining"]
 
         # Update existing clouds
-        for cloud in self.clouds[:]:
+        for cloud in self.clouds:
             cloud.update()
             if cloud.finished:
                 self.clouds.remove(cloud)
                 # Only replace if it's NOT raining
-                if not is_raining_globally:
+                if not is_raining:
                     self.clouds.append(Cloud())
-        
-        for cloud in self.rainClouds[:]:
+
+        for drop in self.droplets:
+            drop.update()
+            if drop.animationFinished:
+                self.droplets.remove(drop)
+    
+
+        lastCloudsBiggestPos = 0
+        for cloud in self.rainClouds:
+            if cloud.pos[0] > lastCloudsBiggestPos:
+                lastCloudsBiggestPos = cloud.pos[0]
+
+            if cloud.pos[0] < 1500:
+                if len(self.droplets) < self.maxDroplets:
+                    self.droplets.append(Raindrop([random.randint(0,2800), random.randint(-50,50)]))
+                    if self.currentOpacity < self.maxOpacity and not self.transitioningOut and not self.transitioningIn:
+                        self.transitioningIn = True
+
             cloud.update()
             if cloud.finished:
                 self.rainClouds.remove(cloud)
                 # Only replace if it IS raining
-                if is_raining_globally:
+                if is_raining:
                     self.rainClouds.append(Raincloud())
+        
+        if not is_raining and lastCloudsBiggestPos < 400:
+            self.transitioningOut = True
+        
+        if self.transitioningIn:
+            self.currentOpacity = min(self.maxOpacity, self.currentOpacity+1)
+            self.greyOverlay.set_alpha(self.currentOpacity)
+            if self.currentOpacity >= self.maxOpacity:
+                self.transitioningIn = False
+        
+        if self.transitioningOut:
+            self.currentOpacity = max(0, self.currentOpacity-1)
+            self.greyOverlay.set_alpha(self.currentOpacity)
+            if self.currentOpacity <= 0:
+                self.transitioningOut = False
 
         # Logic to fill the sky based on global state
-        if is_raining_globally and len(self.rainClouds) == 0:
+        if is_raining and len(self.rainClouds) == 0:
             for i in range(10):
                 self.rainClouds.append(Raincloud())
         
-        if not is_raining_globally and len(self.clouds) < 10:
+        if not is_raining and len(self.clouds) < 10:
             self.clouds.append(Cloud())
 
     def render(self, screen, offset):
+        screen.blit(self.greyOverlay, (0,0))
         for cloud in self.clouds:
             cloud.render(screen, offset)
         for cloud in self.rainClouds:
             cloud.render(screen, offset)
+        
 
     def handleInput(self, events):
         for cloud in self.clouds:
