@@ -150,7 +150,7 @@ class EverythingState(State):
 
                 # 2. Roll for rain
                 if can_rain:
-                    if random.randint(1, 40) == 1: # chance of rain
+                    if random.randint(1, 10) == 1: # chance of rain
                         print("A rainstorm is starting!")
                         rain_data["is raining"] = True
                         rain_data["rainstorm start"] = now

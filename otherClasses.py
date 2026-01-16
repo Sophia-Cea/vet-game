@@ -526,6 +526,26 @@ class Beehive:
 
 
 
+class Raindrop:
+    def __init__(self, pos):
+        self.animation = Animation("images/garden/raindrop/", [
+            "rain1.png", "rain2.png", "rain3.png", "rain4.png",
+            "rain5.png", "rain6.png", "rain7.png", "rain8.png", 
+            "rain9.png", "rain10.png", "rain11.png", "rain12.png", 
+            "rain13.png", "rain14.png", "rain15.png"
+        ], 1.5, 0.2)
+
+        self.pos = pos
+        self.animationFinished = False
+
+    def render(self, screen, offset):
+        self.animation.render(screen, [self.pos[0] + offset, self.pos[1]])
+
+    def update(self):
+        self.animation.update()
+        if self.animation.currentFrame == len(self.animation.images) - 1:
+            self.animationFinished == True
+
 class Cloud:
     def __init__(self):
         self.image = random.choice([
@@ -551,7 +571,6 @@ class Cloud:
         pass
 
 
-
 class Raincloud:
     def __init__(self):
         self.image = random.choice([
@@ -564,16 +583,32 @@ class Raincloud:
         self.speed = random.randint(4,12)/5
         self.pos = [random.randint(3000,5000),random.randint(-200, 0)]
         self.finished = False
-        self.rect = pygame.Rect(self.pos[0], self.pos[1], 300, 100)
+        self.rect = pygame.Rect(self.pos[0]+50, self.pos[1]+150, 300, 100)
+        self.droplets = []
 
     def render(self, screen, offset):
+        for drop in self.droplets:
+            drop.render(screen, offset)
         screen.blit(self.image, (self.pos[0]+offset, self.pos[1]))
+        # pygame.draw.rect(screen, (255,0,0), (self.rect.x+offset, self.rect.y, self.rect.w, self.rect.h), 2)
 
     def update(self):
         self.pos[0] -= self.speed
         self.rect.x -= self.speed
         if self.pos[0] < -400:
             self.finished = True
+        
+        for drop in self.droplets:
+            drop.update()
+            drop.pos[0] -= self.speed
+            if drop.animationFinished:
+                self.droplets.pos = [random.randint(self.rect.x, self.rect.x+self.rect.w), self.rect.y + self.rect.h * .75]
+        
+        if len(self.droplets) < 10 and self.pos[0] < 2500:
+            if random.randint(1,100) == 1:
+                self.droplets.append(Raindrop([random.randint(self.rect.x, self.rect.x+self.rect.w), self.rect.y + self.rect.h * .75]))
+
+        
 
     def handleInput(self, events):
         pass
